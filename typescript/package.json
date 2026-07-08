@@ -1,6 +1,6 @@
 {
   "name": "@1msg/sdk",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "TypeScript SDK for the 1msg WhatsApp API",
   "license": "MIT",
   "repository": {
@@ -20,6 +20,7 @@
   "files": [
     "dist",
     "README.md",
+    "AGENTS.md",
     "LICENSE"
   ],
   "scripts": {

@@ -22,6 +22,10 @@ await client.sendMessage({ body: 'Hello', chatId: '12020721369@c.us' });
 
 Source: [`typescript/`](./typescript)
 
+**Documentation:**
+- [README.md](./typescript/README.md) — full developer guide
+- [AGENTS.md](./typescript/AGENTS.md) — machine-readable index for AI coding agents
+
 ## Other languages
 
 Additional SDKs will be published gradually to their respective package registries.
