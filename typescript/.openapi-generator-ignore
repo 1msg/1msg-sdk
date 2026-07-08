@@ -1,0 +1,6 @@
+# Hand-written SDK wrapper files — never overwrite on regeneration
+src/chat-api-config.ts
+src/chat-api-client.ts
+../chat-api-config.ts
+../chat-api-client.ts
+../index.ts
