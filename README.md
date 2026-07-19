@@ -38,3 +38,11 @@ implementation("io.1msg:sdk:1.0.0")
 ```
 
 Source: [`java/`](./java)
+
+## Kotlin
+
+```gradle
+implementation("io.1msg:sdk-kotlin:1.0.0")
+```
+
+Source: [`kotlin/`](./kotlin)
