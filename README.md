@@ -54,3 +54,11 @@ libraryDependencies += "io.1msg" %% "sdk-scala" % "1.0.0"
 ```
 
 Source: [`scala/`](./scala)
+
+## C#
+
+```bash
+dotnet add package OneMsg.ChatApi --version 1.0.0
+```
+
+Source: [`csharp/`](./csharp)
