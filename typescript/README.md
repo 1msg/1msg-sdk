@@ -14,8 +14,8 @@ parameter, response code, type export, and common integration pattern is documen
 | **Platform** | [platform.1msg.io](https://platform.1msg.io/) |
 | **Support** | support@1msg.io |
 | **OpenAPI version** | 1.0.0 |
-| **Operations** | 33 |
-| **Exported models** | 36 |
+| **Operations** | 60 |
+| **Exported models** | 57 |
 | **AI agent guide** | [AGENTS.md](./AGENTS.md) |
 
 ---
@@ -38,14 +38,19 @@ parameter, response code, type export, and common integration pattern is documen
 14. [groups](#groups)
 15. [flows](#flows)
 16. [templates](#templates)
-17. [Exported types — full reference](#exported-types--full-reference)
-18. [Cookbook](#cookbook--common-integration-recipes)
-19. [FAQ](#faq)
-20. [Troubleshooting](#troubleshooting)
-21. [Error handling](#error-handling)
-22. [Low-level access](#low-level-access)
-23. [Regeneration and versioning](#regeneration-and-versioning)
-24. [License](#license)
+17. [calling](#calling)
+18. [catalog](#catalog)
+19. [channel](#channel)
+20. [users](#users)
+21. [webhooks](#webhooks)
+22. [Exported types — full reference](#exported-types--full-reference)
+23. [Cookbook](#cookbook--common-integration-recipes)
+24. [FAQ](#faq)
+25. [Troubleshooting](#troubleshooting)
+26. [Error handling](#error-handling)
+27. [Low-level access](#low-level-access)
+28. [Regeneration and versioning](#regeneration-and-versioning)
+29. [License](#license)
 
 ---
 
@@ -157,11 +162,11 @@ await client.sendMessage({ body: "Hi", chatId: "12020721369@c.us" });
 
 ## API reference
 
-**33 operations** documented below with HTTP mapping, schemas, SDK and cURL examples.
+**60 operations** documented below with HTTP mapping, schemas, SDK and cURL examples.
 
 ## messaging
 
-Namespace: `client.messaging` → `MessagingApi` (14 operations)
+Namespace: `client.messaging` → `MessagingApi` (23 operations)
 
 ### `createReadMessage`
 
@@ -173,7 +178,7 @@ Namespace: `client.messaging` → `MessagingApi` (14 operations)
 | SDK group | `client.messaging` |
 | API class | `MessagingApi` |
 | operationId | `createReadMessage` |
-| Signature | `createReadMessage(token: string, messageId?: string, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<CreateReadMessage200Response>` |
+| Signature | `createReadMessage(token: string, messageId?: string, msgId?: string, typingIndicator?: boolean, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<CreateReadMessage200Response>` |
 
 #### Authentication
 
@@ -188,7 +193,9 @@ Namespace: `client.messaging` → `MessagingApi` (14 operations)
 
 | Field | Type | Required | Description |
 |-------|------|----------|-------------|
-| `messageId` | string | optional | Message ID. Example: 0XzkmGNn4prUAQlzsHApGNRXQ0U |
+| `messageId` | string | optional |  |
+| `msgId` | string | optional |  |
+| `typingIndicator` | boolean | optional | Show WhatsApp typing indicator (max 25s or until reply) |
 
 
 **Responses**
@@ -258,6 +265,148 @@ curl -X POST 'https://api.1msg.io/{instanceId}/uploadMedia?token={token}' \
   -d '{}'
 ```
 
+### `deleteMedia`
+
+#### Delete media from WABA storage
+
+Delete previously uploaded media by numeric `mediaId` (from `/uploadMedia`). This is the canonical deletion endpoint and uses the REST `DELETE` verb on the media resource path. The older `POST /deleteMedia` is a deprecated alias.
+
+| | |
+|---|---|
+| HTTP | `DELETE /media/{mediaId}` |
+| SDK group | `client.messaging` |
+| API class | `MessagingApi` |
+| operationId | `deleteMedia` |
+| Signature | `deleteMedia(token: string, mediaId: string, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<SuccessResponse>` |
+
+#### Authentication
+
+- Query parameter `token` (required on every call)
+- SDK: pass `client.config.token` as the first method argument
+
+#### Path / query parameters
+
+- `mediaId` (path, string, required) — Numeric WABA media id
+
+#### Request
+
+- `token` (string, required) — channel API token
+
+**Responses**
+
+| Status | Description | Schema |
+|--------|-------------|--------|
+| `200` | Operation successful | `SuccessResponse` |
+| `400` | Invalid request parameters | `ErrorResponse` |
+| `401` | Invalid or missing authentication token | `ErrorResponse` |
+| `500` | Internal server error | `ErrorResponse` |
+
+#### SDK example
+
+```typescript
+await client.messaging.deleteMedia(client.config.token, undefined);
+```
+
+#### cURL equivalent
+
+```bash
+curl -X DELETE 'https://api.1msg.io/{instanceId}/media/{mediaId}?token={token}'
+```
+
+### `deleteMediaLegacy`
+
+#### Delete media from WABA storage (deprecated alias)
+
+**Deprecated.** Use `DELETE /media/{mediaId}` instead. This POST alias is kept for backward compatibility with earlier integrations. New integrations should call `DELETE /media/{mediaId}`: 1msg follows REST conventions for resource deletion going forward (delete a resource with the `DELETE` verb on its resource path).
+
+| | |
+|---|---|
+| HTTP | `POST /deleteMedia` |
+| SDK group | `client.messaging` |
+| API class | `MessagingApi` |
+| operationId | `deleteMediaLegacy` |
+| Signature | `deleteMediaLegacy(token: string, deleteMediaLegacyRequest: DeleteMediaLegacyRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<SuccessResponse>` |
+
+#### Authentication
+
+- Query parameter `token` (required on every call)
+- SDK: pass `client.config.token` as the first method argument
+
+#### Request
+
+- `token` (string, required) — channel API token
+
+**Request body schema**
+
+| Field | Type | Required | Description |
+|-------|------|----------|-------------|
+| `mediaId` | string | **required** | Numeric WABA media id |
+
+
+**Responses**
+
+| Status | Description | Schema |
+|--------|-------------|--------|
+| `200` | Operation successful | `SuccessResponse` |
+| `400` | Invalid request parameters | `ErrorResponse` |
+| `401` | Invalid or missing authentication token | `ErrorResponse` |
+| `500` | Internal server error | `ErrorResponse` |
+
+#### SDK example
+
+```typescript
+await client.messaging.deleteMediaLegacy(client.config.token, {});
+```
+
+#### cURL equivalent
+
+```bash
+curl -X POST 'https://api.1msg.io/{instanceId}/deleteMedia?token={token}' \
+  -H 'Content-Type: application/json' \
+  -d '{}'
+```
+
+### `getMmLiteStatus`
+
+#### Get MM Lite availability and status
+
+| | |
+|---|---|
+| HTTP | `GET /mmLiteStatus` |
+| SDK group | `client.messaging` |
+| API class | `MessagingApi` |
+| operationId | `getMmLiteStatus` |
+| Signature | `getMmLiteStatus(token: string, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<GetMmLiteStatus200Response>` |
+
+#### Authentication
+
+- Query parameter `token` (required on every call)
+- SDK: pass `client.config.token` as the first method argument
+
+#### Request
+
+- `token` (string, required) — channel API token
+
+**Responses**
+
+| Status | Description | Schema |
+|--------|-------------|--------|
+| `200` | MM Lite status for the channel | `—` |
+| `401` | Invalid or missing authentication token | `ErrorResponse` |
+| `500` | Internal server error | `ErrorResponse` |
+
+#### SDK example
+
+```typescript
+await client.messaging.getMmLiteStatus(client.config.token);
+```
+
+#### cURL equivalent
+
+```bash
+curl -X GET 'https://api.1msg.io/{instanceId}/mmLiteStatus?token={token}'
+```
+
 ### `listMessages`
 
 #### Get messages list
@@ -300,6 +449,111 @@ const page = await client.messaging.listMessages(
 
 ```bash
 curl -X GET 'https://api.1msg.io/{instanceId}/messages?token={token}'
+```
+
+### `retrieveMedia`
+
+#### Retrieve uploaded media metadata
+
+Get WABA media URL and metadata by mediaId (from uploadMedia). The returned `url` is temporary and typically expires within ~5 minutes.
+
+| | |
+|---|---|
+| HTTP | `GET /retrieveMedia` |
+| SDK group | `client.messaging` |
+| API class | `MessagingApi` |
+| operationId | `retrieveMedia` |
+| Signature | `retrieveMedia(token: string, mediaId: string, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<RetrieveMedia200Response>` |
+
+#### Authentication
+
+- Query parameter `token` (required on every call)
+- SDK: pass `client.config.token` as the first method argument
+
+#### Path / query parameters
+
+- `mediaId` (query, string, required) — mediaId
+
+#### Request
+
+- `token` (string, required) — channel API token
+
+**Responses**
+
+| Status | Description | Schema |
+|--------|-------------|--------|
+| `200` | Media metadata | `—` |
+| `400` | Invalid request parameters | `ErrorResponse` |
+| `401` | Invalid or missing authentication token | `ErrorResponse` |
+| `500` | Internal server error | `ErrorResponse` |
+
+#### SDK example
+
+```typescript
+await client.messaging.retrieveMedia(client.config.token, undefined);
+```
+
+#### cURL equivalent
+
+```bash
+curl -X GET 'https://api.1msg.io/{instanceId}/retrieveMedia?token={token}'
+```
+
+### `sendAddressMessage`
+
+#### Send address request message
+
+Request shipping address from the user. **India only** (WhatsApp Cloud API address messages). Requires an India WhatsApp Business number and an India (+91) recipient. Meta validates eligibility; mismatches return WABA errors such as `Unsupported Interactive Message type` (HTTP 200 with `sent: false`). The outbound payload always sends `action.parameters.country = "IN"`. A `country` field in the request body (if present) is ignored.
+
+| | |
+|---|---|
+| HTTP | `POST /sendAddressMessage` |
+| SDK group | `client.messaging` |
+| API class | `MessagingApi` |
+| operationId | `sendAddressMessage` |
+| Signature | `sendAddressMessage(token: string, sendAddressMessageRequest: SendAddressMessageRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<MessageSentResponse>` |
+
+#### Authentication
+
+- Query parameter `token` (required on every call)
+- SDK: pass `client.config.token` as the first method argument
+
+#### Request
+
+- `token` (string, required) — channel API token
+
+**Request body schema**
+
+| Field | Type | Required | Description |
+|-------|------|----------|-------------|
+| `phone` | integer | optional |  |
+| `chatId` | string | optional |  |
+| `body` | string | **required** | Body text shown with the address request |
+| `quotedMsgId` | string | optional |  |
+
+
+**Responses**
+
+| Status | Description | Schema |
+|--------|-------------|--------|
+| `200` | Message sent successfully | `MessageSentResponse` |
+| `400` | Invalid request parameters | `ErrorResponse` |
+| `401` | Invalid or missing authentication token | `ErrorResponse` |
+| `429` | Rate limit exceeded | `ErrorResponse` |
+| `500` | Internal server error | `ErrorResponse` |
+
+#### SDK example
+
+```typescript
+await client.messaging.sendAddressMessage(client.config.token, {});
+```
+
+#### cURL equivalent
+
+```bash
+curl -X POST 'https://api.1msg.io/{instanceId}/sendAddressMessage?token={token}' \
+  -H 'Content-Type: application/json' \
+  -d '{}'
 ```
 
 ### `sendButton`
@@ -585,19 +839,19 @@ curl -X POST 'https://api.1msg.io/{instanceId}/sendContact?token={token}' \
   }'
 ```
 
-### `sendFile`
+### `sendCtaUrl`
 
-#### Send a File
+#### Send CTA URL interactive message
 
-Send a file to an existing chat. (Only if the dialogue has an Open Session). Only one of two parameters is needed to determine the destination - chatId or phone.
+Send an interactive message with a single call-to-action URL button.
 
 | | |
 |---|---|
-| HTTP | `POST /sendFile` |
+| HTTP | `POST /sendCtaUrl` |
 | SDK group | `client.messaging` |
 | API class | `MessagingApi` |
-| operationId | `sendFile` |
-| Signature | `sendFile(token: string, body: string, filename: string, caption?: string, quotedMsgId?: string, chatId?: string, phone?: number, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<MessageSentResponse>` |
+| operationId | `sendCtaUrl` |
+| Signature | `sendCtaUrl(token: string, sendCtaUrlRequest: SendCtaUrlRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<MessageSentResponse>` |
 
 #### Authentication
 
@@ -612,12 +866,76 @@ Send a file to an existing chat. (Only if the dialogue has an Open Session). Onl
 
 | Field | Type | Required | Description |
 |-------|------|----------|-------------|
-| `body` | string | **required** | File source: - HTTP/HTTPS URL (https://example.com/file.pdf) - Base64-encoded file with MIME (data:image/jpeg;base64,/9j/4AAQ...) - Form-data field (minLength=1, example="https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.pdf") |
-| `filename` | string | **required** | File name with extension (required for mime type detection) (minLength=1, maxLength=255, pattern=`^[^/\\:*?"<>|]+\.[a-zA-Z0-9]+$`, example="document.pdf") |
-| `caption` | string | optional | Text caption under the file (maxLength=1024, example="Here is your document") |
-| `quotedMsgId` | string | optional | Message ID to quote/reply to (pattern=`^wamid\..+$`, example="wamid.HBgNMTIwMjA3MjEzNjkVAgARGBI5RTBCNUY0QUE2RjZBQzhGNDkA") |
-| `chatId` | string | optional | Chat ID in format: phone@c.us or phone@g.us (pattern=`^[0-9]+@[cg]\.us$`, example="12020721369@c.us") |
-| `phone` | integer | optional | Phone number starting with country code (example=12020721369) |
+| `phone` | integer | optional |  |
+| `chatId` | string | optional |  |
+| `body` | string | **required** |  |
+| `displayText` | string | **required** | Button label |
+| `url` | string | **required** |  |
+| `header` | object | optional |  |
+| `footer` | string | optional |  |
+| `quotedMsgId` | string | optional |  |
+
+
+**Responses**
+
+| Status | Description | Schema |
+|--------|-------------|--------|
+| `200` | Message sent successfully | `MessageSentResponse` |
+| `400` | Invalid request parameters | `ErrorResponse` |
+| `401` | Invalid or missing authentication token | `ErrorResponse` |
+| `429` | Rate limit exceeded | `ErrorResponse` |
+| `500` | Internal server error | `ErrorResponse` |
+
+#### SDK example
+
+```typescript
+await client.messaging.sendCtaUrl(client.config.token, {});
+```
+
+#### cURL equivalent
+
+```bash
+curl -X POST 'https://api.1msg.io/{instanceId}/sendCtaUrl?token={token}' \
+  -H 'Content-Type: application/json' \
+  -d '{}'
+```
+
+### `sendFile`
+
+#### Send a File
+
+Send a file to an existing chat. (Only if the dialogue has an Open Session). Only one of two parameters is needed to determine the destination - chatId or phone.
+
+| | |
+|---|---|
+| HTTP | `POST /sendFile` |
+| SDK group | `client.messaging` |
+| API class | `MessagingApi` |
+| operationId | `sendFile` |
+| Signature | `sendFile(token: string, body?: string, filename?: string, mediaId?: string, mediaType?: SendFileMediaTypeEnum, voice?: boolean, caption?: string, quotedMsgId?: string, chatId?: string, phone?: number, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<MessageSentResponse>` |
+
+#### Authentication
+
+- Query parameter `token` (required on every call)
+- SDK: pass `client.config.token` as the first method argument
+
+#### Request
+
+- `token` (string, required) — channel API token
+
+**Request body schema**
+
+| Field | Type | Required | Description |
+|-------|------|----------|-------------|
+| `body` | string | optional | File source (required unless mediaId is set): - HTTP/HTTPS URL - Base64 data URI |
+| `filename` | string | optional | File name with extension (required with body, not with mediaId) |
+| `mediaId` | string | optional | WABA media id from uploadMedia (alternative to body) |
+| `mediaType` | enum("image" | "video" | "audio" | "document") | optional | Required when using mediaId |
+| `voice` | boolean | optional | Native WhatsApp voice note (audio/ogg only) |
+| `caption` | string | optional |  (maxLength=1024) |
+| `quotedMsgId` | string | optional |  |
+| `chatId` | string | optional |  |
+| `phone` | integer | optional |  |
 
 **OpenAPI example body**
 
@@ -1082,6 +1400,185 @@ curl -X POST 'https://api.1msg.io/{instanceId}/sendMessage?token={token}' \
   }'
 ```
 
+### `sendOrderDetails`
+
+#### Send order details (India payments template)
+
+Send a WhatsApp **order details** payment message via a pre-approved **Utility** template with an `ORDER_DETAILS` button. **India only** (WhatsApp Payments India). Requires: - India WhatsApp Business Account / phone number - Commerce-enabled channel - Approved template with an `ORDER_DETAILS` button Prefer this helper when you want a dedicated payload (`order`, `referenceId`, `currency`, `paymentSettings`). Under the hood it builds a Cloud API template `button` component with `sub_type: order_details` and calls the same path as `POST /sendTemplate`. To send the same message **outside the 24-hour window**, you can also call `POST /sendTemplate` directly with a `params` button: ```json { "type": "button", "sub_type": "order_details", "index": 0, "parameters": [{ "type": "action", "action": { "order_details": { "reference_id": "order-123", "type": "digital-goods", "payment_type": "upi", "payment_configuration": "payment_config_name", "currency": "INR", "total_amount": { "offset": 100, "value": 65000 }, "order": { "status": "pending", "items": [], "subtotal": { "offset": 100, "value": 65000 } } } } }] } ``` See Meta/360dialog: Payments India — order details template message.
+
+| | |
+|---|---|
+| HTTP | `POST /sendOrderDetails` |
+| SDK group | `client.messaging` |
+| API class | `MessagingApi` |
+| operationId | `sendOrderDetails` |
+| Signature | `sendOrderDetails(token: string, sendOrderDetailsRequest: SendOrderDetailsRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<MessageSentResponse>` |
+
+#### Authentication
+
+- Query parameter `token` (required on every call)
+- SDK: pass `client.config.token` as the first method argument
+
+#### Request
+
+- `token` (string, required) — channel API token
+
+**Request body schema**
+
+| Field | Type | Required | Description |
+|-------|------|----------|-------------|
+| `phone` | integer | optional | Recipient phone (India E.164 digits, no +) |
+| `chatId` | string | optional | Recipient chatId (phone@c.us / bsuid@lid / …) |
+| `template` | string | **required** | Approved template name with ORDER_DETAILS button |
+| `namespace` | string | **required** | Template namespace |
+| `language` | object | **required** | Template language object, e.g. code "en" or policy "deterministic" with code "en". |
+| `params` | array<object> | optional | Extra template components (header/body). An order_details button is appended automatically if missing. |
+| `order` | object | **required** | Order object (items, subtotal, tax, shipping, discount, status) per Meta Payments India docs. |
+| `referenceId` | string | optional | Unique order/payment reference id |
+| `paymentSettings` | object | optional | Optional payment_settings (UPI / payment gateway / payment link). |
+| `currency` | string | optional | Currency code (INR for India) (example="INR") |
+
+**OpenAPI example body**
+
+```json
+{
+  "phone": 919876543210,
+  "template": "order_details_utility",
+  "namespace": "your_namespace",
+  "language": {
+    "code": "en"
+  },
+  "referenceId": "order-123",
+  "currency": "INR",
+  "order": {
+    "status": "pending",
+    "items": [
+      {
+        "retailer_id": "SKU-1",
+        "name": "Item",
+        "amount": {
+          "offset": 100,
+          "value": 50000
+        },
+        "quantity": 1
+      }
+    ],
+    "subtotal": {
+      "offset": 100,
+      "value": 50000
+    }
+  }
+}
+```
+
+
+**Responses**
+
+| Status | Description | Schema |
+|--------|-------------|--------|
+| `200` | Message sent successfully | `MessageSentResponse` |
+| `400` | Invalid request parameters | `ErrorResponse` |
+| `401` | Invalid or missing authentication token | `ErrorResponse` |
+| `500` | Internal server error | `ErrorResponse` |
+
+#### SDK example
+
+```typescript
+await client.messaging.sendOrderDetails(client.config.token, {});
+```
+
+#### cURL equivalent
+
+```bash
+curl -X POST 'https://api.1msg.io/{instanceId}/sendOrderDetails?token={token}' \
+  -H 'Content-Type: application/json' \
+  -d '{
+    "phone": 919876543210,
+    "template": "order_details_utility",
+    "namespace": "your_namespace",
+    "language": {
+      "code": "en"
+    },
+    "referenceId": "order-123",
+    "currency": "INR",
+    "order": {
+      "status": "pending",
+      "items": [
+        {
+          "retailer_id": "SKU-1",
+          "name": "Item",
+          "amount": {
+            "offset": 100,
+            "value": 50000
+          },
+          "quantity": 1
+        }
+      ],
+      "subtotal": {
+        "offset": 100,
+        "value": 50000
+      }
+    }
+  }'
+```
+
+### `sendPaymentRequest`
+
+#### Send payment request (regional)
+
+Send a regional payment request interactive message (beta scaffold). `region` must be IN, SG, or BR. Payload shape follows Meta regional payments docs; verify on stage before production use. Full regional builders are not implemented yet.
+
+| | |
+|---|---|
+| HTTP | `POST /sendPaymentRequest` |
+| SDK group | `client.messaging` |
+| API class | `MessagingApi` |
+| operationId | `sendPaymentRequest` |
+| Signature | `sendPaymentRequest(token: string, sendPaymentRequestRequest: SendPaymentRequestRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<MessageSentResponse>` |
+
+#### Authentication
+
+- Query parameter `token` (required on every call)
+- SDK: pass `client.config.token` as the first method argument
+
+#### Request
+
+- `token` (string, required) — channel API token
+
+**Request body schema**
+
+| Field | Type | Required | Description |
+|-------|------|----------|-------------|
+| `phone` | integer | **required** |  |
+| `region` | enum("IN" | "SG" | "BR") | **required** |  |
+| `body` | string | optional |  |
+| `interactive` | object | optional |  |
+| `action` | object | optional |  |
+
+
+**Responses**
+
+| Status | Description | Schema |
+|--------|-------------|--------|
+| `200` | Message sent successfully | `MessageSentResponse` |
+| `400` | Invalid request parameters | `ErrorResponse` |
+| `401` | Invalid or missing authentication token | `ErrorResponse` |
+| `500` | Internal server error | `ErrorResponse` |
+
+#### SDK example
+
+```typescript
+await client.messaging.sendPaymentRequest(client.config.token, {});
+```
+
+#### cURL equivalent
+
+```bash
+curl -X POST 'https://api.1msg.io/{instanceId}/sendPaymentRequest?token={token}' \
+  -H 'Content-Type: application/json' \
+  -d '{}'
+```
+
 ### `sendProduct`
 
 #### Send a Product
@@ -1204,9 +1701,67 @@ curl -X POST 'https://api.1msg.io/{instanceId}/sendReaction?token={token}' \
   }'
 ```
 
+### `sendSticker`
+
+#### Send sticker message
+
+Send a WhatsApp sticker by mediaId or link URL.
+
+| | |
+|---|---|
+| HTTP | `POST /sendSticker` |
+| SDK group | `client.messaging` |
+| API class | `MessagingApi` |
+| operationId | `sendSticker` |
+| Signature | `sendSticker(token: string, sendStickerRequest: SendStickerRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<MessageSentResponse>` |
+
+#### Authentication
+
+- Query parameter `token` (required on every call)
+- SDK: pass `client.config.token` as the first method argument
+
+#### Request
+
+- `token` (string, required) — channel API token
+
+**Request body schema**
+
+| Field | Type | Required | Description |
+|-------|------|----------|-------------|
+| `phone` | integer | optional |  |
+| `chatId` | string | optional |  |
+| `mediaId` | string | optional | WABA media id from uploadMedia |
+| `link` | string | optional | Public URL to webp sticker |
+| `quotedMsgId` | string | optional |  |
+
+
+**Responses**
+
+| Status | Description | Schema |
+|--------|-------------|--------|
+| `200` | Message sent successfully | `MessageSentResponse` |
+| `400` | Invalid request parameters | `ErrorResponse` |
+| `401` | Invalid or missing authentication token | `ErrorResponse` |
+| `429` | Rate limit exceeded | `ErrorResponse` |
+| `500` | Internal server error | `ErrorResponse` |
+
+#### SDK example
+
+```typescript
+await client.messaging.sendSticker(client.config.token, {});
+```
+
+#### cURL equivalent
+
+```bash
+curl -X POST 'https://api.1msg.io/{instanceId}/sendSticker?token={token}' \
+  -H 'Content-Type: application/json' \
+  -d '{}'
+```
+
 ## profile
 
-Namespace: `client.profile` → `ProfileApi` (1 operations)
+Namespace: `client.profile` → `ProfileApi` (2 operations)
 
 ### `getMe`
 
@@ -1249,6 +1804,65 @@ const profile = await client.profile.getMe(client.config.token);
 
 ```bash
 curl -X GET 'https://api.1msg.io/{instanceId}/me?token={token}'
+```
+
+### `updateMe`
+
+#### Update profile info
+
+Update WhatsApp Business Account profile fields. At least one of about, description, email, photo, address, vertical, websites is required. Blocked when the channel subscription limit is exceeded.
+
+| | |
+|---|---|
+| HTTP | `POST /me` |
+| SDK group | `client.profile` |
+| API class | `ProfileApi` |
+| operationId | `updateMe` |
+| Signature | `updateMe(token: string, updateMeRequest?: UpdateMeRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<{ [key: string]: any; }>` |
+
+#### Authentication
+
+- Query parameter `token` (required on every call)
+- SDK: pass `client.config.token` as the first method argument
+
+#### Request
+
+- `token` (string, required) — channel API token
+
+**Request body schema**
+
+| Field | Type | Required | Description |
+|-------|------|----------|-------------|
+| `about` | string | optional | Profile About section |
+| `address` | string | optional |  |
+| `description` | string | optional | Business description (max 256 characters) |
+| `email` | string | optional |  |
+| `vertical` | string | optional | Industry of the business |
+| `photo` | string | optional | HTTPS URL or data:image/...;base64,... payload |
+| `websites` | array<string> | optional |  |
+
+
+**Responses**
+
+| Status | Description | Schema |
+|--------|-------------|--------|
+| `200` | Profile updated | `—` |
+| `401` | Invalid or missing authentication token | `ErrorResponse` |
+| `422` | Wrong request (no updatable fields) | `ErrorResponse` |
+| `500` | Internal server error | `ErrorResponse` |
+
+#### SDK example
+
+```typescript
+await client.profile.updateMe(client.config.token, {});
+```
+
+#### cURL equivalent
+
+```bash
+curl -X POST 'https://api.1msg.io/{instanceId}/me?token={token}' \
+  -H 'Content-Type: application/json' \
+  -d '{}'
 ```
 
 ## groups
@@ -1533,7 +2147,7 @@ curl -X GET 'https://api.1msg.io/{instanceId}/groups?token={token}'
 
 ## flows
 
-Namespace: `client.flows` → `FlowsApi` (9 operations)
+Namespace: `client.flows` → `FlowsApi` (11 operations)
 
 ### `createFlows`
 
@@ -1793,6 +2407,49 @@ await client.flows.getFlowsFlowIdPreview('FLOWID', client.config.token, undefine
 curl -X GET 'https://api.1msg.io/{instanceId}/flows/{flowId}/preview?token={token}'
 ```
 
+### `getWhatsappBusinessEncryption`
+
+#### Get business encryption public key
+
+Retrieve the WhatsApp business public key and signature status for this channel's phone number. Required before publishing or sending Flows that use data encryption.
+
+| | |
+|---|---|
+| HTTP | `GET /whatsapp_business_encryption` |
+| SDK group | `client.flows` |
+| API class | `FlowsApi` |
+| operationId | `getWhatsappBusinessEncryption` |
+| Signature | `getWhatsappBusinessEncryption(token: string, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<GetWhatsappBusinessEncryption200Response>` |
+
+#### Authentication
+
+- Query parameter `token` (required on every call)
+- SDK: pass `client.config.token` as the first method argument
+
+#### Request
+
+- `token` (string, required) — channel API token
+
+**Responses**
+
+| Status | Description | Schema |
+|--------|-------------|--------|
+| `200` | Business encryption key status | `—` |
+| `401` | Invalid or missing authentication token | `ErrorResponse` |
+| `500` | Internal server error | `ErrorResponse` |
+
+#### SDK example
+
+```typescript
+await client.flows.getWhatsappBusinessEncryption(client.config.token);
+```
+
+#### cURL equivalent
+
+```bash
+curl -X GET 'https://api.1msg.io/{instanceId}/whatsapp_business_encryption?token={token}'
+```
+
 ### `listFlows`
 
 #### List Flows
@@ -1922,9 +2579,115 @@ await client.flows.patchFlowsFlowIdMetadata('FLOWID', client.config.token, undef
 curl -X PATCH 'https://api.1msg.io/{instanceId}/flows/{flowId}/metadata?token={token}'
 ```
 
+### `setWhatsappBusinessEncryption`
+
+#### Set business encryption public key
+
+Upload and sign a 2048-bit RSA business public key (PEM) for this channel's phone number. Meta requires a signed key before Flow publish/send. Only one active key per number; a new upload replaces the previous key.
+
+| | |
+|---|---|
+| HTTP | `POST /whatsapp_business_encryption` |
+| SDK group | `client.flows` |
+| API class | `FlowsApi` |
+| operationId | `setWhatsappBusinessEncryption` |
+| Signature | `setWhatsappBusinessEncryption(token: string, setWhatsappBusinessEncryptionRequest: SetWhatsappBusinessEncryptionRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<CreateCommerce200Response>` |
+
+#### Authentication
+
+- Query parameter `token` (required on every call)
+- SDK: pass `client.config.token` as the first method argument
+
+#### Request
+
+- `token` (string, required) — channel API token
+
+**Request body schema**
+
+| Field | Type | Required | Description |
+|-------|------|----------|-------------|
+| `business_public_key` | string | **required** | 2048-bit RSA public key in PEM format (example="-----BEGIN PUBLIC KEY-----\nMIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEA...\n-----END PUBLIC KEY-----\n") |
+
+
+**Responses**
+
+| Status | Description | Schema |
+|--------|-------------|--------|
+| `200` | Public key uploaded and signed | `—` |
+| `400` | Missing or invalid PEM key | `—` |
+| `401` | Invalid or missing authentication token | `ErrorResponse` |
+| `500` | Internal server error | `ErrorResponse` |
+
+#### SDK example
+
+```typescript
+await client.flows.setWhatsappBusinessEncryption(client.config.token, {});
+```
+
+#### cURL equivalent
+
+```bash
+curl -X POST 'https://api.1msg.io/{instanceId}/whatsapp_business_encryption?token={token}' \
+  -H 'Content-Type: application/json' \
+  -d '{}'
+```
+
 ## templates
 
-Namespace: `client.templates` → `TemplatesApi` (2 operations)
+Namespace: `client.templates` → `TemplatesApi` (4 operations)
+
+### `addTemplate`
+
+#### Create message template
+
+| | |
+|---|---|
+| HTTP | `POST /addTemplate` |
+| SDK group | `client.templates` |
+| API class | `TemplatesApi` |
+| operationId | `addTemplate` |
+| Signature | `addTemplate(token: string, addTemplateRequest?: AddTemplateRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<{ [key: string]: any; }>` |
+
+#### Authentication
+
+- Query parameter `token` (required on every call)
+- SDK: pass `client.config.token` as the first method argument
+
+#### Request
+
+- `token` (string, required) — channel API token
+
+**Request body schema**
+
+| Field | Type | Required | Description |
+|-------|------|----------|-------------|
+| `name` | string | optional |  |
+| `category` | string | optional |  |
+| `language` | string | optional |  |
+| `components` | array<object> | optional |  |
+
+
+**Responses**
+
+| Status | Description | Schema |
+|--------|-------------|--------|
+| `200` | Template created | `—` |
+| `401` | Invalid or missing authentication token | `ErrorResponse` |
+| `500` | Internal server error | `ErrorResponse` |
+
+#### SDK example
+
+```typescript
+await client.templates.addTemplate(client.config.token, {});
+```
+
+#### cURL equivalent
+
+```bash
+curl -X POST 'https://api.1msg.io/{instanceId}/addTemplate?token={token}' \
+  -H 'Content-Type: application/json' \
+  -d '{}'
+```
 
 ### `listTemplates`
 
@@ -1965,9 +2728,54 @@ const templates = await client.templates.listTemplates(client.config.token);
 curl -X GET 'https://api.1msg.io/{instanceId}/templates?token={token}'
 ```
 
+### `removeTemplate`
+
+#### Remove message template
+
+| | |
+|---|---|
+| HTTP | `POST /removeTemplate` |
+| SDK group | `client.templates` |
+| API class | `TemplatesApi` |
+| operationId | `removeTemplate` |
+| Signature | `removeTemplate(token: string, requestBody?: { [key: string]: any; }, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<{ [key: string]: any; }>` |
+
+#### Authentication
+
+- Query parameter `token` (required on every call)
+- SDK: pass `client.config.token` as the first method argument
+
+#### Request
+
+- `token` (string, required) — channel API token
+
+**Responses**
+
+| Status | Description | Schema |
+|--------|-------------|--------|
+| `200` | Template removed | `—` |
+| `401` | Invalid or missing authentication token | `ErrorResponse` |
+| `500` | Internal server error | `ErrorResponse` |
+
+#### SDK example
+
+```typescript
+await client.templates.removeTemplate(client.config.token, {});
+```
+
+#### cURL equivalent
+
+```bash
+curl -X POST 'https://api.1msg.io/{instanceId}/removeTemplate?token={token}' \
+  -H 'Content-Type: application/json' \
+  -d '{}'
+```
+
 ### `sendTemplate`
 
 #### Send Template Message
+
+Send a WhatsApp template message (works outside the 24-hour session window). Supported `params` button `sub_type` values include: `url`, `quick_reply`, `copy_code` / `coupon_code`, `catalog`, `flow`, `limited_time_offer`, and **`order_details`** (WhatsApp Payments **India only** — requires an approved Utility template with an ORDER_DETAILS button). For India order/invoice payments outside 24h, include a button component: ```json { "type": "button", "sub_type": "order_details", "index": 0, "parameters": [{ "type": "action", "action": { "order_details": { "reference_id": "...", "currency": "INR", "order": {} } } }] } ``` Convenience wrapper with structured fields: `POST /sendOrderDetails`.
 
 | | |
 |---|---|
@@ -1997,6 +2805,9 @@ curl -X GET 'https://api.1msg.io/{instanceId}/templates?token={token}'
 | `namespace` | string | optional |  |
 | `params` | array<object> | optional |  |
 | `phone` | string | optional |  |
+| `useMMlite` | boolean | optional | Force Marketing Messages API (POST marketing_messages). If omitted: auto for MARKETING category when channel has mm_lite_enabled and mm_lite_available service settings. |
+| `messageActivitySharing` | boolean | optional | Sets message_activity_sharing on WABA payload. Enables click tracking webhooks. Requires MM Lite path. Ignored on Cloud API fallback. |
+| `messageSendTtlSeconds` | integer | optional | Template message TTL in seconds (message_send_ttl_seconds). MARKETING via MM Lite: 43200–2592000. AUTHENTICATION: 30–900. UTILITY: 30–43200. AUTH/UTILITY also accept -1 (30-day custom TTL). |
 
 **OpenAPI example body**
 
@@ -2050,6 +2861,680 @@ curl -X POST 'https://api.1msg.io/{instanceId}/sendTemplate?token={token}' \
   }'
 ```
 
+## calling
+
+Namespace: `client.calling` → `CallingApi` (3 operations)
+
+### `getCallingSettings`
+
+#### Get calling settings
+
+WhatsApp Calling API settings (beta). Requires Meta Calling enablement on the WABA. Not production-complete — paths and webhook field names may change. Trial/subscription-limited channels are blocked.
+
+| | |
+|---|---|
+| HTTP | `GET /callingSettings` |
+| SDK group | `client.calling` |
+| API class | `CallingApi` |
+| operationId | `getCallingSettings` |
+| Signature | `getCallingSettings(token: string, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<{ [key: string]: any; }>` |
+
+#### Authentication
+
+- Query parameter `token` (required on every call)
+- SDK: pass `client.config.token` as the first method argument
+
+#### Request
+
+- `token` (string, required) — channel API token
+
+**Responses**
+
+| Status | Description | Schema |
+|--------|-------------|--------|
+| `200` | Calling settings | `—` |
+| `401` | Invalid or missing authentication token | `ErrorResponse` |
+| `500` | Internal server error | `ErrorResponse` |
+
+#### SDK example
+
+```typescript
+await client.calling.getCallingSettings(client.config.token);
+```
+
+#### cURL equivalent
+
+```bash
+curl -X GET 'https://api.1msg.io/{instanceId}/callingSettings?token={token}'
+```
+
+### `initiateCall`
+
+#### Initiate WhatsApp call
+
+Outbound Calling API (beta). Requires Meta Calling enablement and product consent. Not production-complete — verify on stage before relying on this in production. Trial/subscription-limited channels are blocked.
+
+| | |
+|---|---|
+| HTTP | `POST /initiateCall` |
+| SDK group | `client.calling` |
+| API class | `CallingApi` |
+| operationId | `initiateCall` |
+| Signature | `initiateCall(token: string, requestBody?: { [key: string]: any; }, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<{ [key: string]: any; }>` |
+
+#### Authentication
+
+- Query parameter `token` (required on every call)
+- SDK: pass `client.config.token` as the first method argument
+
+#### Request
+
+- `token` (string, required) — channel API token
+
+**Responses**
+
+| Status | Description | Schema |
+|--------|-------------|--------|
+| `200` | Call initiated | `—` |
+| `401` | Invalid or missing authentication token | `ErrorResponse` |
+| `500` | Internal server error | `ErrorResponse` |
+
+#### SDK example
+
+```typescript
+await client.calling.initiateCall(client.config.token, {});
+```
+
+#### cURL equivalent
+
+```bash
+curl -X POST 'https://api.1msg.io/{instanceId}/initiateCall?token={token}' \
+  -H 'Content-Type: application/json' \
+  -d '{}'
+```
+
+### `updateCallingSettings`
+
+#### Update calling settings
+
+Update WhatsApp Calling API settings (beta). Requires Meta Calling enablement. Trial/subscription-limited channels are blocked.
+
+| | |
+|---|---|
+| HTTP | `POST /callingSettings` |
+| SDK group | `client.calling` |
+| API class | `CallingApi` |
+| operationId | `updateCallingSettings` |
+| Signature | `updateCallingSettings(token: string, requestBody?: { [key: string]: any; }, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<{ [key: string]: any; }>` |
+
+#### Authentication
+
+- Query parameter `token` (required on every call)
+- SDK: pass `client.config.token` as the first method argument
+
+#### Request
+
+- `token` (string, required) — channel API token
+
+**Responses**
+
+| Status | Description | Schema |
+|--------|-------------|--------|
+| `200` | Updated | `—` |
+| `401` | Invalid or missing authentication token | `ErrorResponse` |
+| `500` | Internal server error | `ErrorResponse` |
+
+#### SDK example
+
+```typescript
+await client.calling.updateCallingSettings(client.config.token, {});
+```
+
+#### cURL equivalent
+
+```bash
+curl -X POST 'https://api.1msg.io/{instanceId}/callingSettings?token={token}' \
+  -H 'Content-Type: application/json' \
+  -d '{}'
+```
+
+## catalog
+
+Namespace: `client.catalog` → `CatalogApi` (2 operations)
+
+### `createCommerce`
+
+#### Set Commerce Settings
+
+Update catalog/cart commerce settings via the `params` object. - `params.is_catalog_visible` — show catalog storefront icon (`true`) or hide it (`false`). - `params.is_cart_enabled` — enable cart (`true`) or disable it (`false`). Blocked when the channel subscription limit is exceeded. Requires a commerce-capable channel (Cloud Functions `/commerceWAV2`).
+
+| | |
+|---|---|
+| HTTP | `POST /commerce` |
+| SDK group | `client.catalog` |
+| API class | `CatalogApi` |
+| operationId | `createCommerce` |
+| Signature | `createCommerce(token: string, createCommerceRequest: CreateCommerceRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<CreateCommerce200Response>` |
+
+#### Authentication
+
+- Query parameter `token` (required on every call)
+- SDK: pass `client.config.token` as the first method argument
+
+#### Request
+
+- `token` (string, required) — channel API token
+
+**Request body schema**
+
+| Field | Type | Required | Description |
+|-------|------|----------|-------------|
+| `params` | object | **required** |  |
+  | `is_cart_enabled` | boolean | **required** | Enable cart |
+  | `is_catalog_visible` | boolean | **required** | Show catalog storefront icon |
+
+**OpenAPI example body**
+
+```json
+{
+  "params": {
+    "is_cart_enabled": true,
+    "is_catalog_visible": true
+  }
+}
+```
+
+
+**Responses**
+
+| Status | Description | Schema |
+|--------|-------------|--------|
+| `200` | Commerce updated | `—` |
+| `401` | Invalid or missing authentication token | `ErrorResponse` |
+| `500` | Internal server error | `ErrorResponse` |
+
+#### SDK example
+
+```typescript
+await client.catalog.createCommerce(client.config.token, {});
+```
+
+#### cURL equivalent
+
+```bash
+curl -X POST 'https://api.1msg.io/{instanceId}/commerce?token={token}' \
+  -H 'Content-Type: application/json' \
+  -d '{
+    "params": {
+      "is_cart_enabled": true,
+      "is_catalog_visible": true
+    }
+  }'
+```
+
+### `getCommerce`
+
+#### Get Commerce Settings
+
+Returns catalog/cart commerce settings for the channel. - `is_catalog_visible` — show catalog storefront icon (`true`) or hide it (`false`). - `is_cart_enabled` — enable cart (`true`) or disable it (`false`).
+
+| | |
+|---|---|
+| HTTP | `GET /commerce` |
+| SDK group | `client.catalog` |
+| API class | `CatalogApi` |
+| operationId | `getCommerce` |
+| Signature | `getCommerce(token: string, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<Array<GetCommerce200ResponseInner>` |
+
+#### Authentication
+
+- Query parameter `token` (required on every call)
+- SDK: pass `client.config.token` as the first method argument
+
+#### Request
+
+- `token` (string, required) — channel API token
+
+**Responses**
+
+| Status | Description | Schema |
+|--------|-------------|--------|
+| `200` | Commerce settings | `—` |
+| `401` | Invalid or missing authentication token | `ErrorResponse` |
+| `500` | Internal server error | `ErrorResponse` |
+
+#### SDK example
+
+```typescript
+await client.catalog.getCommerce(client.config.token);
+```
+
+#### cURL equivalent
+
+```bash
+curl -X GET 'https://api.1msg.io/{instanceId}/commerce?token={token}'
+```
+
+## channel
+
+Namespace: `client.channel` → `ChannelApi` (3 operations)
+
+### `getConversationalAutomation`
+
+#### Get conversational automation settings
+
+Get WhatsApp conversational components for the channel (welcome message, ice-breaker prompts, and slash commands). Proxies Meta/360dialog `GET /conversational_automation`. When `enable_welcome_message` is true and a user opens chat for the first time, Meta delivers a webhook message with `type: request_welcome`. The inbound formatter exposes that as `type: "request_welcome"` and `meta.request_welcome: true` so your webhook can send a custom welcome reply.
+
+| | |
+|---|---|
+| HTTP | `GET /conversationalAutomation` |
+| SDK group | `client.channel` |
+| API class | `ChannelApi` |
+| operationId | `getConversationalAutomation` |
+| Signature | `getConversationalAutomation(token: string, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<ConversationalAutomation>` |
+
+#### Authentication
+
+- Query parameter `token` (required on every call)
+- SDK: pass `client.config.token` as the first method argument
+
+#### Request
+
+- `token` (string, required) — channel API token
+
+**Responses**
+
+| Status | Description | Schema |
+|--------|-------------|--------|
+| `200` | Conversational automation settings | `ConversationalAutomation` |
+| `401` | Invalid or missing authentication token | `ErrorResponse` |
+| `500` | Internal server error | `ErrorResponse` |
+
+#### SDK example
+
+```typescript
+await client.channel.getConversationalAutomation(client.config.token);
+```
+
+#### cURL equivalent
+
+```bash
+curl -X GET 'https://api.1msg.io/{instanceId}/conversationalAutomation?token={token}'
+```
+
+### `getStatus`
+
+#### Get channel status
+
+Returns WhatsApp Business API client connection status.
+
+| | |
+|---|---|
+| HTTP | `GET /status` |
+| SDK group | `client.channel` |
+| API class | `ChannelApi` |
+| operationId | `getStatus` |
+| Signature | `getStatus(token: string, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<{ [key: string]: any; }>` |
+
+#### Authentication
+
+- Query parameter `token` (required on every call)
+- SDK: pass `client.config.token` as the first method argument
+
+#### Request
+
+- `token` (string, required) — channel API token
+
+**Responses**
+
+| Status | Description | Schema |
+|--------|-------------|--------|
+| `200` | Channel status | `—` |
+| `401` | Invalid or missing authentication token | `ErrorResponse` |
+| `500` | Internal server error | `ErrorResponse` |
+
+#### SDK example
+
+```typescript
+await client.channel.getStatus(client.config.token);
+```
+
+#### cURL equivalent
+
+```bash
+curl -X GET 'https://api.1msg.io/{instanceId}/status?token={token}'
+```
+
+### `setConversationalAutomation`
+
+#### Set conversational automation settings
+
+Update WhatsApp conversational components. Allowed body fields (others are ignored): - `enable_welcome_message` (boolean) - `prompts` (string[], max 4, each ≤ 80 chars) - `commands` (`{ command_name, command_description }[]`) Proxies Meta/360dialog `POST /conversational_automation`.
+
+| | |
+|---|---|
+| HTTP | `POST /conversationalAutomation` |
+| SDK group | `client.channel` |
+| API class | `ChannelApi` |
+| operationId | `setConversationalAutomation` |
+| Signature | `setConversationalAutomation(token: string, conversationalAutomation: ConversationalAutomation, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<{ [key: string]: any; }>` |
+
+#### Authentication
+
+- Query parameter `token` (required on every call)
+- SDK: pass `client.config.token` as the first method argument
+
+#### Request
+
+- `token` (string, required) — channel API token
+
+**Request body schema**
+
+| Field | Type | Required | Description |
+|-------|------|----------|-------------|
+| `enable_welcome_message` | boolean | optional | Enable the automatic welcome message for new conversations |
+| `prompts` | array<string> | optional | Ice-breaker prompt strings (max 4, each ≤ 80 characters) |
+| `commands` | array<object> | optional | Slash commands shown in WhatsApp |
+
+**OpenAPI example body**
+
+```json
+{
+  "enable_welcome_message": true,
+  "prompts": [
+    "How can I help?"
+  ],
+  "commands": [
+    {
+      "command_name": "help",
+      "command_description": "Get support options"
+    }
+  ]
+}
+```
+
+
+**Responses**
+
+| Status | Description | Schema |
+|--------|-------------|--------|
+| `200` | Updated settings from WABA, or legacy response.error wrapper on upstream failure. | `—` |
+| `401` | Invalid or missing authentication token | `ErrorResponse` |
+| `500` | Internal server error | `ErrorResponse` |
+
+#### SDK example
+
+```typescript
+await client.channel.setConversationalAutomation(client.config.token, undefined);
+```
+
+#### cURL equivalent
+
+```bash
+curl -X POST 'https://api.1msg.io/{instanceId}/conversationalAutomation?token={token}' \
+  -H 'Content-Type: application/json' \
+  -d '{
+    "enable_welcome_message": true,
+    "prompts": [
+      "How can I help?"
+    ],
+    "commands": [
+      {
+        "command_name": "help",
+        "command_description": "Get support options"
+      }
+    ]
+  }'
+```
+
+## users
+
+Namespace: `client.users` → `UsersApi` (3 operations)
+
+### `blockUser`
+
+#### Block WhatsApp user
+
+| | |
+|---|---|
+| HTTP | `POST /blockUser` |
+| SDK group | `client.users` |
+| API class | `UsersApi` |
+| operationId | `blockUser` |
+| Signature | `blockUser(token: string, blockUserRequest: BlockUserRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<SuccessResponse>` |
+
+#### Authentication
+
+- Query parameter `token` (required on every call)
+- SDK: pass `client.config.token` as the first method argument
+
+#### Request
+
+- `token` (string, required) — channel API token
+
+**Request body schema**
+
+| Field | Type | Required | Description |
+|-------|------|----------|-------------|
+| `phone` | integer | **required** |  |
+
+
+**Responses**
+
+| Status | Description | Schema |
+|--------|-------------|--------|
+| `200` | Operation successful | `SuccessResponse` |
+| `400` | Invalid request parameters | `ErrorResponse` |
+| `401` | Invalid or missing authentication token | `ErrorResponse` |
+| `500` | Internal server error | `ErrorResponse` |
+
+#### SDK example
+
+```typescript
+await client.users.blockUser(client.config.token, {});
+```
+
+#### cURL equivalent
+
+```bash
+curl -X POST 'https://api.1msg.io/{instanceId}/blockUser?token={token}' \
+  -H 'Content-Type: application/json' \
+  -d '{}'
+```
+
+### `listBlockedUsers`
+
+#### List blocked WhatsApp users
+
+Returns users currently blocked on this WhatsApp channel (WABA `GET /block_users`). Same channel token auth as `blockUser` / `unblockUser`.
+
+| | |
+|---|---|
+| HTTP | `GET /blockedUsers` |
+| SDK group | `client.users` |
+| API class | `UsersApi` |
+| operationId | `listBlockedUsers` |
+| Signature | `listBlockedUsers(token: string, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<ListBlockedUsers200Response>` |
+
+#### Authentication
+
+- Query parameter `token` (required on every call)
+- SDK: pass `client.config.token` as the first method argument
+
+#### Request
+
+- `token` (string, required) — channel API token
+
+**Responses**
+
+| Status | Description | Schema |
+|--------|-------------|--------|
+| `200` | Blocked users list | `—` |
+| `401` | Invalid or missing authentication token | `ErrorResponse` |
+| `500` | Internal server error | `ErrorResponse` |
+
+#### SDK example
+
+```typescript
+await client.users.listBlockedUsers(client.config.token);
+```
+
+#### cURL equivalent
+
+```bash
+curl -X GET 'https://api.1msg.io/{instanceId}/blockedUsers?token={token}'
+```
+
+### `unblockUser`
+
+#### Unblock WhatsApp user
+
+| | |
+|---|---|
+| HTTP | `POST /unblockUser` |
+| SDK group | `client.users` |
+| API class | `UsersApi` |
+| operationId | `unblockUser` |
+| Signature | `unblockUser(token: string, blockUserRequest: BlockUserRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<SuccessResponse>` |
+
+#### Authentication
+
+- Query parameter `token` (required on every call)
+- SDK: pass `client.config.token` as the first method argument
+
+#### Request
+
+- `token` (string, required) — channel API token
+
+**Request body schema**
+
+| Field | Type | Required | Description |
+|-------|------|----------|-------------|
+| `phone` | integer | **required** |  |
+
+
+**Responses**
+
+| Status | Description | Schema |
+|--------|-------------|--------|
+| `200` | Operation successful | `SuccessResponse` |
+| `400` | Invalid request parameters | `ErrorResponse` |
+| `401` | Invalid or missing authentication token | `ErrorResponse` |
+| `500` | Internal server error | `ErrorResponse` |
+
+#### SDK example
+
+```typescript
+await client.users.unblockUser(client.config.token, {});
+```
+
+#### cURL equivalent
+
+```bash
+curl -X POST 'https://api.1msg.io/{instanceId}/unblockUser?token={token}' \
+  -H 'Content-Type: application/json' \
+  -d '{}'
+```
+
+## webhooks
+
+Namespace: `client.webhooks` → `WebhooksApi` (2 operations)
+
+### `getWebhook`
+
+#### Get webhook URL
+
+Returns the configured client webhook URL for this channel.
+
+| | |
+|---|---|
+| HTTP | `GET /webhook` |
+| SDK group | `client.webhooks` |
+| API class | `WebhooksApi` |
+| operationId | `getWebhook` |
+| Signature | `getWebhook(token: string, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<GetWebhook200Response>` |
+
+#### Authentication
+
+- Query parameter `token` (required on every call)
+- SDK: pass `client.config.token` as the first method argument
+
+#### Request
+
+- `token` (string, required) — channel API token
+
+**Responses**
+
+| Status | Description | Schema |
+|--------|-------------|--------|
+| `200` | Current webhook URL | `—` |
+| `401` | Invalid or missing authentication token | `ErrorResponse` |
+| `500` | Internal server error | `ErrorResponse` |
+
+#### SDK example
+
+```typescript
+await client.webhooks.getWebhook(client.config.token);
+```
+
+#### cURL equivalent
+
+```bash
+curl -X GET 'https://api.1msg.io/{instanceId}/webhook?token={token}'
+```
+
+### `setWebhook`
+
+#### Set webhook URL
+
+Configure the client webhook URL for inbound events.
+
+| | |
+|---|---|
+| HTTP | `POST /webhook` |
+| SDK group | `client.webhooks` |
+| API class | `WebhooksApi` |
+| operationId | `setWebhook` |
+| Signature | `setWebhook(token: string, getWebhook200Response?: GetWebhook200Response, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<{ [key: string]: any; }>` |
+
+#### Authentication
+
+- Query parameter `token` (required on every call)
+- SDK: pass `client.config.token` as the first method argument
+
+#### Request
+
+- `token` (string, required) — channel API token
+
+**Request body schema**
+
+| Field | Type | Required | Description |
+|-------|------|----------|-------------|
+| `webhookUrl` | string | optional |  |
+
+
+**Responses**
+
+| Status | Description | Schema |
+|--------|-------------|--------|
+| `200` | Webhook configured | `—` |
+| `401` | Invalid or missing authentication token | `ErrorResponse` |
+| `500` | Internal server error | `ErrorResponse` |
+
+#### SDK example
+
+```typescript
+await client.webhooks.setWebhook(client.config.token, undefined);
+```
+
+#### cURL equivalent
+
+```bash
+curl -X POST 'https://api.1msg.io/{instanceId}/webhook?token={token}' \
+  -H 'Content-Type: application/json' \
+  -d '{}'
+```
+
 ## Exported types — full reference
 
 All models below are exported from `@1msg/sdk`. Import by name:
@@ -2057,6 +3542,69 @@ All models below are exported from `@1msg/sdk`. Import by name:
 ```typescript
 import type { SendMessageRequest, MessageSentResponse } from '@1msg/sdk';
 ```
+
+### `AddTemplateRequest`
+
+Check if a given object implements the AddTemplateRequest interface.
+
+| Field | Type | Required | Description |
+|-------|------|----------|-------------|
+| `name` | `string` | optional | — |
+| `category` | `string` | optional | — |
+| `language` | `string` | optional | — |
+| `components` | `Array<{ [key: string]: any` | optional | — |
+
+### `BlockUserRequest`
+
+Check if a given object implements the BlockUserRequest interface.
+
+| Field | Type | Required | Description |
+|-------|------|----------|-------------|
+| `phone` | `number` | **required** | — |
+
+### `ConversationalAutomation`
+
+Check if a given object implements the ConversationalAutomation interface.
+
+| Field | Type | Required | Description |
+|-------|------|----------|-------------|
+| `enable_welcome_message` | boolean | optional | Enable the automatic welcome message for new conversations |
+| `prompts` | array<string> | optional | Ice-breaker prompt strings (max 4, each ≤ 80 characters) |
+| `commands` | array<object> | optional | Slash commands shown in WhatsApp |
+
+### `ConversationalAutomationCommandsInner`
+
+Check if a given object implements the ConversationalAutomationCommandsInner interface.
+
+| Field | Type | Required | Description |
+|-------|------|----------|-------------|
+| `commandName` | `string` | **required** | — |
+| `commandDescription` | `string` | **required** | — |
+
+### `CreateCommerce200Response`
+
+Check if a given object implements the CreateCommerce200Response interface.
+
+| Field | Type | Required | Description |
+|-------|------|----------|-------------|
+| `success` | `boolean` | optional | — |
+
+### `CreateCommerceRequest`
+
+Check if a given object implements the CreateCommerceRequest interface.
+
+| Field | Type | Required | Description |
+|-------|------|----------|-------------|
+| `params` | `CreateCommerceRequestParams` | **required** | — |
+
+### `CreateCommerceRequestParams`
+
+Check if a given object implements the CreateCommerceRequestParams interface.
+
+| Field | Type | Required | Description |
+|-------|------|----------|-------------|
+| `isCartEnabled` | `boolean` | **required** | — |
+| `isCatalogVisible` | `boolean` | **required** | — |
 
 ### `CreateGroups200Response`
 
@@ -2089,6 +3637,8 @@ Check if a given object implements the CreateReadMessageRequest interface.
 | Field | Type | Required | Description |
 |-------|------|----------|-------------|
 | `messageId` | `string` | optional | — |
+| `msgId` | `string` | optional | — |
+| `typingIndicator` | `boolean` | optional | — |
 
 ### `DeleteFlowsFlowId200Response`
 
@@ -2108,6 +3658,14 @@ Check if a given object implements the DeleteGroupsGroupId200Response interface.
 | `success` | `boolean` | optional | — |
 | `response` | `{ [key: string]: any` | optional | — |
 
+### `DeleteMediaLegacyRequest`
+
+Check if a given object implements the DeleteMediaLegacyRequest interface.
+
+| Field | Type | Required | Description |
+|-------|------|----------|-------------|
+| `mediaId` | `string` | **required** | — |
+
 ### `ErrorResponse`
 
 Check if a given object implements the ErrorResponse interface.
@@ -2115,6 +3673,52 @@ Check if a given object implements the ErrorResponse interface.
 | Field | Type | Required | Description |
 |-------|------|----------|-------------|
 | `error` | string | optional | Error message |
+
+### `GetCommerce200ResponseInner`
+
+Check if a given object implements the GetCommerce200ResponseInner interface.
+
+| Field | Type | Required | Description |
+|-------|------|----------|-------------|
+| `id` | `string` | optional | — |
+| `isCartEnabled` | `boolean` | optional | — |
+| `isCatalogVisible` | `boolean` | optional | — |
+
+### `GetMmLiteStatus200Response`
+
+Check if a given object implements the GetMmLiteStatus200Response interface.
+
+| Field | Type | Required | Description |
+|-------|------|----------|-------------|
+| `available` | `boolean` | optional | — |
+| `status` | `string` | optional | — |
+| `message` | `string` | optional | — |
+
+### `GetWebhook200Response`
+
+Check if a given object implements the GetWebhook200Response interface.
+
+| Field | Type | Required | Description |
+|-------|------|----------|-------------|
+| `webhookUrl` | `string` | optional | — |
+
+### `GetWhatsappBusinessEncryption200Response`
+
+@export
+
+| Field | Type | Required | Description |
+|-------|------|----------|-------------|
+| `businessPublicKey` | `string` | optional | — |
+| `businessPublicKeySignatureStatus` | `GetWhatsappBusinessEncryption200ResponseBusinessPublicKeySignatureStatusEnum` | optional | — |
+| `data` | `Array<{ [key: string]: any` | optional | — |
+
+### `ListBlockedUsers200Response`
+
+Check if a given object implements the ListBlockedUsers200Response interface.
+
+| Field | Type | Required | Description |
+|-------|------|----------|-------------|
+| `blockedUsers` | `Array<{ [key: string]: any` | optional | — |
 
 ### `ListFlows200Response`
 
@@ -2182,6 +3786,29 @@ Check if a given object implements the PatchFlowsFlowIdAssets200Response interfa
 | `vertical` | enum("Automotive" | "Beauty, Spa and Salon" | "Clothing and Apparel" | "Education" | "Entertainment" | "Event Planning and Service" | "Finance and Banking" | "Food and Grocery" | "Public Service" | "Hotel and Lodging" | "Medical and Health" | "Non-profit" | "Professional Services" | "Shopping and Retail" | "Travel and Transportation" | "Restaurant" | "Other") | optional | Industry of the business |
 | `photo` | string | optional | Profile photo URL |
 | `websites` | array<string> | optional |  |
+
+### `RetrieveMedia200Response`
+
+Check if a given object implements the RetrieveMedia200Response interface.
+
+| Field | Type | Required | Description |
+|-------|------|----------|-------------|
+| `url` | `string` | optional | — |
+| `mimeType` | `string` | optional | — |
+| `sha256` | `string` | optional | — |
+| `fileSize` | `number` | optional | — |
+| `id` | `string` | optional | — |
+
+### `SendAddressMessageRequest`
+
+Check if a given object implements the SendAddressMessageRequest interface.
+
+| Field | Type | Required | Description |
+|-------|------|----------|-------------|
+| `phone` | `number` | optional | — |
+| `chatId` | `string` | optional | — |
+| `body` | `string` | **required** | — |
+| `quotedMsgId` | `string` | optional | — |
 
 ### `SendButtonRequest`
 
@@ -2280,18 +3907,36 @@ Check if a given object implements the SendContactRequestContactsInnerPhonesInne
 | `type` | `string` | optional | — |
 | `waId` | `string` | optional | — |
 
-### `SendFileRequest`
+### `SendCtaUrlRequest`
 
-Check if a given object implements the SendFileRequest interface.
+Check if a given object implements the SendCtaUrlRequest interface.
 
 | Field | Type | Required | Description |
 |-------|------|----------|-------------|
-| `body` | string | **required** | File source: - HTTP/HTTPS URL (https://example.com/file.pdf) - Base64-encoded file with MIME (data:image/jpeg;base64,/9j/4AAQ...) - Form-data field (minLength=1, example="https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.pdf") |
-| `filename` | string | **required** | File name with extension (required for mime type detection) (minLength=1, maxLength=255, pattern=`^[^/\\:*?"<>|]+\.[a-zA-Z0-9]+$`, example="document.pdf") |
-| `caption` | string | optional | Text caption under the file (maxLength=1024, example="Here is your document") |
-| `quotedMsgId` | string | optional | Message ID to quote/reply to (pattern=`^wamid\..+$`, example="wamid.HBgNMTIwMjA3MjEzNjkVAgARGBI5RTBCNUY0QUE2RjZBQzhGNDkA") |
-| `chatId` | string | optional | Chat ID in format: phone@c.us or phone@g.us (pattern=`^[0-9]+@[cg]\.us$`, example="12020721369@c.us") |
-| `phone` | integer | optional | Phone number starting with country code (example=12020721369) |
+| `phone` | `number` | optional | — |
+| `chatId` | `string` | optional | — |
+| `body` | `string` | **required** | — |
+| `displayText` | `string` | **required** | — |
+| `url` | `string` | **required** | — |
+| `header` | `{ [key: string]: any` | optional | — |
+| `footer` | `string` | optional | — |
+| `quotedMsgId` | `string` | optional | — |
+
+### `SendFileRequest`
+
+@export
+
+| Field | Type | Required | Description |
+|-------|------|----------|-------------|
+| `body` | string | optional | File source (required unless mediaId is set): - HTTP/HTTPS URL - Base64 data URI |
+| `filename` | string | optional | File name with extension (required with body, not with mediaId) |
+| `mediaId` | string | optional | WABA media id from uploadMedia (alternative to body) |
+| `mediaType` | enum("image" | "video" | "audio" | "document") | optional | Required when using mediaId |
+| `voice` | boolean | optional | Native WhatsApp voice note (audio/ogg only) |
+| `caption` | string | optional |  (maxLength=1024) |
+| `quotedMsgId` | string | optional |  |
+| `chatId` | string | optional |  |
+| `phone` | integer | optional |  |
 
 ### `SendFlowRequest1`
 
@@ -2388,6 +4033,35 @@ Check if a given object implements the SendMessageRequest interface.
 | `chatId` | string | optional | Chat ID in format: phone@c.us (individual) or phone@g.us (group) (pattern=`^[0-9]+@[cg]\.us$`, example="12020721369@c.us") |
 | `phone` | integer | optional | Phone number starting with country code (alternative to chatId) (example=12020721369) |
 
+### `SendOrderDetailsRequest`
+
+Check if a given object implements the SendOrderDetailsRequest interface.
+
+| Field | Type | Required | Description |
+|-------|------|----------|-------------|
+| `phone` | `number` | optional | — |
+| `chatId` | `string` | optional | — |
+| `template` | `string` | **required** | — |
+| `namespace` | `string` | **required** | — |
+| `language` | `{ [key: string]: any` | **required** | — |
+| `params` | `Array<{ [key: string]: any` | optional | — |
+| `order` | `{ [key: string]: any` | **required** | — |
+| `referenceId` | `string` | optional | — |
+| `paymentSettings` | `{ [key: string]: any` | optional | — |
+| `currency` | `string` | optional | — |
+
+### `SendPaymentRequestRequest`
+
+@export
+
+| Field | Type | Required | Description |
+|-------|------|----------|-------------|
+| `phone` | `number` | **required** | — |
+| `region` | `SendPaymentRequestRequestRegionEnum` | **required** | — |
+| `body` | `string` | optional | — |
+| `interactive` | `{ [key: string]: any` | optional | — |
+| `action` | `{ [key: string]: any` | optional | — |
+
 ### `SendReactionRequest`
 
 Check if a given object implements the SendReactionRequest interface.
@@ -2396,6 +4070,18 @@ Check if a given object implements the SendReactionRequest interface.
 |-------|------|----------|-------------|
 | `phone` | `string` | optional | — |
 | `body` | `string` | optional | — |
+| `quotedMsgId` | `string` | optional | — |
+
+### `SendStickerRequest`
+
+Check if a given object implements the SendStickerRequest interface.
+
+| Field | Type | Required | Description |
+|-------|------|----------|-------------|
+| `phone` | `number` | optional | — |
+| `chatId` | `string` | optional | — |
+| `mediaId` | `string` | optional | — |
+| `link` | `string` | optional | — |
 | `quotedMsgId` | `string` | optional | — |
 
 ### `SendTemplateRequest`
@@ -2409,6 +4095,9 @@ Check if a given object implements the SendTemplateRequest interface.
 | `namespace` | `string` | optional | — |
 | `params` | `Array<any>` | optional | — |
 | `phone` | `string` | optional | — |
+| `useMMlite` | `boolean` | optional | — |
+| `messageActivitySharing` | `boolean` | optional | — |
+| `messageSendTtlSeconds` | `number` | optional | — |
 
 ### `SendTemplateRequestLanguage`
 
@@ -2419,6 +4108,14 @@ Check if a given object implements the SendTemplateRequestLanguage interface.
 | `policy` | `string` | optional | — |
 | `code` | `string` | optional | — |
 
+### `SetWhatsappBusinessEncryptionRequest`
+
+Check if a given object implements the SetWhatsappBusinessEncryptionRequest interface.
+
+| Field | Type | Required | Description |
+|-------|------|----------|-------------|
+| `businessPublicKey` | `string` | **required** | — |
+
 ### `SuccessResponse`
 
 Check if a given object implements the SuccessResponse interface.
@@ -2426,6 +4123,20 @@ Check if a given object implements the SuccessResponse interface.
 | Field | Type | Required | Description |
 |-------|------|----------|-------------|
 | `result` | string | optional | Operation result |
+
+### `UpdateMeRequest`
+
+Check if a given object implements the UpdateMeRequest interface.
+
+| Field | Type | Required | Description |
+|-------|------|----------|-------------|
+| `about` | `string` | optional | — |
+| `address` | `string` | optional | — |
+| `description` | `string` | optional | — |
+| `email` | `string` | optional | — |
+| `vertical` | `string` | optional | — |
+| `photo` | `string` | optional | — |
+| `websites` | `Array<string>` | optional | — |
 
 ## Cookbook — common integration recipes
 

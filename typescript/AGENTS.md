@@ -70,6 +70,110 @@ client.sendMessage // convenience for sendMessage
 
 ## Operation catalog
 
+### getCallingSettings
+
+```yaml
+operationId: getCallingSettings
+http: GET /callingSettings
+client: client.calling.getCallingSettings
+summary: Get calling settings
+description: WhatsApp Calling API settings (beta). Requires Meta Calling enablement on the WABA. Not production-complete — paths and webhook field names may change. Trial/subscription-limited channels are blocked.
+typescript: getCallingSettings(token: string, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<{ [key: string]: any; }>
+requestBody: none
+responses: 200, 401, 500
+```
+
+### initiateCall
+
+```yaml
+operationId: initiateCall
+http: POST /initiateCall
+client: client.calling.initiateCall
+summary: Initiate WhatsApp call
+description: Outbound Calling API (beta). Requires Meta Calling enablement and product consent. Not production-complete — verify on stage before relying on this in production. Trial/subscription-limited channels are blocked.
+typescript: initiateCall(token: string, requestBody?: { [key: string]: any; }, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<{ [key: string]: any; }>
+requestBody: none
+responses: 200, 401, 500
+```
+
+### updateCallingSettings
+
+```yaml
+operationId: updateCallingSettings
+http: POST /callingSettings
+client: client.calling.updateCallingSettings
+summary: Update calling settings
+description: Update WhatsApp Calling API settings (beta). Requires Meta Calling enablement. Trial/subscription-limited channels are blocked.
+typescript: updateCallingSettings(token: string, requestBody?: { [key: string]: any; }, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<{ [key: string]: any; }>
+requestBody: none
+responses: 200, 401, 500
+```
+
+### createCommerce
+
+```yaml
+operationId: createCommerce
+http: POST /commerce
+client: client.catalog.createCommerce
+summary: Set Commerce Settings
+description: Update catalog/cart commerce settings via the `params` object. - `params.is_catalog_visible` — show catalog storefront icon (`true`) or hide it (`false`). - `params.is_cart_enabled` — enable cart (`true`) or disable it (`false`). Blocked when the channel subscription limit is exceeded. Requires a commerce-capable channel (Cloud Functions `/commerceWAV2`).
+typescript: createCommerce(token: string, createCommerceRequest: CreateCommerceRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<CreateCommerce200Response>
+requestBody: inline object
+responses: 200, 401, 500
+```
+
+### getCommerce
+
+```yaml
+operationId: getCommerce
+http: GET /commerce
+client: client.catalog.getCommerce
+summary: Get Commerce Settings
+description: Returns catalog/cart commerce settings for the channel. - `is_catalog_visible` — show catalog storefront icon (`true`) or hide it (`false`). - `is_cart_enabled` — enable cart (`true`) or disable it (`false`).
+typescript: getCommerce(token: string, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<Array<GetCommerce200ResponseInner>
+requestBody: none
+responses: 200, 401, 500
+```
+
+### getConversationalAutomation
+
+```yaml
+operationId: getConversationalAutomation
+http: GET /conversationalAutomation
+client: client.channel.getConversationalAutomation
+summary: Get conversational automation settings
+description: Get WhatsApp conversational components for the channel (welcome message, ice-breaker prompts, and slash commands). Proxies Meta/360dialog `GET /conversational_automation`. When `enable_welcome_message` is true and a user opens chat for the first time, Meta delivers a webhook message with `type: request_welcome`. The inbound formatter exposes that as `type: "request_welcome"` and `meta.request_welcome: true` so your webhook can send a custom welcome reply.
+typescript: getConversationalAutomation(token: string, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<ConversationalAutomation>
+requestBody: none
+responses: 200, 401, 500
+```
+
+### getStatus
+
+```yaml
+operationId: getStatus
+http: GET /status
+client: client.channel.getStatus
+summary: Get channel status
+description: Returns WhatsApp Business API client connection status.
+typescript: getStatus(token: string, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<{ [key: string]: any; }>
+requestBody: none
+responses: 200, 401, 500
+```
+
+### setConversationalAutomation
+
+```yaml
+operationId: setConversationalAutomation
+http: POST /conversationalAutomation
+client: client.channel.setConversationalAutomation
+summary: Set conversational automation settings
+description: Update WhatsApp conversational components. Allowed body fields (others are ignored): - `enable_welcome_message` (boolean) - `prompts` (string[], max 4, each ≤ 80 chars) - `commands` (`{ command_name, command_description }[]`) Proxies Meta/360dialog `POST /conversational_automation`.
+typescript: setConversationalAutomation(token: string, conversationalAutomation: ConversationalAutomation, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<{ [key: string]: any; }>
+requestBody: inline object
+responses: 200, 401, 500
+```
+
 ### createFlows
 
 ```yaml
@@ -142,6 +246,19 @@ requestBody: none
 responses: 200
 ```
 
+### getWhatsappBusinessEncryption
+
+```yaml
+operationId: getWhatsappBusinessEncryption
+http: GET /whatsapp_business_encryption
+client: client.flows.getWhatsappBusinessEncryption
+summary: Get business encryption public key
+description: Retrieve the WhatsApp business public key and signature status for this channel's phone number. Required before publishing or sending Flows that use data encryption.
+typescript: getWhatsappBusinessEncryption(token: string, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<GetWhatsappBusinessEncryption200Response>
+requestBody: none
+responses: 200, 401, 500
+```
+
 ### listFlows
 
 ```yaml
@@ -176,6 +293,19 @@ summary: Update Flow Metadata
 typescript: patchFlowsFlowIdMetadata(flowId: string, token: string, wabaAccountId?: string, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<{ [key: string]: any; }>
 requestBody: none
 responses: 200
+```
+
+### setWhatsappBusinessEncryption
+
+```yaml
+operationId: setWhatsappBusinessEncryption
+http: POST /whatsapp_business_encryption
+client: client.flows.setWhatsappBusinessEncryption
+summary: Set business encryption public key
+description: Upload and sign a 2048-bit RSA business public key (PEM) for this channel's phone number. Meta requires a signed key before Flow publish/send. Only one active key per number; a new upload replaces the previous key.
+typescript: setWhatsappBusinessEncryption(token: string, setWhatsappBusinessEncryptionRequest: SetWhatsappBusinessEncryptionRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<CreateCommerce200Response>
+requestBody: inline object
+responses: 200, 400, 401, 500
 ```
 
 ### createGroups
@@ -280,7 +410,7 @@ operationId: createReadMessage
 http: POST /readMessage
 client: client.messaging.createReadMessage
 summary: Mark message as read
-typescript: createReadMessage(token: string, messageId?: string, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<CreateReadMessage200Response>
+typescript: createReadMessage(token: string, messageId?: string, msgId?: string, typingIndicator?: boolean, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<CreateReadMessage200Response>
 requestBody: inline object
 responses: 200, 401
 ```
@@ -310,6 +440,44 @@ await client.messaging.createUploadMedia(client.config.token, {
 });
 ```
 
+### deleteMedia
+
+```yaml
+operationId: deleteMedia
+http: DELETE /media/{mediaId}
+client: client.messaging.deleteMedia
+summary: Delete media from WABA storage
+description: Delete previously uploaded media by numeric `mediaId` (from `/uploadMedia`). This is the canonical deletion endpoint and uses the REST `DELETE` verb on the media resource path. The older `POST /deleteMedia` is a deprecated alias.
+typescript: deleteMedia(token: string, mediaId: string, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<SuccessResponse>
+requestBody: none
+responses: 200, 400, 401, 500
+```
+
+### deleteMediaLegacy
+
+```yaml
+operationId: deleteMediaLegacy
+http: POST /deleteMedia
+client: client.messaging.deleteMediaLegacy
+summary: Delete media from WABA storage (deprecated alias)
+description: **Deprecated.** Use `DELETE /media/{mediaId}` instead. This POST alias is kept for backward compatibility with earlier integrations. New integrations should call `DELETE /media/{mediaId}`: 1msg follows REST conventions for resource deletion going forward (delete a resource with the `DELETE` verb on its resource path).
+typescript: deleteMediaLegacy(token: string, deleteMediaLegacyRequest: DeleteMediaLegacyRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<SuccessResponse>
+requestBody: inline object
+responses: 200, 400, 401, 500
+```
+
+### getMmLiteStatus
+
+```yaml
+operationId: getMmLiteStatus
+http: GET /mmLiteStatus
+client: client.messaging.getMmLiteStatus
+summary: Get MM Lite availability and status
+typescript: getMmLiteStatus(token: string, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<GetMmLiteStatus200Response>
+requestBody: none
+responses: 200, 401, 500
+```
+
 ### listMessages
 
 ```yaml
@@ -329,6 +497,32 @@ const page = await client.messaging.listMessages(
   undefined,
   '12020721369@c.us',
 );
+```
+
+### retrieveMedia
+
+```yaml
+operationId: retrieveMedia
+http: GET /retrieveMedia
+client: client.messaging.retrieveMedia
+summary: Retrieve uploaded media metadata
+description: Get WABA media URL and metadata by mediaId (from uploadMedia). The returned `url` is temporary and typically expires within ~5 minutes.
+typescript: retrieveMedia(token: string, mediaId: string, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<RetrieveMedia200Response>
+requestBody: none
+responses: 200, 400, 401, 500
+```
+
+### sendAddressMessage
+
+```yaml
+operationId: sendAddressMessage
+http: POST /sendAddressMessage
+client: client.messaging.sendAddressMessage
+summary: Send address request message
+description: Request shipping address from the user. **India only** (WhatsApp Cloud API address messages). Requires an India WhatsApp Business number and an India (+91) recipient. Meta validates eligibility; mismatches return WABA errors such as `Unsupported Interactive Message type` (HTTP 200 with `sent: false`). The outbound payload always sends `action.parameters.country = "IN"`. A `country` field in the request body (if present) is ignored.
+typescript: sendAddressMessage(token: string, sendAddressMessageRequest: SendAddressMessageRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<MessageSentResponse>
+requestBody: inline object
+responses: 200, 400, 401, 429, 500
 ```
 
 ### sendButton
@@ -399,6 +593,19 @@ await client.messaging.sendContact(client.config.token, {
 });
 ```
 
+### sendCtaUrl
+
+```yaml
+operationId: sendCtaUrl
+http: POST /sendCtaUrl
+client: client.messaging.sendCtaUrl
+summary: Send CTA URL interactive message
+description: Send an interactive message with a single call-to-action URL button.
+typescript: sendCtaUrl(token: string, sendCtaUrlRequest: SendCtaUrlRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<MessageSentResponse>
+requestBody: inline object
+responses: 200, 400, 401, 429, 500
+```
+
 ### sendFile
 
 ```yaml
@@ -407,7 +614,7 @@ http: POST /sendFile
 client: client.messaging.sendFile
 summary: Send a File
 description: Send a file to an existing chat. (Only if the dialogue has an Open Session). Only one of two parameters is needed to determine the destination - chatId or phone.
-typescript: sendFile(token: string, body: string, filename: string, caption?: string, quotedMsgId?: string, chatId?: string, phone?: number, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<MessageSentResponse>
+typescript: sendFile(token: string, body?: string, filename?: string, mediaId?: string, mediaType?: SendFileMediaTypeEnum, voice?: boolean, caption?: string, quotedMsgId?: string, chatId?: string, phone?: number, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<MessageSentResponse>
 requestBody: inline object
 responses: 200, 400, 401, 429, 500
 ```
@@ -545,6 +752,32 @@ await client.sendMessage({
 });
 ```
 
+### sendOrderDetails
+
+```yaml
+operationId: sendOrderDetails
+http: POST /sendOrderDetails
+client: client.messaging.sendOrderDetails
+summary: Send order details (India payments template)
+description: Send a WhatsApp **order details** payment message via a pre-approved **Utility** template with an `ORDER_DETAILS` button. **India only** (WhatsApp Payments India). Requires: - India WhatsApp Business Account / phone number - Commerce-enabled channel - Approved template with an `ORDER_DETAILS` button Prefer this helper when you want a dedicated payload (`order`, `referenceId`, `currency`, `paymentSettings`). Under the hood it builds a Cloud API template `button` component with `sub_type: order_details` and calls the same path as `POST /sendTemplate`. To send the same message **outside the 24-hour window**, you can also call `POST /sendTemplate` directly with a `params` button: ```json { "type": "button", "sub_type": "order_details", "index": 0, "parameters": [{ "type": "action", "action": { "order_details": { "reference_id": "order-123", "type": "digital-goods", "payment_type": "upi", "payment_configuration": "payment_config_name", "currency": "INR", "total_amount": { "offset": 100, "value": 65000 }, "order": { "status": "pending", "items": [], "subtotal": { "offset": 100, "value": 65000 } } } } }] } ``` See Meta/360dialog: Payments India — order details template message.
+typescript: sendOrderDetails(token: string, sendOrderDetailsRequest: SendOrderDetailsRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<MessageSentResponse>
+requestBody: inline object
+responses: 200, 400, 401, 500
+```
+
+### sendPaymentRequest
+
+```yaml
+operationId: sendPaymentRequest
+http: POST /sendPaymentRequest
+client: client.messaging.sendPaymentRequest
+summary: Send payment request (regional)
+description: Send a regional payment request interactive message (beta scaffold). `region` must be IN, SG, or BR. Payload shape follows Meta regional payments docs; verify on stage before production use. Full regional builders are not implemented yet.
+typescript: sendPaymentRequest(token: string, sendPaymentRequestRequest: SendPaymentRequestRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<MessageSentResponse>
+requestBody: inline object
+responses: 200, 400, 401, 500
+```
+
 ### sendProduct
 
 ```yaml
@@ -586,6 +819,19 @@ await client.messaging.sendReaction(
 );
 ```
 
+### sendSticker
+
+```yaml
+operationId: sendSticker
+http: POST /sendSticker
+client: client.messaging.sendSticker
+summary: Send sticker message
+description: Send a WhatsApp sticker by mediaId or link URL.
+typescript: sendSticker(token: string, sendStickerRequest: SendStickerRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<MessageSentResponse>
+requestBody: inline object
+responses: 200, 400, 401, 429, 500
+```
+
 ### getMe
 
 ```yaml
@@ -601,6 +847,31 @@ responses: 200, 401, 500
 
 ```typescript
 const profile = await client.profile.getMe(client.config.token);
+```
+
+### updateMe
+
+```yaml
+operationId: updateMe
+http: POST /me
+client: client.profile.updateMe
+summary: Update profile info
+description: Update WhatsApp Business Account profile fields. At least one of about, description, email, photo, address, vertical, websites is required. Blocked when the channel subscription limit is exceeded.
+typescript: updateMe(token: string, updateMeRequest?: UpdateMeRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<{ [key: string]: any; }>
+requestBody: inline object
+responses: 200, 401, 422, 500
+```
+
+### addTemplate
+
+```yaml
+operationId: addTemplate
+http: POST /addTemplate
+client: client.templates.addTemplate
+summary: Create message template
+typescript: addTemplate(token: string, addTemplateRequest?: AddTemplateRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<{ [key: string]: any; }>
+requestBody: inline object
+responses: 200, 401, 500
 ```
 
 ### listTemplates
@@ -619,6 +890,18 @@ responses: 200
 const templates = await client.templates.listTemplates(client.config.token);
 ```
 
+### removeTemplate
+
+```yaml
+operationId: removeTemplate
+http: POST /removeTemplate
+client: client.templates.removeTemplate
+summary: Remove message template
+typescript: removeTemplate(token: string, requestBody?: { [key: string]: any; }, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<{ [key: string]: any; }>
+requestBody: none
+responses: 200, 401, 500
+```
+
 ### sendTemplate
 
 ```yaml
@@ -626,6 +909,7 @@ operationId: sendTemplate
 http: POST /sendTemplate
 client: client.templates.sendTemplate
 summary: Send Template Message
+description: Send a WhatsApp template message (works outside the 24-hour session window). Supported `params` button `sub_type` values include: `url`, `quick_reply`, `copy_code` / `coupon_code`, `catalog`, `flow`, `limited_time_offer`, and **`order_details`** (WhatsApp Payments **India only** — requires an approved Utility template with an ORDER_DETAILS button). For India order/invoice payments outside 24h, include a button component: ```json { "type": "button", "sub_type": "order_details", "index": 0, "parameters": [{ "type": "action", "action": { "order_details": { "reference_id": "...", "currency": "INR", "order": {} } } }] } ``` Convenience wrapper with structured fields: `POST /sendOrderDetails`.
 typescript: sendTemplate(token: string, sendTemplateRequest?: SendTemplateRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<{ [key: string]: any; }>
 requestBody: inline object
 responses: 200
@@ -642,6 +926,69 @@ await client.messaging.sendTemplate(
 );
 ```
 
+### blockUser
+
+```yaml
+operationId: blockUser
+http: POST /blockUser
+client: client.users.blockUser
+summary: Block WhatsApp user
+typescript: blockUser(token: string, blockUserRequest: BlockUserRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<SuccessResponse>
+requestBody: inline object
+responses: 200, 400, 401, 500
+```
+
+### listBlockedUsers
+
+```yaml
+operationId: listBlockedUsers
+http: GET /blockedUsers
+client: client.users.listBlockedUsers
+summary: List blocked WhatsApp users
+description: Returns users currently blocked on this WhatsApp channel (WABA `GET /block_users`). Same channel token auth as `blockUser` / `unblockUser`.
+typescript: listBlockedUsers(token: string, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<ListBlockedUsers200Response>
+requestBody: none
+responses: 200, 401, 500
+```
+
+### unblockUser
+
+```yaml
+operationId: unblockUser
+http: POST /unblockUser
+client: client.users.unblockUser
+summary: Unblock WhatsApp user
+typescript: unblockUser(token: string, blockUserRequest: BlockUserRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<SuccessResponse>
+requestBody: inline object
+responses: 200, 400, 401, 500
+```
+
+### getWebhook
+
+```yaml
+operationId: getWebhook
+http: GET /webhook
+client: client.webhooks.getWebhook
+summary: Get webhook URL
+description: Returns the configured client webhook URL for this channel.
+typescript: getWebhook(token: string, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<GetWebhook200Response>
+requestBody: none
+responses: 200, 401, 500
+```
+
+### setWebhook
+
+```yaml
+operationId: setWebhook
+http: POST /webhook
+client: client.webhooks.setWebhook
+summary: Set webhook URL
+description: Configure the client webhook URL for inbound events.
+typescript: setWebhook(token: string, getWebhook200Response?: GetWebhook200Response, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<{ [key: string]: any; }>
+requestBody: inline object
+responses: 200, 401, 500
+```
+
 ## Type exports
 
 Import any model by name from package root:
@@ -652,19 +999,34 @@ import type { SendMessageRequest, MessageSentResponse, ProfileInfo } from '@1msg
 
 ### All exported models
 
+- `AddTemplateRequest` (4 fields)
+- `BlockUserRequest` (1 fields)
+- `ConversationalAutomation` (3 fields)
+- `ConversationalAutomationCommandsInner` (2 fields)
+- `CreateCommerce200Response` (1 fields)
+- `CreateCommerceRequest` (1 fields)
+- `CreateCommerceRequestParams` (2 fields)
 - `CreateGroups200Response` (1 fields)
 - `CreateReadMessage200Response` (1 fields)
 - `CreateReadMessage401Response` (1 fields)
-- `CreateReadMessageRequest` (1 fields)
+- `CreateReadMessageRequest` (3 fields)
 - `DeleteFlowsFlowId200Response` (2 fields)
 - `DeleteGroupsGroupId200Response` (2 fields)
+- `DeleteMediaLegacyRequest` (1 fields)
 - `ErrorResponse` (1 fields)
+- `GetCommerce200ResponseInner` (3 fields)
+- `GetMmLiteStatus200Response` (3 fields)
+- `GetWebhook200Response` (1 fields)
+- `GetWhatsappBusinessEncryption200Response` (3 fields)
+- `ListBlockedUsers200Response` (1 fields)
 - `ListFlows200Response` (5 fields)
 - `ListMessages200Response` (2 fields)
 - `ListTemplates200Response` (3 fields)
 - `MessageSentResponse` (4 fields)
 - `PatchFlowsFlowIdAssets200Response` (3 fields)
 - `ProfileInfo` (8 fields)
+- `RetrieveMedia200Response` (5 fields)
+- `SendAddressMessageRequest` (4 fields)
 - `SendButtonRequest` (4 fields)
 - `SendButtonRequestSectionsInner` (2 fields)
 - `SendButtonRequestSectionsInnerReply` (2 fields)
@@ -674,7 +1036,8 @@ import type { SendMessageRequest, MessageSentResponse, ProfileInfo } from '@1msg
 - `SendContactRequestContactsInnerName` (6 fields)
 - `SendContactRequestContactsInnerOrg` (3 fields)
 - `SendContactRequestContactsInnerPhonesInner` (3 fields)
-- `SendFileRequest` (6 fields)
+- `SendCtaUrlRequest` (8 fields)
+- `SendFileRequest` (9 fields)
 - `SendFlowRequest1` (15 fields)
 - `SendFlowRequest1Header`
 - `SendFlowRequestHeader`
@@ -684,10 +1047,15 @@ import type { SendMessageRequest, MessageSentResponse, ProfileInfo } from '@1msg
 - `SendLocationRequest1` (7 fields)
 - `SendLocationRequestRequest` (2 fields)
 - `SendMessageRequest` (4 fields)
+- `SendOrderDetailsRequest` (10 fields)
+- `SendPaymentRequestRequest` (5 fields)
 - `SendReactionRequest` (3 fields)
-- `SendTemplateRequest` (5 fields)
+- `SendStickerRequest` (5 fields)
+- `SendTemplateRequest` (8 fields)
 - `SendTemplateRequestLanguage` (2 fields)
+- `SetWhatsappBusinessEncryptionRequest` (1 fields)
 - `SuccessResponse` (1 fields)
+- `UpdateMeRequest` (7 fields)
 
 ## Error handling
 
@@ -700,6 +1068,6 @@ import { ResponseError } from "@1msg/sdk";
 
 openapi_title: 1MSG WhatsApp Business API (Public)
 openapi_version: 1.0.0
-operations: 33
-models: 36
+operations: 60
+models: 57
 

@@ -25,61 +25,8 @@ Source: [`typescript/`](./typescript)
 **Documentation:**
 - [README.md](./typescript/README.md) — full developer guide
 - [AGENTS.md](./typescript/AGENTS.md) — machine-readable index for AI coding agents
-- [npm package](https://www.npmjs.com/package/@1msg/sdk)
 
+## Other languages
 
-## Java
-
-```gradle
-implementation("io.1msg:sdk:1.0.0")
-```
-
-Source: [`java/`](./java)
-
-**Documentation:**
-- [README.md](./java/README.md) — full developer guide
-- [AGENTS.md](./java/AGENTS.md) — machine-readable index for AI coding agents
-- [Maven Central](https://central.sonatype.com/artifact/io.1msg/sdk)
-
-
-## Kotlin
-
-```gradle
-implementation("io.1msg:sdk-kotlin:1.0.0")
-```
-
-Source: [`kotlin/`](./kotlin)
-
-**Documentation:**
-- [README.md](./kotlin/README.md) — full developer guide
-- [AGENTS.md](./kotlin/AGENTS.md) — machine-readable index for AI coding agents
-- [Maven Central](https://central.sonatype.com/artifact/io.1msg/sdk-kotlin)
-
-
-## Scala
-
-```scala
-libraryDependencies += "io.1msg" %% "sdk-scala" % "1.0.0"
-```
-
-Source: [`scala/`](./scala)
-
-**Documentation:**
-- [README.md](./scala/README.md) — full developer guide
-- [AGENTS.md](./scala/AGENTS.md) — machine-readable index for AI coding agents
-- [Maven Central](https://central.sonatype.com/artifact/io.1msg/sdk-scala_2.13)
-
-
-## C#
-
-```bash
-dotnet add package OneMsg.ChatApi --version 1.0.0
-```
-
-Source: [`csharp/`](./csharp)
-
-**Documentation:**
-- [README.md](./csharp/README.md) — full developer guide
-- [AGENTS.md](./csharp/AGENTS.md) — machine-readable index for AI coding agents
-- [NuGet](https://www.nuget.org/packages/OneMsg.ChatApi)
-
+Additional SDKs will be published gradually to their respective package registries.
+See the [1msg Developers Platform](https://1msg.io) for install commands.

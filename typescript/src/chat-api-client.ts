@@ -1,11 +1,16 @@
 import { ChatApiConfig, type ChatApiConfigOptions } from './chat-api-config';
 import { Configuration } from './generated/src/runtime';
 import {
+  CallingApi,
+  CatalogApi,
+  ChannelApi,
   FlowsApi,
   GroupsApi,
   MessagingApi,
   ProfileApi,
   TemplatesApi,
+  UsersApi,
+  WebhooksApi,
 } from './generated/src/apis';
 import type { SendMessageRequest } from './generated/src/models/SendMessageRequest';
 import type { MessageSentResponse } from './generated/src/models/MessageSentResponse';
@@ -20,10 +25,15 @@ export { ChatApiConfig };
 export class ChatApiClient {
   readonly config: ChatApiConfig;
   readonly messaging: MessagingApi;
+  readonly users: UsersApi;
   readonly flows: FlowsApi;
   readonly groups: GroupsApi;
   readonly profile: ProfileApi;
   readonly templates: TemplatesApi;
+  readonly channel: ChannelApi;
+  readonly catalog: CatalogApi;
+  readonly webhooks: WebhooksApi;
+  readonly calling: CallingApi;
 
   constructor(config: ChatApiConfig) {
     this.config = config;
@@ -32,10 +42,15 @@ export class ChatApiClient {
     });
 
     this.messaging = new MessagingApi(configuration);
+    this.users = new UsersApi(configuration);
     this.flows = new FlowsApi(configuration);
     this.groups = new GroupsApi(configuration);
     this.profile = new ProfileApi(configuration);
     this.templates = new TemplatesApi(configuration);
+    this.channel = new ChannelApi(configuration);
+    this.catalog = new CatalogApi(configuration);
+    this.webhooks = new WebhooksApi(configuration);
+    this.calling = new CallingApi(configuration);
   }
 
   /**

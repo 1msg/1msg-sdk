@@ -11,11 +11,16 @@ export {
 
 export * from './generated/src/runtime';
 export {
+  CallingApi,
+  CatalogApi,
+  ChannelApi,
   FlowsApi,
   GroupsApi,
   MessagingApi,
   ProfileApi,
   TemplatesApi,
+  UsersApi,
+  WebhooksApi,
 } from './generated/src/apis';
 export * from './generated/src/models';
 
