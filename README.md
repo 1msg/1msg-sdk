@@ -46,3 +46,11 @@ implementation("io.1msg:sdk-kotlin:1.0.2")
 ```
 
 Source: [`kotlin/`](./kotlin)
+
+## Scala
+
+```scala
+libraryDependencies += "io.1msg" %% "sdk-scala" % "1.0.2"
+```
+
+Source: [`scala/`](./scala)
