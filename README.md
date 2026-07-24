@@ -30,3 +30,11 @@ Source: [`typescript/`](./typescript)
 
 Additional SDKs will be published gradually to their respective package registries.
 See the [1msg Developers Platform](https://1msg.io) for install commands.
+
+## Java
+
+```gradle
+implementation("io.1msg:sdk:1.0.1")
+```
+
+Source: [`java/`](./java)

@@ -1,0 +1,42 @@
+// Applied by gen/generate-sdk.js after OpenAPI generation.
+// Requires com.vanniktech:gradle-maven-publish-plugin on the buildscript classpath
+// (injected into build.gradle by postProcessGeneratedJavaSdk).
+//
+// Publishes io.1msg:sdk to Maven Central via the Central Publisher Portal.
+
+apply plugin: 'com.vanniktech.maven.publish'
+
+mavenPublishing {
+    // automaticRelease=true — upload + release without manual Portal click
+    publishToMavenCentral(true)
+    signAllPublications()
+
+    coordinates('io.1msg', 'sdk', version.toString())
+
+    pom {
+        name = '1msg SDK'
+        description = 'Public Java SDK for the 1msg.io extended WhatsApp API'
+        inceptionYear = '2026'
+        url = 'https://github.com/1msg/1msg-sdk'
+        licenses {
+            license {
+                name = 'MIT License'
+                url = 'https://opensource.org/licenses/MIT'
+                distribution = 'repo'
+            }
+        }
+        developers {
+            developer {
+                id = '1msg'
+                name = '1MSG'
+                url = 'https://1msg.io'
+                email = 'support@1msg.io'
+            }
+        }
+        scm {
+            url = 'https://github.com/1msg/1msg-sdk'
+            connection = 'scm:git:git://github.com/1msg/1msg-sdk.git'
+            developerConnection = 'scm:git:ssh://git@github.com/1msg/1msg-sdk.git'
+        }
+    }
+}
