@@ -1,14 +1,14 @@
-# 1msg Python SDK
+# 1msg Rust SDK
 
-Official Python SDK for the **1msg WhatsApp Business API**.
+Official Rust SDK for the **1msg WhatsApp Business API**.
 
 This document is generated from the public OpenAPI contract. It covers install,
 auth, quick start, and every public operation available in the client.
 
 | | |
 |---|---|
-| **PyPI** | [`one-msg-sdk`](https://pypi.org/project/one-msg-sdk/) |
-| **Source** | [github.com/1msg/1msg-sdk/python](https://github.com/1msg/1msg-sdk/tree/main/python) |
+| **crates.io** | [`one-msg-sdk`](https://crates.io/crates/one-msg-sdk) |
+| **Source** | [github.com/1msg/1msg-sdk/rust](https://github.com/1msg/1msg-sdk/tree/main/rust) |
 | **API docs** | [docs.1msg.io](https://docs.1msg.io/) |
 | **Platform** | [platform.1msg.io](https://platform.1msg.io/) |
 | **Support** | support@1msg.io |
@@ -21,7 +21,7 @@ auth, quick start, and every public operation available in the client.
 ## Install
 
 ```bash
-pip install one-msg-sdk==1.0.0
+cargo add one-msg-sdk@2.0.0
 ```
 
 ## Requirements
@@ -36,24 +36,25 @@ Use environment variables (`MSG_API_TOKEN`, `MSG_INSTANCE_ID`). Never commit tok
 
 ## Quick start
 
-```python
-import os
+```rust
+use one_msg_sdk::apis::configuration::Configuration;
+use one_msg_sdk::apis::messaging_api;
 
-from one_msg_sdk import ApiClient, Configuration
-from one_msg_sdk.api.messaging_api import MessagingApi
-
-configuration = Configuration(
-    host=f"https://api.1msg.io/{os.environ['MSG_INSTANCE_ID']}"
-)
-
-with ApiClient(configuration) as api_client:
-    messaging = MessagingApi(api_client)
-    response = messaging.send_message(
-        token=os.environ["MSG_API_TOKEN"],
-        body="Hello from 1MSG SDK",
-        chat_id="12020721369@c.us",
-    )
-    print(response)
+#[tokio::main]
+async fn main() -> Result<(), Box<dyn std::error::Error>> {
+  let mut cfg = Configuration::new();
+  cfg.base_path = format!("https://api.1msg.io/{}", std::env::var("MSG_INSTANCE_ID")?);
+  let token = std::env::var("MSG_API_TOKEN")?;
+  messaging_api::send_message(
+    &cfg,
+    &token,
+    "Hello from 1MSG SDK",
+    None,
+    Some("12020721369@c.us"),
+    None,
+  ).await?;
+  Ok(())
+}
 ```
 
 ## Authentication
@@ -79,20 +80,20 @@ Outside that window use `sendTemplate`.
 
 ## Client map
 
-```python
-MessagingApi   # send/list messages, media, interactive
-ProfileApi     # getMe
-GroupsApi      # create/list/manage groups
-FlowsApi       # WhatsApp Flows lifecycle
-TemplatesApi   # listTemplates
-ChannelApi     # channel helpers
-CallingApi     # calling
-WebhooksApi    # webhooks
+```rust
+messaging_api   // send/list messages, media, interactive
+profile_api     // getMe
+groups_api      // create/list/manage groups
+flows_api       // WhatsApp Flows lifecycle
+templates_api   // listTemplates
+channel_api     // channel helpers
+calling_api     // calling
+webhooks_api    // webhooks
 ```
 
 ## Package notes
 
-PyPI package is `one-msg-sdk`. Import package is `one_msg_sdk`.
+Crate name is `one-msg-sdk`. Rust module is `one_msg_sdk`.
 
 ## API reference
 

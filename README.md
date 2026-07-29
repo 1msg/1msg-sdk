@@ -70,3 +70,19 @@ pip install one-msg-sdk==1.0.0
 ```
 
 Source: [`python/`](./python)
+
+## Rust
+
+```bash
+cargo add one-msg-sdk
+```
+
+Source: [`rust/`](./rust)
+
+## Ruby
+
+```bash
+gem install one_msg_sdk
+```
+
+Source: [`ruby/`](./ruby)

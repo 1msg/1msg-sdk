@@ -1,14 +1,14 @@
-# 1msg Python SDK
+# 1msg Ruby SDK
 
-Official Python SDK for the **1msg WhatsApp Business API**.
+Official Ruby SDK for the **1msg WhatsApp Business API**.
 
 This document is generated from the public OpenAPI contract. It covers install,
 auth, quick start, and every public operation available in the client.
 
 | | |
 |---|---|
-| **PyPI** | [`one-msg-sdk`](https://pypi.org/project/one-msg-sdk/) |
-| **Source** | [github.com/1msg/1msg-sdk/python](https://github.com/1msg/1msg-sdk/tree/main/python) |
+| **RubyGems** | [`one_msg_sdk`](https://rubygems.org/gems/one_msg_sdk) |
+| **Source** | [github.com/1msg/1msg-sdk/ruby](https://github.com/1msg/1msg-sdk/tree/main/ruby) |
 | **API docs** | [docs.1msg.io](https://docs.1msg.io/) |
 | **Platform** | [platform.1msg.io](https://platform.1msg.io/) |
 | **Support** | support@1msg.io |
@@ -21,7 +21,7 @@ auth, quick start, and every public operation available in the client.
 ## Install
 
 ```bash
-pip install one-msg-sdk==1.0.0
+gem install one_msg_sdk -v 2.0.0
 ```
 
 ## Requirements
@@ -36,24 +36,20 @@ Use environment variables (`MSG_API_TOKEN`, `MSG_INSTANCE_ID`). Never commit tok
 
 ## Quick start
 
-```python
-import os
+```ruby
+require 'one_msg_sdk'
 
-from one_msg_sdk import ApiClient, Configuration
-from one_msg_sdk.api.messaging_api import MessagingApi
+OneMsgSdk.configure do |config|
+  config.host = "https://api.1msg.io/#{ENV.fetch('MSG_INSTANCE_ID')}"
+end
 
-configuration = Configuration(
-    host=f"https://api.1msg.io/{os.environ['MSG_INSTANCE_ID']}"
+messaging = OneMsgSdk::MessagingApi.new
+messaging.send_message(
+  ENV.fetch('MSG_API_TOKEN'),
+  'Hello from 1MSG SDK',
+  nil,
+  '12020721369@c.us'
 )
-
-with ApiClient(configuration) as api_client:
-    messaging = MessagingApi(api_client)
-    response = messaging.send_message(
-        token=os.environ["MSG_API_TOKEN"],
-        body="Hello from 1MSG SDK",
-        chat_id="12020721369@c.us",
-    )
-    print(response)
 ```
 
 ## Authentication
@@ -79,7 +75,7 @@ Outside that window use `sendTemplate`.
 
 ## Client map
 
-```python
+```ruby
 MessagingApi   # send/list messages, media, interactive
 ProfileApi     # getMe
 GroupsApi      # create/list/manage groups
@@ -92,7 +88,7 @@ WebhooksApi    # webhooks
 
 ## Package notes
 
-PyPI package is `one-msg-sdk`. Import package is `one_msg_sdk`.
+Gem name is `one_msg_sdk`. Module is `OneMsgSdk`.
 
 ## API reference
 
