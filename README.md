@@ -62,3 +62,11 @@ dotnet add package OneMsg.ChatApi --version 1.0.2
 ```
 
 Source: [`csharp/`](./csharp)
+
+## Python
+
+```bash
+pip install one-msg-sdk==1.0.0
+```
+
+Source: [`python/`](./python)
