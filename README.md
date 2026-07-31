@@ -26,6 +26,14 @@ Source: [`typescript/`](./typescript)
 - [README.md](./typescript/README.md) — full developer guide
 - [AGENTS.md](./typescript/AGENTS.md) — machine-readable index for AI coding agents
 
+## MCP example
+
+Minimal local MCP server (stdio) using `@1msg/sdk`:
+
+[`examples/mcp`](./examples/mcp) — `npm install && npm start`
+
+Hosted MCP (full toolset): `https://mcp.1msg.io/mcp` (stage: `https://mcp.stage.1msg.io/mcp`).
+
 ## Other languages
 
 Additional SDKs will be published gradually to their respective package registries.

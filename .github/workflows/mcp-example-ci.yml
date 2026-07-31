@@ -1,0 +1,29 @@
+name: mcp-example-ci
+
+on:
+  push:
+    paths:
+      - 'examples/mcp/**'
+      - '.github/workflows/mcp-example-ci.yml'
+  pull_request:
+    paths:
+      - 'examples/mcp/**'
+      - '.github/workflows/mcp-example-ci.yml'
+
+jobs:
+  lint-and-smoke:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: examples/mcp
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: npm
+          cache-dependency-path: examples/mcp/package-lock.json
+      - run: npm install
+      - run: npm run lint
+      - run: npm test
+      - run: npm run smoke:tools-list
