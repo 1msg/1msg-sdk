@@ -58,7 +58,7 @@ Source: [`scala/`](./scala)
 ## C#
 
 ```bash
-dotnet add package OneMsg.Sdk --version 1.0.2
+dotnet add package OneMsg.Sdk --version 2.0.0
 ```
 
 Source: [`csharp/`](./csharp)
@@ -66,7 +66,7 @@ Source: [`csharp/`](./csharp)
 ## Python
 
 ```bash
-pip install one-msg-sdk==1.0.0
+pip install one-msg-sdk==1.0.1
 ```
 
 Source: [`python/`](./python)
