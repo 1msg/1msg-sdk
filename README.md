@@ -58,7 +58,7 @@ Source: [`scala/`](./scala)
 ## C#
 
 ```bash
-dotnet add package OneMsg.ChatApi --version 1.0.2
+dotnet add package OneMsg.Sdk --version 1.0.2
 ```
 
 Source: [`csharp/`](./csharp)
