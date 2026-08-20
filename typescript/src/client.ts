@@ -15,8 +15,8 @@ import {
 import type { SendMessageRequest } from './generated/src/models/SendMessageRequest';
 import type { MessageSentResponse } from './generated/src/models/MessageSentResponse';
 
-export type { ClientConfigOptions, ChatApiConfigOptions } from './client-config';
-export { ClientConfig, ChatApiConfig } from './client-config';
+export type { ClientConfigOptions } from './client-config';
+export { ClientConfig } from './client-config';
 
 /**
  * High-level client for the 1MSG WhatsApp Business API.
@@ -68,14 +68,7 @@ export class Client {
   }
 }
 
-/** @deprecated Use Client. */
-export const ChatApiClient = Client;
-export type ChatApiClient = Client;
-
 /** Factory: create a configured 1MSG API client from connection options. */
 export function createClient(options: ClientConfigOptions): Client {
   return new Client(new ClientConfig(options));
 }
-
-/** @deprecated Use `createClient` instead. */
-export const createChatApiClient = createClient;

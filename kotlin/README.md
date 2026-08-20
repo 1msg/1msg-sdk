@@ -45,7 +45,7 @@ Use environment variables (`MSG_API_TOKEN`, `MSG_INSTANCE_ID`). Never commit tok
 ## Quick start
 
 ```kotlin
-import io.onemsg.chat.api.MessagingApi
+import io.onemsg.sdk.api.MessagingApi
 
 val messaging = MessagingApi(basePath = "https://api.1msg.io/${System.getenv("MSG_INSTANCE_ID")}")
 messaging.sendMessage(
@@ -91,7 +91,7 @@ WebhooksApi
 
 ## Package notes
 
-Maven coordinates are `io.1msg:sdk-kotlin`. Source packages live under `io.onemsg.chat`.
+Maven coordinates are `io.1msg:sdk-kotlin`. Source packages live under `io.onemsg.sdk`.
 
 ## API reference
 

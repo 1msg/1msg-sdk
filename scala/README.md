@@ -47,7 +47,7 @@ Use environment variables (`MSG_API_TOKEN`, `MSG_INSTANCE_ID`). Never commit tok
 ## Quick start
 
 ```scala
-import io.onemsg.chat.api.MessagingApi
+import io.onemsg.sdk.api.MessagingApi
 import sttp.client3.HttpURLConnectionBackend
 
 val token = sys.env("MSG_API_TOKEN")
@@ -96,7 +96,7 @@ TemplatesApi
 
 ## Package notes
 
-Maven coordinates are `io.1msg:sdk-scala_2.12` / `sdk-scala_2.13`. Source packages live under `io.onemsg.chat`.
+Maven coordinates are `io.1msg:sdk-scala_2.12` / `sdk-scala_2.13`. Source packages live under `io.onemsg.sdk`.
 
 ## API reference
 

@@ -4242,10 +4242,6 @@ await client.flows.createFlowsFlowIdPublish('FLOW_ID', client.config.token);
 
 No. Tokens must stay server-side. Use a backend proxy.
 
-### Difference between `createClient` and `createChatApiClient`?
-
-`createChatApiClient` is deprecated. Use `createClient`.
-
 ### How are versions published?
 
 SDK semver is independent from OpenAPI `info.version`. Patch releases ship doc fixes; minor/major track API changes.

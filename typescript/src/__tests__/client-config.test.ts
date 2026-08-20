@@ -1,4 +1,4 @@
-import { ClientConfig, ChatApiConfig } from '../client-config';
+import { ClientConfig } from '../client-config';
 
 describe('ClientConfig', () => {
   const baseOptions = {
@@ -44,9 +44,5 @@ describe('ClientConfig', () => {
     expect(() => new ClientConfig({ ...baseOptions, baseUrl: '' })).toThrow(
       'ClientConfig.baseUrl is required',
     );
-  });
-
-  it('keeps ChatApiConfig as a deprecated alias', () => {
-    expect(ChatApiConfig).toBe(ClientConfig);
   });
 });

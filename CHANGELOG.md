@@ -19,7 +19,10 @@ Package versions per language are listed in [README.md](./README.md) and
 - Align local Rust crate name with crates.io (`one-msg-sdk`).
 - Drop “Chat API” from C# package metadata.
 - Rename TypeScript `ChatApiClient` / `ChatApiConfig` to `Client` / `ClientConfig`
-  (old names remain as deprecated aliases).
+  and drop the old names (breaking for anyone still importing `ChatApi*`).
+- Move Kotlin/Scala source packages from `io.onemsg.chat` to `io.onemsg.sdk`
+  (same Java namespace as the Java SDK). Next Maven publish is a breaking import
+  change; install pins in the README stay on the live `1.0.2` artifacts until then.
 
 ## Published packages (2026-08-14)
 

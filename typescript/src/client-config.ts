@@ -7,9 +7,6 @@ export interface ClientConfigOptions {
   token: string;
 }
 
-/** @deprecated Use ClientConfigOptions. */
-export type ChatApiConfigOptions = ClientConfigOptions;
-
 /**
  * Normalizes URL segments for 1MSG API requests.
  * Pattern: {baseUrl}/{instanceId}{path}?token={token}
@@ -55,7 +52,3 @@ export class ClientConfig {
     return value.replace(/\/+$/, '');
   }
 }
-
-/** @deprecated Use ClientConfig. */
-export const ChatApiConfig = ClientConfig;
-export type ChatApiConfig = ClientConfig;

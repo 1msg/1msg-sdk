@@ -37,6 +37,16 @@ changes.
 PHP and C++ are not on a public registry yet. First Packagist / Conan
 release can still start at `1.0.0`.
 
+## Kotlin / Scala Java package
+
+Maven coordinates stay `io.1msg:sdk-kotlin` / `io.1msg:sdk-scala_*`.
+The Java package inside the jar cannot be `io.1msg` (a segment cannot start
+with a digit), so it is `io.onemsg.sdk` — the same namespace as the Java SDK.
+
+Published `1.0.2` artifacts still use `io.onemsg.chat`. Source on this branch
+already uses `io.onemsg.sdk`. The next Maven patch (`1.0.3`) is a breaking
+import change; README install pins stay on `1.0.2` until that publish.
+
 ## Umbrella GitHub Releases
 
 This repository’s `vX.Y.Z` tags document the SDK umbrella (README, changelog,
