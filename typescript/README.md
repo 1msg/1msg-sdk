@@ -15,7 +15,7 @@ parameter, response code, type export, and common integration pattern is documen
 | **Support** | support@1msg.io |
 | **OpenAPI version** | 1.0.0 |
 | **Operations** | 60 |
-| **Exported models** | 57 |
+| **Exported models** | 75 |
 | **AI agent guide** | [AGENTS.md](./AGENTS.md) |
 
 ---
@@ -503,7 +503,7 @@ curl -X GET 'https://api.1msg.io/{instanceId}/retrieveMedia?token={token}'
 
 #### Send address request message
 
-Request shipping address from the user. **India only** (WhatsApp Cloud API address messages). Requires an India WhatsApp Business number and an India (+91) recipient. Meta validates eligibility; mismatches return WABA errors such as `Unsupported Interactive Message type` (HTTP 200 with `sent: false`). The outbound payload always sends `action.parameters.country = "IN"`. A `country` field in the request body (if present) is ignored.
+Request shipping address from the user (WhatsApp interactive `address_message`). **India and Singapore only.** Requires: - Business WhatsApp number registered in that country - Recipient phone matching the country (`+91` ↔ `IN`, `+65` ↔ `SG`) Pass `country: "IN"` or `country: "SG"`. Eligibility is validated upstream; mismatches (e.g. Singapore phone with `country: "IN"`) return errors such as `Unsupported Interactive Message type` (HTTP 200 with `sent: false`). Optional action parameters: `values`, `saved_addresses`, `validation_errors`.
 
 | | |
 |---|---|
@@ -526,9 +526,13 @@ Request shipping address from the user. **India only** (WhatsApp Cloud API addre
 
 | Field | Type | Required | Description |
 |-------|------|----------|-------------|
-| `phone` | integer | optional |  |
+| `phone` | integer | optional | Recipient phone (E.164 digits, no +). Must match country. |
 | `chatId` | string | optional |  |
 | `body` | string | **required** | Body text shown with the address request |
+| `country` | enum("IN" | "SG") | optional | Address form country. Defaults to IN if omitted. (example="SG") |
+| `values` | object | optional | Optional prefilled address fields |
+| `saved_addresses` | array<object> | optional | Optional previously saved addresses for the user |
+| `validation_errors` | object | optional | Optional field validation errors when re-prompting |
 | `quotedMsgId` | string | optional |  |
 
 
@@ -1404,7 +1408,7 @@ curl -X POST 'https://api.1msg.io/{instanceId}/sendMessage?token={token}' \
 
 #### Send order details (India payments template)
 
-Send a WhatsApp **order details** payment message via a pre-approved **Utility** template with an `ORDER_DETAILS` button. **India only** (WhatsApp Payments India). Requires: - India WhatsApp Business Account / phone number - Commerce-enabled channel - Approved template with an `ORDER_DETAILS` button Prefer this helper when you want a dedicated payload (`order`, `referenceId`, `currency`, `paymentSettings`). Under the hood it builds a Cloud API template `button` component with `sub_type: order_details` and calls the same path as `POST /sendTemplate`. To send the same message **outside the 24-hour window**, you can also call `POST /sendTemplate` directly with a `params` button: ```json { "type": "button", "sub_type": "order_details", "index": 0, "parameters": [{ "type": "action", "action": { "order_details": { "reference_id": "order-123", "type": "digital-goods", "payment_type": "upi", "payment_configuration": "payment_config_name", "currency": "INR", "total_amount": { "offset": 100, "value": 65000 }, "order": { "status": "pending", "items": [], "subtotal": { "offset": 100, "value": 65000 } } } } }] } ``` See Meta/360dialog: Payments India — order details template message.
+Send a WhatsApp **order details** payment / invoice message using a pre-approved **Utility** template that has an `ORDER_DETAILS` button. **India only** (WhatsApp Payments India). Requires: - India WhatsApp Business number - Commerce enabled on the channel (`GET`/`POST /commerce`) - Approved template with an `ORDER_DETAILS` button Use this method when you need structured fields (`order`, `referenceId`, `currency`, `paymentSettings`). The API appends a template button `sub_type: order_details` and sends via the same path as `POST /sendTemplate`. Works **outside the 24-hour session window** (template message). You can also send the same payload yourself with `POST /sendTemplate` by including a button component in `params`: ```json { "type": "button", "sub_type": "order_details", "index": 0, "parameters": [{ "type": "action", "action": { "order_details": { "reference_id": "order-123", "currency": "INR", "order": { "status": "pending", "items": [], "subtotal": { "offset": 100, "value": 50000 } } } } }] } ```
 
 | | |
 |---|---|
@@ -1427,16 +1431,26 @@ Send a WhatsApp **order details** payment message via a pre-approved **Utility**
 
 | Field | Type | Required | Description |
 |-------|------|----------|-------------|
-| `phone` | integer | optional | Recipient phone (India E.164 digits, no +) |
-| `chatId` | string | optional | Recipient chatId (phone@c.us / bsuid@lid / …) |
-| `template` | string | **required** | Approved template name with ORDER_DETAILS button |
-| `namespace` | string | **required** | Template namespace |
-| `language` | object | **required** | Template language object, e.g. code "en" or policy "deterministic" with code "en". |
-| `params` | array<object> | optional | Extra template components (header/body). An order_details button is appended automatically if missing. |
-| `order` | object | **required** | Order object (items, subtotal, tax, shipping, discount, status) per Meta Payments India docs. |
-| `referenceId` | string | optional | Unique order/payment reference id |
-| `paymentSettings` | object | optional | Optional payment_settings (UPI / payment gateway / payment link). |
-| `currency` | string | optional | Currency code (INR for India) (example="INR") |
+| `phone` | integer | optional | Recipient phone (India E.164 digits, no +). Use phone or chatId. (example=919876543210) |
+| `chatId` | string | optional | Recipient chatId (e.g. phone@c.us). Use phone or chatId. |
+| `template` | string | **required** | Approved Utility template name that includes an ORDER_DETAILS button (example="order_details_utility") |
+| `namespace` | string | **required** | Template namespace from the channel / template list (example="your_namespace_uuid") |
+| `language` | object | **required** | Template language |
+  | `code` | string | **required** | Language code (example="en") |
+  | `policy` | string | optional | Optional language policy (example="deterministic") |
+| `params` | array<object> | optional | Extra template components (HEADER / BODY / etc.). If an order_details button is missing, the API appends one from order / referenceId / currency / paymentSettings. |
+| `referenceId` | string | optional | Unique order / payment reference id (maps to reference_id) (example="order-123") |
+| `currency` | string | optional | Currency code for India payments (example="INR") |
+| `paymentSettings` | object | optional | Optional payment settings (UPI / payment gateway / payment link). Forwarded as payment_settings on the order_details action. |
+| `order` | object | **required** | Order payload for the ORDER_DETAILS button. Typical fields: status, items[], subtotal, tax, shipping, discount. Amount objects use `{ "offset": 100, "value": <minor_units> }` (e.g. value 50000 with offset 100 = ₹500.00). |
+  | `status` | string | optional | Order status (example="pending") |
+  | `items` | array<object> | **required** | Line items |
+  | `subtotal` | object | optional |  |
+    | `offset` | integer | optional |  (example=100) |
+    | `value` | integer | optional |  (example=50000) |
+  | `tax` | object | optional |  |
+  | `shipping` | object | optional |  |
+  | `discount` | object | optional |  |
 
 **OpenAPI example body**
 
@@ -1444,7 +1458,7 @@ Send a WhatsApp **order details** payment message via a pre-approved **Utility**
 {
   "phone": 919876543210,
   "template": "order_details_utility",
-  "namespace": "your_namespace",
+  "namespace": "your_namespace_uuid",
   "language": {
     "code": "en"
   },
@@ -1495,7 +1509,7 @@ curl -X POST 'https://api.1msg.io/{instanceId}/sendOrderDetails?token={token}' \
   -d '{
     "phone": 919876543210,
     "template": "order_details_utility",
-    "namespace": "your_namespace",
+    "namespace": "your_namespace_uuid",
     "language": {
       "code": "en"
     },
@@ -2869,7 +2883,7 @@ Namespace: `client.calling` → `CallingApi` (3 operations)
 
 #### Get calling settings
 
-WhatsApp Calling API settings (beta). Requires Meta Calling enablement on the WABA. Not production-complete — paths and webhook field names may change. Trial/subscription-limited channels are blocked.
+Return WhatsApp Calling API settings for this channel (beta). Proxies upstream `GET /calling/settings`. **Prerequisites** - Number must be eligible for Meta Calling (Cloud API; not COEX) - Trial / `subscriptionBlocked` channels receive **403** plain text - You need your own WebRTC or SIP stack; 1msg is a **signaling proxy** only and does **not** store call history or recordings See the **Calling** tag overview for inbound/outbound flows and webhooks.
 
 | | |
 |---|---|
@@ -2877,7 +2891,7 @@ WhatsApp Calling API settings (beta). Requires Meta Calling enablement on the WA
 | SDK group | `client.calling` |
 | API class | `CallingApi` |
 | operationId | `getCallingSettings` |
-| Signature | `getCallingSettings(token: string, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<{ [key: string]: any; }>` |
+| Signature | `getCallingSettings(token: string, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<CallingSettings>` |
 
 #### Authentication
 
@@ -2892,7 +2906,7 @@ WhatsApp Calling API settings (beta). Requires Meta Calling enablement on the WA
 
 | Status | Description | Schema |
 |--------|-------------|--------|
-| `200` | Calling settings | `—` |
+| `200` | Calling settings (and possibly other Cloud API settings Meta returns) | `CallingSettings` |
 | `401` | Invalid or missing authentication token | `ErrorResponse` |
 | `500` | Internal server error | `ErrorResponse` |
 
@@ -2910,9 +2924,9 @@ curl -X GET 'https://api.1msg.io/{instanceId}/callingSettings?token={token}'
 
 ### `initiateCall`
 
-#### Initiate WhatsApp call
+#### Call action (connect / pre_accept / accept / reject / terminate)
 
-Outbound Calling API (beta). Requires Meta Calling enablement and product consent. Not production-complete — verify on stage before relying on this in production. Trial/subscription-limited channels are blocked.
+Perform a WhatsApp Calling action (beta). Proxies upstream `POST /calling/calls`. Despite the historical path name `/initiateCall`, this endpoint handles **all** call actions: | action | Use | Required | |--------|-----|----------| | `connect` | Outbound business → user | `to` + `session` (`sdp_type: offer`) | | `pre_accept` | Inbound (optional, reduces audio clipping) | `call_id` + `session` (`sdp_type: answer`) | | `accept` | Inbound answer | `call_id` + `session` (`sdp_type: answer`) | | `reject` | Decline inbound | `call_id` | | `terminate` | Hang up | `call_id` | **SDP / media (critical)** - `accept` / `pre_accept` require a **WebRTC-generated SDP answer**. - Do **not** send Meta's offer SDP back as the answer. - Postman (or curl) alone **cannot** establish real media — you need a WebRTC or SIP stack. 1msg only proxies signaling. Answer within ~**30–60 seconds** of an inbound `connect` webhook or Meta terminates as unanswered. Common Meta errors include Calling not enabled (`138000`), no permission (`138006`), SDP validation failures. **Outbound** requires a prior Call Permission Request (CPR) acceptance. See the **Calling** tag overview for the full outbound flow and CPR limits. Trial / `subscriptionBlocked` → **403** plain text. Upstream failures often return HTTP 200 with `{ "response": { "error": "..." } }`.
 
 | | |
 |---|---|
@@ -2920,7 +2934,7 @@ Outbound Calling API (beta). Requires Meta Calling enablement and product consen
 | SDK group | `client.calling` |
 | API class | `CallingApi` |
 | operationId | `initiateCall` |
-| Signature | `initiateCall(token: string, requestBody?: { [key: string]: any; }, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<{ [key: string]: any; }>` |
+| Signature | `initiateCall(token: string, initiateCallRequest: InitiateCallRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<InitiateCallResponse>` |
 
 #### Authentication
 
@@ -2931,11 +2945,25 @@ Outbound Calling API (beta). Requires Meta Calling enablement and product consen
 
 - `token` (string, required) — channel API token
 
+**Request body schema**
+
+| Field | Type | Required | Description |
+|-------|------|----------|-------------|
+| `messaging_product` | enum("whatsapp") | **required** | Must be `whatsapp` (example="whatsapp") |
+| `action` | enum("connect" | "pre_accept" | "accept" | "reject" | "terminate") | **required** | Call control action (example="connect") |
+| `call_id` | string | optional | WhatsApp call id from the inbound/outbound calls webhook (`calls[].id`). Required for `pre_accept`, `accept`, `reject`, `terminate`. (example="wacid.ABGGFjFVU2AfAgo6V-Hc5eCgK5Gh") |
+| `to` | string | optional | Recipient WhatsApp user phone (digits, country code, no +). Required for outbound `connect`. (example="12185552828") |
+| `biz_opaque_callback_data` | string | optional | Optional opaque string echoed on later call webhooks for correlation (maxLength=512, example="order-123-callback") |
+| `session` | object | optional | WebRTC SDP session (required for connect / pre_accept / accept) |
+  | `sdp_type` | enum("offer" | "answer") | **required** | offer for outbound connect; answer for pre_accept/accept (example="offer") |
+  | `sdp` | string | **required** | Full SDP (RFC 8866). Replace placeholders with SDP from your WebRTC stack. Must negotiate ICE, DTLS-SRTP, and OPUS for WhatsApp media. (example="[REPLACE_WITH_WEBRTC_SDP]") |
+
+
 **Responses**
 
 | Status | Description | Schema |
 |--------|-------------|--------|
-| `200` | Call initiated | `—` |
+| `200` | Call action result from upstream, or legacy error wrapper | `InitiateCallResponse` |
 | `401` | Invalid or missing authentication token | `ErrorResponse` |
 | `500` | Internal server error | `ErrorResponse` |
 
@@ -2957,7 +2985,7 @@ curl -X POST 'https://api.1msg.io/{instanceId}/initiateCall?token={token}' \
 
 #### Update calling settings
 
-Update WhatsApp Calling API settings (beta). Requires Meta Calling enablement. Trial/subscription-limited channels are blocked.
+Enable, disable, or update WhatsApp Calling settings (beta). Proxies upstream `POST /calling/settings`. Body is forwarded as-is (1msg does not validate fields). **Common fields under `calling`** - `status` (`ENABLED` | `DISABLED`) — required to turn calling on/off - `call_icon_visibility` (`DEFAULT` | `DISABLE_ALL`) — optional - `callback_permission_status` (`ENABLED` | `DISABLED`) — optional; when enabled, inbound user calls grant callback permission - `call_hours` — optional hours / timezone object - `sip` — optional SIP trunk; when SIP is ENABLED, Graph call actions and calling webhooks are not used - `srtp_key_exchange_protocol` (`DTLS` | `SDES`) — SDES only with SIP - `video.status` — optional Meta may accept only one feature group per request — prefer focused updates (e.g. enable status first, then SIP). Trial / `subscriptionBlocked` → **403** plain text.
 
 | | |
 |---|---|
@@ -2965,7 +2993,7 @@ Update WhatsApp Calling API settings (beta). Requires Meta Calling enablement. T
 | SDK group | `client.calling` |
 | API class | `CallingApi` |
 | operationId | `updateCallingSettings` |
-| Signature | `updateCallingSettings(token: string, requestBody?: { [key: string]: any; }, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<{ [key: string]: any; }>` |
+| Signature | `updateCallingSettings(token: string, callingSettings: CallingSettings, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<UpdateCallingSettings200Response>` |
 
 #### Authentication
 
@@ -2976,18 +3004,43 @@ Update WhatsApp Calling API settings (beta). Requires Meta Calling enablement. T
 
 - `token` (string, required) — channel API token
 
+**Request body schema**
+
+| Field | Type | Required | Description |
+|-------|------|----------|-------------|
+| `calling` | object | optional | Calling feature configuration for the business phone number |
+  | `status` | enum("ENABLED" | "DISABLED") | optional | Enable or disable Calling API on this number (example="ENABLED") |
+  | `call_icon_visibility` | enum("DEFAULT" | "DISABLE_ALL") | optional | Controls call icon visibility in the WhatsApp client (example="DEFAULT") |
+  | `callback_permission_status` | enum("ENABLED" | "DISABLED") | optional | When ENABLED, a user who calls your business automatically grants call permission for business-initiated callbacks (subject to Meta rules). (example="ENABLED") |
+  | `srtp_key_exchange_protocol` | enum("DTLS" | "SDES") | optional | SRTP key exchange. DTLS is default/recommended. SDES is only valid when SIP signaling is enabled. (example="DTLS") |
+  | `call_hours` | object | optional | Optional call hours / timezone configuration (Meta shape) |
+    | `status` | string | optional |  (example="ENABLED") |
+    | `timezone` | string | optional |  (example="America/Los_Angeles") |
+    | `day_of_week_start` | string | optional |  (example="MONDAY") |
+  | `sip` | object | optional | SIP trunk settings. When SIP is ENABLED, Graph call actions and calling webhooks are not used — Meta dials your SIP server directly. |
+    | `status` | enum("ENABLED" | "DISABLED") | optional |  (example="DISABLED") |
+    | `servers` | array<object> | optional |  |
+  | `video` | object | optional | Video calling toggle when supported |
+    | `status` | enum("ENABLED" | "DISABLED") | optional |  |
+  | `audio` | object | optional | Audio settings (typically response-only) |
+    | `status` | string | optional |  |
+  | `restrictions` | object | optional | Calling restrictions (response-only) |
+  | `ip_addresses` | object | optional | Meta media IP ranges (response-only) |
+  | `call_icons` | object | optional | Call icon country restrictions (response-only) |
+
+
 **Responses**
 
 | Status | Description | Schema |
 |--------|-------------|--------|
-| `200` | Updated | `—` |
+| `200` | Usually `{ "success": true }` from upstream, or legacy `{ "result": "success" }` / `{ "response": { "error": "..." } }`. | `—` |
 | `401` | Invalid or missing authentication token | `ErrorResponse` |
 | `500` | Internal server error | `ErrorResponse` |
 
 #### SDK example
 
 ```typescript
-await client.calling.updateCallingSettings(client.config.token, {});
+await client.calling.updateCallingSettings(client.config.token, undefined);
 ```
 
 #### cURL equivalent
@@ -3487,7 +3540,7 @@ curl -X GET 'https://api.1msg.io/{instanceId}/webhook?token={token}'
 
 #### Set webhook URL
 
-Configure the client webhook URL for inbound events.
+Configure the client webhook URL for inbound events. WhatsApp **Calling** events (`field=calls`) are forwarded as passthrough payloads with `type: "calls"` and `instanceId` (connect / status / terminate). Call permission replies arrive on the normal messages path (`call_permission_reply`). Details: **Calling** tag.
 
 | | |
 |---|---|
@@ -3561,6 +3614,98 @@ Check if a given object implements the BlockUserRequest interface.
 | Field | Type | Required | Description |
 |-------|------|----------|-------------|
 | `phone` | `number` | **required** | — |
+
+### `CallingSettings`
+
+Check if a given object implements the CallingSettings interface.
+
+| Field | Type | Required | Description |
+|-------|------|----------|-------------|
+| `calling` | object | optional | Calling feature configuration for the business phone number |
+  | `status` | enum("ENABLED" | "DISABLED") | optional | Enable or disable Calling API on this number (example="ENABLED") |
+  | `call_icon_visibility` | enum("DEFAULT" | "DISABLE_ALL") | optional | Controls call icon visibility in the WhatsApp client (example="DEFAULT") |
+  | `callback_permission_status` | enum("ENABLED" | "DISABLED") | optional | When ENABLED, a user who calls your business automatically grants call permission for business-initiated callbacks (subject to Meta rules). (example="ENABLED") |
+  | `srtp_key_exchange_protocol` | enum("DTLS" | "SDES") | optional | SRTP key exchange. DTLS is default/recommended. SDES is only valid when SIP signaling is enabled. (example="DTLS") |
+  | `call_hours` | object | optional | Optional call hours / timezone configuration (Meta shape) |
+    | `status` | string | optional |  (example="ENABLED") |
+    | `timezone` | string | optional |  (example="America/Los_Angeles") |
+    | `day_of_week_start` | string | optional |  (example="MONDAY") |
+  | `sip` | object | optional | SIP trunk settings. When SIP is ENABLED, Graph call actions and calling webhooks are not used — Meta dials your SIP server directly. |
+    | `status` | enum("ENABLED" | "DISABLED") | optional |  (example="DISABLED") |
+    | `servers` | array<object> | optional |  |
+  | `video` | object | optional | Video calling toggle when supported |
+    | `status` | enum("ENABLED" | "DISABLED") | optional |  |
+  | `audio` | object | optional | Audio settings (typically response-only) |
+    | `status` | string | optional |  |
+  | `restrictions` | object | optional | Calling restrictions (response-only) |
+  | `ip_addresses` | object | optional | Meta media IP ranges (response-only) |
+  | `call_icons` | object | optional | Call icon country restrictions (response-only) |
+
+### `CallingSettingsCalling`
+
+@export
+
+| Field | Type | Required | Description |
+|-------|------|----------|-------------|
+| `status` | `CallingSettingsCallingStatusEnum` | optional | — |
+| `callIconVisibility` | `CallingSettingsCallingCallIconVisibilityEnum` | optional | — |
+| `callbackPermissionStatus` | `CallingSettingsCallingCallbackPermissionStatusEnum` | optional | — |
+| `srtpKeyExchangeProtocol` | `CallingSettingsCallingSrtpKeyExchangeProtocolEnum` | optional | — |
+| `callHours` | `CallingSettingsCallingCallHours` | optional | — |
+| `sip` | `CallingSettingsCallingSip` | optional | — |
+| `video` | `CallingSettingsCallingVideo` | optional | — |
+| `audio` | `CallingSettingsCallingAudio` | optional | — |
+| `restrictions` | `{ [key: string]: any` | optional | — |
+| `ipAddresses` | `{ [key: string]: any` | optional | — |
+| `callIcons` | `{ [key: string]: any` | optional | — |
+
+### `CallingSettingsCallingAudio`
+
+Check if a given object implements the CallingSettingsCallingAudio interface.
+
+| Field | Type | Required | Description |
+|-------|------|----------|-------------|
+| `status` | `string` | optional | — |
+
+### `CallingSettingsCallingCallHours`
+
+Check if a given object implements the CallingSettingsCallingCallHours interface.
+
+| Field | Type | Required | Description |
+|-------|------|----------|-------------|
+| `status` | `string` | optional | — |
+| `timezone` | `string` | optional | — |
+| `dayOfWeekStart` | `string` | optional | — |
+
+### `CallingSettingsCallingSip`
+
+@export
+
+| Field | Type | Required | Description |
+|-------|------|----------|-------------|
+| `status` | `CallingSettingsCallingSipStatusEnum` | optional | — |
+| `servers` | `Array<CallingSettingsCallingSipServersInner>` | optional | — |
+
+### `CallingSettingsCallingSipServersInner`
+
+Check if a given object implements the CallingSettingsCallingSipServersInner interface.
+
+| Field | Type | Required | Description |
+|-------|------|----------|-------------|
+| `hostname` | `string` | optional | — |
+| `port` | `number` | optional | — |
+| `requestUriUserParams` | `{ [key: string]: string` | optional | — |
+| `sipUserPassword` | `string` | optional | — |
+| `password` | `string` | optional | — |
+| `appId` | `string` | optional | — |
+
+### `CallingSettingsCallingVideo`
+
+@export
+
+| Field | Type | Required | Description |
+|-------|------|----------|-------------|
+| `status` | `CallingSettingsCallingVideoStatusEnum` | optional | — |
 
 ### `ConversationalAutomation`
 
@@ -3712,6 +3857,59 @@ Check if a given object implements the GetWebhook200Response interface.
 | `businessPublicKeySignatureStatus` | `GetWhatsappBusinessEncryption200ResponseBusinessPublicKeySignatureStatusEnum` | optional | — |
 | `data` | `Array<{ [key: string]: any` | optional | — |
 
+### `InitiateCallRequest`
+
+@export
+
+| Field | Type | Required | Description |
+|-------|------|----------|-------------|
+| `messaging_product` | enum("whatsapp") | **required** | Must be `whatsapp` (example="whatsapp") |
+| `action` | enum("connect" | "pre_accept" | "accept" | "reject" | "terminate") | **required** | Call control action (example="connect") |
+| `call_id` | string | optional | WhatsApp call id from the inbound/outbound calls webhook (`calls[].id`). Required for `pre_accept`, `accept`, `reject`, `terminate`. (example="wacid.ABGGFjFVU2AfAgo6V-Hc5eCgK5Gh") |
+| `to` | string | optional | Recipient WhatsApp user phone (digits, country code, no +). Required for outbound `connect`. (example="12185552828") |
+| `biz_opaque_callback_data` | string | optional | Optional opaque string echoed on later call webhooks for correlation (maxLength=512, example="order-123-callback") |
+| `session` | object | optional | WebRTC SDP session (required for connect / pre_accept / accept) |
+  | `sdp_type` | enum("offer" | "answer") | **required** | offer for outbound connect; answer for pre_accept/accept (example="offer") |
+  | `sdp` | string | **required** | Full SDP (RFC 8866). Replace placeholders with SDP from your WebRTC stack. Must negotiate ICE, DTLS-SRTP, and OPUS for WhatsApp media. (example="[REPLACE_WITH_WEBRTC_SDP]") |
+
+### `InitiateCallRequestSession`
+
+@export
+
+| Field | Type | Required | Description |
+|-------|------|----------|-------------|
+| `sdpType` | `InitiateCallRequestSessionSdpTypeEnum` | **required** | — |
+| `sdp` | `string` | **required** | — |
+
+### `InitiateCallResponse`
+
+Check if a given object implements the InitiateCallResponse interface.
+
+| Field | Type | Required | Description |
+|-------|------|----------|-------------|
+| `messaging_product` | string | optional |  (example="whatsapp") |
+| `success` | boolean | optional |  (example=true) |
+| `calls` | array<object> | optional | Present on outbound `connect` — contains the new call id |
+| `result` | string | optional | Legacy success marker when upstream returns an empty body (example="success") |
+| `response` | object | optional | Present when 1msg wraps an upstream error |
+  | `error` | string | optional |  |
+
+### `InitiateCallResponseCallsInner`
+
+Check if a given object implements the InitiateCallResponseCallsInner interface.
+
+| Field | Type | Required | Description |
+|-------|------|----------|-------------|
+| `id` | `string` | optional | — |
+
+### `InitiateCallResponseResponse`
+
+Check if a given object implements the InitiateCallResponseResponse interface.
+
+| Field | Type | Required | Description |
+|-------|------|----------|-------------|
+| `error` | `string` | optional | — |
+
 ### `ListBlockedUsers200Response`
 
 Check if a given object implements the ListBlockedUsers200Response interface.
@@ -3801,13 +3999,17 @@ Check if a given object implements the RetrieveMedia200Response interface.
 
 ### `SendAddressMessageRequest`
 
-Check if a given object implements the SendAddressMessageRequest interface.
+@export
 
 | Field | Type | Required | Description |
 |-------|------|----------|-------------|
 | `phone` | `number` | optional | — |
 | `chatId` | `string` | optional | — |
 | `body` | `string` | **required** | — |
+| `country` | `SendAddressMessageRequestCountryEnum` | optional | — |
+| `values` | `{ [key: string]: any` | optional | — |
+| `savedAddresses` | `Array<{ [key: string]: any` | optional | — |
+| `validationErrors` | `{ [key: string]: any` | optional | — |
 | `quotedMsgId` | `string` | optional | — |
 
 ### `SendButtonRequest`
@@ -4043,12 +4245,54 @@ Check if a given object implements the SendOrderDetailsRequest interface.
 | `chatId` | `string` | optional | — |
 | `template` | `string` | **required** | — |
 | `namespace` | `string` | **required** | — |
-| `language` | `{ [key: string]: any` | **required** | — |
+| `language` | `SendOrderDetailsRequestLanguage` | **required** | — |
 | `params` | `Array<{ [key: string]: any` | optional | — |
-| `order` | `{ [key: string]: any` | **required** | — |
 | `referenceId` | `string` | optional | — |
-| `paymentSettings` | `{ [key: string]: any` | optional | — |
 | `currency` | `string` | optional | — |
+| `paymentSettings` | `{ [key: string]: any` | optional | — |
+| `order` | `SendOrderDetailsRequestOrder` | **required** | — |
+
+### `SendOrderDetailsRequestLanguage`
+
+Check if a given object implements the SendOrderDetailsRequestLanguage interface.
+
+| Field | Type | Required | Description |
+|-------|------|----------|-------------|
+| `code` | `string` | **required** | — |
+| `policy` | `string` | optional | — |
+
+### `SendOrderDetailsRequestOrder`
+
+Check if a given object implements the SendOrderDetailsRequestOrder interface.
+
+| Field | Type | Required | Description |
+|-------|------|----------|-------------|
+| `status` | `string` | optional | — |
+| `items` | `Array<SendOrderDetailsRequestOrderItemsInner>` | **required** | — |
+| `subtotal` | `SendOrderDetailsRequestOrderItemsInnerAmount` | optional | — |
+| `tax` | `{ [key: string]: any` | optional | — |
+| `shipping` | `{ [key: string]: any` | optional | — |
+| `discount` | `{ [key: string]: any` | optional | — |
+
+### `SendOrderDetailsRequestOrderItemsInner`
+
+Check if a given object implements the SendOrderDetailsRequestOrderItemsInner interface.
+
+| Field | Type | Required | Description |
+|-------|------|----------|-------------|
+| `retailerId` | `string` | optional | — |
+| `name` | `string` | optional | — |
+| `quantity` | `number` | optional | — |
+| `amount` | `SendOrderDetailsRequestOrderItemsInnerAmount` | optional | — |
+
+### `SendOrderDetailsRequestOrderItemsInnerAmount`
+
+Check if a given object implements the SendOrderDetailsRequestOrderItemsInnerAmount interface.
+
+| Field | Type | Required | Description |
+|-------|------|----------|-------------|
+| `offset` | `number` | optional | — |
+| `value` | `number` | optional | — |
 
 ### `SendPaymentRequestRequest`
 
@@ -4123,6 +4367,24 @@ Check if a given object implements the SuccessResponse interface.
 | Field | Type | Required | Description |
 |-------|------|----------|-------------|
 | `result` | string | optional | Operation result |
+
+### `UpdateCallingSettings200Response`
+
+Check if a given object implements the UpdateCallingSettings200Response interface.
+
+| Field | Type | Required | Description |
+|-------|------|----------|-------------|
+| `success` | `boolean` | optional | — |
+| `result` | `string` | optional | — |
+| `response` | `UpdateCallingSettings200ResponseResponse` | optional | — |
+
+### `UpdateCallingSettings200ResponseResponse`
+
+Check if a given object implements the UpdateCallingSettings200ResponseResponse interface.
+
+| Field | Type | Required | Description |
+|-------|------|----------|-------------|
+| `error` | `string` | optional | — |
 
 ### `UpdateMeRequest`
 

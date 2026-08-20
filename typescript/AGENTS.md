@@ -77,8 +77,8 @@ operationId: getCallingSettings
 http: GET /callingSettings
 client: client.calling.getCallingSettings
 summary: Get calling settings
-description: WhatsApp Calling API settings (beta). Requires Meta Calling enablement on the WABA. Not production-complete — paths and webhook field names may change. Trial/subscription-limited channels are blocked.
-typescript: getCallingSettings(token: string, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<{ [key: string]: any; }>
+description: Return WhatsApp Calling API settings for this channel (beta). Proxies upstream `GET /calling/settings`. **Prerequisites** - Number must be eligible for Meta Calling (Cloud API; not COEX) - Trial / `subscriptionBlocked` channels receive **403** plain text - You need your own WebRTC or SIP stack; 1msg is a **signaling proxy** only and does **not** store call history or recordings See the **Calling** tag overview for inbound/outbound flows and webhooks.
+typescript: getCallingSettings(token: string, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<CallingSettings>
 requestBody: none
 responses: 200, 401, 500
 ```
@@ -89,10 +89,10 @@ responses: 200, 401, 500
 operationId: initiateCall
 http: POST /initiateCall
 client: client.calling.initiateCall
-summary: Initiate WhatsApp call
-description: Outbound Calling API (beta). Requires Meta Calling enablement and product consent. Not production-complete — verify on stage before relying on this in production. Trial/subscription-limited channels are blocked.
-typescript: initiateCall(token: string, requestBody?: { [key: string]: any; }, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<{ [key: string]: any; }>
-requestBody: none
+summary: Call action (connect / pre_accept / accept / reject / terminate)
+description: Perform a WhatsApp Calling action (beta). Proxies upstream `POST /calling/calls`. Despite the historical path name `/initiateCall`, this endpoint handles **all** call actions: | action | Use | Required | |--------|-----|----------| | `connect` | Outbound business → user | `to` + `session` (`sdp_type: offer`) | | `pre_accept` | Inbound (optional, reduces audio clipping) | `call_id` + `session` (`sdp_type: answer`) | | `accept` | Inbound answer | `call_id` + `session` (`sdp_type: answer`) | | `reject` | Decline inbound | `call_id` | | `terminate` | Hang up | `call_id` | **SDP / media (critical)** - `accept` / `pre_accept` require a **WebRTC-generated SDP answer**. - Do **not** send Meta's offer SDP back as the answer. - Postman (or curl) alone **cannot** establish real media — you need a WebRTC or SIP stack. 1msg only proxies signaling. Answer within ~**30–60 seconds** of an inbound `connect` webhook or Meta terminates as unanswered. Common Meta errors include Calling not enabled (`138000`), no permission (`138006`), SDP validation failures. **Outbound** requires a prior Call Permission Request (CPR) acceptance. See the **Calling** tag overview for the full outbound flow and CPR limits. Trial / `subscriptionBlocked` → **403** plain text. Upstream failures often return HTTP 200 with `{ "response": { "error": "..." } }`.
+typescript: initiateCall(token: string, initiateCallRequest: InitiateCallRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<InitiateCallResponse>
+requestBody: inline object
 responses: 200, 401, 500
 ```
 
@@ -103,9 +103,9 @@ operationId: updateCallingSettings
 http: POST /callingSettings
 client: client.calling.updateCallingSettings
 summary: Update calling settings
-description: Update WhatsApp Calling API settings (beta). Requires Meta Calling enablement. Trial/subscription-limited channels are blocked.
-typescript: updateCallingSettings(token: string, requestBody?: { [key: string]: any; }, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<{ [key: string]: any; }>
-requestBody: none
+description: Enable, disable, or update WhatsApp Calling settings (beta). Proxies upstream `POST /calling/settings`. Body is forwarded as-is (1msg does not validate fields). **Common fields under `calling`** - `status` (`ENABLED` | `DISABLED`) — required to turn calling on/off - `call_icon_visibility` (`DEFAULT` | `DISABLE_ALL`) — optional - `callback_permission_status` (`ENABLED` | `DISABLED`) — optional; when enabled, inbound user calls grant callback permission - `call_hours` — optional hours / timezone object - `sip` — optional SIP trunk; when SIP is ENABLED, Graph call actions and calling webhooks are not used - `srtp_key_exchange_protocol` (`DTLS` | `SDES`) — SDES only with SIP - `video.status` — optional Meta may accept only one feature group per request — prefer focused updates (e.g. enable status first, then SIP). Trial / `subscriptionBlocked` → **403** plain text.
+typescript: updateCallingSettings(token: string, callingSettings: CallingSettings, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<UpdateCallingSettings200Response>
+requestBody: inline object
 responses: 200, 401, 500
 ```
 
@@ -519,7 +519,7 @@ operationId: sendAddressMessage
 http: POST /sendAddressMessage
 client: client.messaging.sendAddressMessage
 summary: Send address request message
-description: Request shipping address from the user. **India only** (WhatsApp Cloud API address messages). Requires an India WhatsApp Business number and an India (+91) recipient. Meta validates eligibility; mismatches return WABA errors such as `Unsupported Interactive Message type` (HTTP 200 with `sent: false`). The outbound payload always sends `action.parameters.country = "IN"`. A `country` field in the request body (if present) is ignored.
+description: Request shipping address from the user (WhatsApp interactive `address_message`). **India and Singapore only.** Requires: - Business WhatsApp number registered in that country - Recipient phone matching the country (`+91` ↔ `IN`, `+65` ↔ `SG`) Pass `country: "IN"` or `country: "SG"`. Eligibility is validated upstream; mismatches (e.g. Singapore phone with `country: "IN"`) return errors such as `Unsupported Interactive Message type` (HTTP 200 with `sent: false`). Optional action parameters: `values`, `saved_addresses`, `validation_errors`.
 typescript: sendAddressMessage(token: string, sendAddressMessageRequest: SendAddressMessageRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<MessageSentResponse>
 requestBody: inline object
 responses: 200, 400, 401, 429, 500
@@ -759,7 +759,7 @@ operationId: sendOrderDetails
 http: POST /sendOrderDetails
 client: client.messaging.sendOrderDetails
 summary: Send order details (India payments template)
-description: Send a WhatsApp **order details** payment message via a pre-approved **Utility** template with an `ORDER_DETAILS` button. **India only** (WhatsApp Payments India). Requires: - India WhatsApp Business Account / phone number - Commerce-enabled channel - Approved template with an `ORDER_DETAILS` button Prefer this helper when you want a dedicated payload (`order`, `referenceId`, `currency`, `paymentSettings`). Under the hood it builds a Cloud API template `button` component with `sub_type: order_details` and calls the same path as `POST /sendTemplate`. To send the same message **outside the 24-hour window**, you can also call `POST /sendTemplate` directly with a `params` button: ```json { "type": "button", "sub_type": "order_details", "index": 0, "parameters": [{ "type": "action", "action": { "order_details": { "reference_id": "order-123", "type": "digital-goods", "payment_type": "upi", "payment_configuration": "payment_config_name", "currency": "INR", "total_amount": { "offset": 100, "value": 65000 }, "order": { "status": "pending", "items": [], "subtotal": { "offset": 100, "value": 65000 } } } } }] } ``` See Meta/360dialog: Payments India — order details template message.
+description: Send a WhatsApp **order details** payment / invoice message using a pre-approved **Utility** template that has an `ORDER_DETAILS` button. **India only** (WhatsApp Payments India). Requires: - India WhatsApp Business number - Commerce enabled on the channel (`GET`/`POST /commerce`) - Approved template with an `ORDER_DETAILS` button Use this method when you need structured fields (`order`, `referenceId`, `currency`, `paymentSettings`). The API appends a template button `sub_type: order_details` and sends via the same path as `POST /sendTemplate`. Works **outside the 24-hour session window** (template message). You can also send the same payload yourself with `POST /sendTemplate` by including a button component in `params`: ```json { "type": "button", "sub_type": "order_details", "index": 0, "parameters": [{ "type": "action", "action": { "order_details": { "reference_id": "order-123", "currency": "INR", "order": { "status": "pending", "items": [], "subtotal": { "offset": 100, "value": 50000 } } } } }] } ```
 typescript: sendOrderDetails(token: string, sendOrderDetailsRequest: SendOrderDetailsRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<MessageSentResponse>
 requestBody: inline object
 responses: 200, 400, 401, 500
@@ -983,7 +983,7 @@ operationId: setWebhook
 http: POST /webhook
 client: client.webhooks.setWebhook
 summary: Set webhook URL
-description: Configure the client webhook URL for inbound events.
+description: Configure the client webhook URL for inbound events. WhatsApp **Calling** events (`field=calls`) are forwarded as passthrough payloads with `type: "calls"` and `instanceId` (connect / status / terminate). Call permission replies arrive on the normal messages path (`call_permission_reply`). Details: **Calling** tag.
 typescript: setWebhook(token: string, getWebhook200Response?: GetWebhook200Response, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<{ [key: string]: any; }>
 requestBody: inline object
 responses: 200, 401, 500
@@ -1001,6 +1001,13 @@ import type { SendMessageRequest, MessageSentResponse, ProfileInfo } from '@1msg
 
 - `AddTemplateRequest` (4 fields)
 - `BlockUserRequest` (1 fields)
+- `CallingSettings` (1 fields)
+- `CallingSettingsCalling` (11 fields)
+- `CallingSettingsCallingAudio` (1 fields)
+- `CallingSettingsCallingCallHours` (3 fields)
+- `CallingSettingsCallingSip` (2 fields)
+- `CallingSettingsCallingSipServersInner` (6 fields)
+- `CallingSettingsCallingVideo` (1 fields)
 - `ConversationalAutomation` (3 fields)
 - `ConversationalAutomationCommandsInner` (2 fields)
 - `CreateCommerce200Response` (1 fields)
@@ -1018,6 +1025,11 @@ import type { SendMessageRequest, MessageSentResponse, ProfileInfo } from '@1msg
 - `GetMmLiteStatus200Response` (3 fields)
 - `GetWebhook200Response` (1 fields)
 - `GetWhatsappBusinessEncryption200Response` (3 fields)
+- `InitiateCallRequest` (6 fields)
+- `InitiateCallRequestSession` (2 fields)
+- `InitiateCallResponse` (5 fields)
+- `InitiateCallResponseCallsInner` (1 fields)
+- `InitiateCallResponseResponse` (1 fields)
 - `ListBlockedUsers200Response` (1 fields)
 - `ListFlows200Response` (5 fields)
 - `ListMessages200Response` (2 fields)
@@ -1026,7 +1038,7 @@ import type { SendMessageRequest, MessageSentResponse, ProfileInfo } from '@1msg
 - `PatchFlowsFlowIdAssets200Response` (3 fields)
 - `ProfileInfo` (8 fields)
 - `RetrieveMedia200Response` (5 fields)
-- `SendAddressMessageRequest` (4 fields)
+- `SendAddressMessageRequest` (8 fields)
 - `SendButtonRequest` (4 fields)
 - `SendButtonRequestSectionsInner` (2 fields)
 - `SendButtonRequestSectionsInnerReply` (2 fields)
@@ -1048,6 +1060,10 @@ import type { SendMessageRequest, MessageSentResponse, ProfileInfo } from '@1msg
 - `SendLocationRequestRequest` (2 fields)
 - `SendMessageRequest` (4 fields)
 - `SendOrderDetailsRequest` (10 fields)
+- `SendOrderDetailsRequestLanguage` (2 fields)
+- `SendOrderDetailsRequestOrder` (6 fields)
+- `SendOrderDetailsRequestOrderItemsInner` (4 fields)
+- `SendOrderDetailsRequestOrderItemsInnerAmount` (2 fields)
 - `SendPaymentRequestRequest` (5 fields)
 - `SendReactionRequest` (3 fields)
 - `SendStickerRequest` (5 fields)
@@ -1055,6 +1071,8 @@ import type { SendMessageRequest, MessageSentResponse, ProfileInfo } from '@1msg
 - `SendTemplateRequestLanguage` (2 fields)
 - `SetWhatsappBusinessEncryptionRequest` (1 fields)
 - `SuccessResponse` (1 fields)
+- `UpdateCallingSettings200Response` (3 fields)
+- `UpdateCallingSettings200ResponseResponse` (1 fields)
 - `UpdateMeRequest` (7 fields)
 
 ## Error handling
@@ -1069,5 +1087,5 @@ import { ResponseError } from "@1msg/sdk";
 openapi_title: 1MSG WhatsApp Business API (Public)
 openapi_version: 1.0.0
 operations: 60
-models: 57
+models: 75
 
