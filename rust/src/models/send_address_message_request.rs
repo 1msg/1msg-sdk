@@ -13,14 +13,26 @@ use serde::{Deserialize, Serialize};
 
 #[derive(Clone, Default, Debug, PartialEq, Serialize, Deserialize)]
 pub struct SendAddressMessageRequest {
+    /// Recipient phone (E.164 digits, no +). Must match country.
     #[serde(rename = "phone", skip_serializing_if = "Option::is_none")]
     pub phone: Option<i32>,
     #[serde(rename = "chatId", skip_serializing_if = "Option::is_none")]
     pub chat_id: Option<String>,
+    /// Body text shown with the address request
     #[serde(rename = "body")]
     pub body: String,
+    /// Address form country. Defaults to IN if omitted.
     #[serde(rename = "country", skip_serializing_if = "Option::is_none")]
     pub country: Option<Country>,
+    /// Optional prefilled address fields
+    #[serde(rename = "values", skip_serializing_if = "Option::is_none")]
+    pub values: Option<std::collections::HashMap<String, serde_json::Value>>,
+    /// Optional previously saved addresses for the user
+    #[serde(rename = "saved_addresses", skip_serializing_if = "Option::is_none")]
+    pub saved_addresses: Option<Vec<std::collections::HashMap<String, serde_json::Value>>>,
+    /// Optional field validation errors when re-prompting
+    #[serde(rename = "validation_errors", skip_serializing_if = "Option::is_none")]
+    pub validation_errors: Option<std::collections::HashMap<String, serde_json::Value>>,
     #[serde(rename = "quotedMsgId", skip_serializing_if = "Option::is_none")]
     pub quoted_msg_id: Option<String>,
 }
@@ -32,15 +44,20 @@ impl SendAddressMessageRequest {
             chat_id: None,
             body,
             country: None,
+            values: None,
+            saved_addresses: None,
+            validation_errors: None,
             quoted_msg_id: None,
         }
     }
 }
-/// 
+/// Address form country. Defaults to IN if omitted.
 #[derive(Clone, Copy, Debug, Eq, PartialEq, Ord, PartialOrd, Hash, Serialize, Deserialize)]
 pub enum Country {
     #[serde(rename = "IN")]
     In,
+    #[serde(rename = "SG")]
+    Sg,
 }
 
 impl Default for Country {

@@ -5,17 +5,26 @@ All URIs are relative to *https://api.1msg.io*
 Method | HTTP request | Description
 ------------- | ------------- | -------------
 [**get_calling_settings**](CallingApi.md#get_calling_settings) | **GET** /callingSettings | Get calling settings
-[**initiate_call**](CallingApi.md#initiate_call) | **POST** /initiateCall | Initiate WhatsApp call
+[**initiate_call**](CallingApi.md#initiate_call) | **POST** /initiateCall | Call action (connect / pre_accept / accept / reject / terminate)
 [**update_calling_settings**](CallingApi.md#update_calling_settings) | **POST** /callingSettings | Update calling settings
 
 
 # **get_calling_settings**
-> Dict[str, object] get_calling_settings(token)
+> CallingSettings get_calling_settings(token)
 
 Get calling settings
 
-WhatsApp Calling API settings (beta). Requires Meta Calling enablement on the WABA.
-Not production-complete — paths and webhook field names may change. Trial/subscription-limited channels are blocked.
+Return WhatsApp Calling API settings for this channel (beta).
+
+Proxies upstream `GET /calling/settings`.
+
+**Prerequisites**
+- Number must be eligible for Meta Calling (Cloud API; not COEX)
+- Trial / `subscriptionBlocked` channels receive **403** plain text
+- You need your own WebRTC or SIP stack; 1msg is a **signaling proxy** only
+  and does **not** store call history or recordings
+
+See the **Calling** tag overview for inbound/outbound flows and webhooks.
 
 
 ### Example
@@ -24,6 +33,7 @@ Not production-complete — paths and webhook field names may change. Trial/subs
 
 ```python
 import one_msg_sdk
+from one_msg_sdk.models.calling_settings import CallingSettings
 from one_msg_sdk.rest import ApiException
 from pprint import pprint
 
@@ -70,7 +80,7 @@ Name | Type | Description  | Notes
 
 ### Return type
 
-**Dict[str, object]**
+[**CallingSettings**](CallingSettings.md)
 
 ### Authorization
 
@@ -85,20 +95,45 @@ Name | Type | Description  | Notes
 
 | Status code | Description | Response headers |
 |-------------|-------------|------------------|
-**200** | Calling settings |  -  |
+**200** | Calling settings (and possibly other Cloud API settings Meta returns) |  -  |
 **401** | Invalid or missing authentication token |  -  |
 **500** | Internal server error |  -  |
 
 [[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
 
 # **initiate_call**
-> Dict[str, object] initiate_call(token, request_body=request_body)
+> InitiateCallResponse initiate_call(token, initiate_call_request)
 
-Initiate WhatsApp call
+Call action (connect / pre_accept / accept / reject / terminate)
 
-Outbound Calling API (beta). Requires Meta Calling enablement and product consent.
-Not production-complete — verify on stage before relying on this in production.
-Trial/subscription-limited channels are blocked.
+Perform a WhatsApp Calling action (beta).
+
+Proxies upstream `POST /calling/calls`. Despite the historical path
+name `/initiateCall`, this endpoint handles **all** call actions:
+
+| action | Use | Required |
+|--------|-----|----------|
+| `connect` | Outbound business → user | `to` + `session` (`sdp_type: offer`) |
+| `pre_accept` | Inbound (optional, reduces audio clipping) | `call_id` + `session` (`sdp_type: answer`) |
+| `accept` | Inbound answer | `call_id` + `session` (`sdp_type: answer`) |
+| `reject` | Decline inbound | `call_id` |
+| `terminate` | Hang up | `call_id` |
+
+**SDP / media (critical)**
+- `accept` / `pre_accept` require a **WebRTC-generated SDP answer**.
+- Do **not** send Meta's offer SDP back as the answer.
+- Postman (or curl) alone **cannot** establish real media — you need a
+  WebRTC or SIP stack. 1msg only proxies signaling.
+
+Answer within ~**30–60 seconds** of an inbound `connect` webhook or Meta
+terminates as unanswered. Common Meta errors include Calling not enabled
+(`138000`), no permission (`138006`), SDP validation failures.
+
+**Outbound** requires a prior Call Permission Request (CPR) acceptance.
+See the **Calling** tag overview for the full outbound flow and CPR limits.
+
+Trial / `subscriptionBlocked` → **403** plain text.
+Upstream failures often return HTTP 200 with `{ "response": { "error": "..." } }`.
 
 
 ### Example
@@ -107,6 +142,8 @@ Trial/subscription-limited channels are blocked.
 
 ```python
 import one_msg_sdk
+from one_msg_sdk.models.initiate_call_request import InitiateCallRequest
+from one_msg_sdk.models.initiate_call_response import InitiateCallResponse
 from one_msg_sdk.rest import ApiException
 from pprint import pprint
 
@@ -132,11 +169,11 @@ with one_msg_sdk.ApiClient(configuration) as api_client:
     # Create an instance of the API class
     api_instance = one_msg_sdk.CallingApi(api_client)
     token = 'token_example' # str | JWT token or API key for authorization
-    request_body = None # Dict[str, object] |  (optional)
+    initiate_call_request = {"messaging_product":"whatsapp","to":"12185552828","action":"connect","biz_opaque_callback_data":"order-123","session":{"sdp_type":"offer","sdp":"[REPLACE_WITH_WEBRTC_SDP]"}} # InitiateCallRequest | 
 
     try:
-        # Initiate WhatsApp call
-        api_response = api_instance.initiate_call(token, request_body=request_body)
+        # Call action (connect / pre_accept / accept / reject / terminate)
+        api_response = api_instance.initiate_call(token, initiate_call_request)
         print("The response of CallingApi->initiate_call:\n")
         pprint(api_response)
     except Exception as e:
@@ -151,11 +188,11 @@ with one_msg_sdk.ApiClient(configuration) as api_client:
 Name | Type | Description  | Notes
 ------------- | ------------- | ------------- | -------------
  **token** | **str**| JWT token or API key for authorization | 
- **request_body** | [**Dict[str, object]**](object.md)|  | [optional] 
+ **initiate_call_request** | [**InitiateCallRequest**](InitiateCallRequest.md)|  | 
 
 ### Return type
 
-**Dict[str, object]**
+[**InitiateCallResponse**](InitiateCallResponse.md)
 
 ### Authorization
 
@@ -170,19 +207,37 @@ Name | Type | Description  | Notes
 
 | Status code | Description | Response headers |
 |-------------|-------------|------------------|
-**200** | Call initiated |  -  |
+**200** | Call action result from upstream, or legacy error wrapper |  -  |
 **401** | Invalid or missing authentication token |  -  |
 **500** | Internal server error |  -  |
 
 [[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
 
 # **update_calling_settings**
-> Dict[str, object] update_calling_settings(token, request_body=request_body)
+> UpdateCallingSettings200Response update_calling_settings(token, calling_settings)
 
 Update calling settings
 
-Update WhatsApp Calling API settings (beta). Requires Meta Calling enablement.
-Trial/subscription-limited channels are blocked.
+Enable, disable, or update WhatsApp Calling settings (beta).
+
+Proxies upstream `POST /calling/settings`.
+Body is forwarded as-is (1msg does not validate fields).
+
+**Common fields under `calling`**
+- `status` (`ENABLED` | `DISABLED`) — required to turn calling on/off
+- `call_icon_visibility` (`DEFAULT` | `DISABLE_ALL`) — optional
+- `callback_permission_status` (`ENABLED` | `DISABLED`) — optional;
+  when enabled, inbound user calls grant callback permission
+- `call_hours` — optional hours / timezone object
+- `sip` — optional SIP trunk; when SIP is ENABLED, Graph call actions and
+  calling webhooks are not used
+- `srtp_key_exchange_protocol` (`DTLS` | `SDES`) — SDES only with SIP
+- `video.status` — optional
+
+Meta may accept only one feature group per request — prefer focused updates
+(e.g. enable status first, then SIP).
+
+Trial / `subscriptionBlocked` → **403** plain text.
 
 
 ### Example
@@ -191,6 +246,8 @@ Trial/subscription-limited channels are blocked.
 
 ```python
 import one_msg_sdk
+from one_msg_sdk.models.calling_settings import CallingSettings
+from one_msg_sdk.models.update_calling_settings200_response import UpdateCallingSettings200Response
 from one_msg_sdk.rest import ApiException
 from pprint import pprint
 
@@ -216,11 +273,11 @@ with one_msg_sdk.ApiClient(configuration) as api_client:
     # Create an instance of the API class
     api_instance = one_msg_sdk.CallingApi(api_client)
     token = 'token_example' # str | JWT token or API key for authorization
-    request_body = None # Dict[str, object] |  (optional)
+    calling_settings = {"calling":{"status":"ENABLED","call_icon_visibility":"DEFAULT","callback_permission_status":"ENABLED"}} # CallingSettings | 
 
     try:
         # Update calling settings
-        api_response = api_instance.update_calling_settings(token, request_body=request_body)
+        api_response = api_instance.update_calling_settings(token, calling_settings)
         print("The response of CallingApi->update_calling_settings:\n")
         pprint(api_response)
     except Exception as e:
@@ -235,11 +292,11 @@ with one_msg_sdk.ApiClient(configuration) as api_client:
 Name | Type | Description  | Notes
 ------------- | ------------- | ------------- | -------------
  **token** | **str**| JWT token or API key for authorization | 
- **request_body** | [**Dict[str, object]**](object.md)|  | [optional] 
+ **calling_settings** | [**CallingSettings**](CallingSettings.md)|  | 
 
 ### Return type
 
-**Dict[str, object]**
+[**UpdateCallingSettings200Response**](UpdateCallingSettings200Response.md)
 
 ### Authorization
 
@@ -254,7 +311,7 @@ Name | Type | Description  | Notes
 
 | Status code | Description | Response headers |
 |-------------|-------------|------------------|
-**200** | Updated |  -  |
+**200** | Usually &#x60;{ \&quot;success\&quot;: true }&#x60; from upstream, or legacy &#x60;{ \&quot;result\&quot;: \&quot;success\&quot; }&#x60; / &#x60;{ \&quot;response\&quot;: { \&quot;error\&quot;: \&quot;...\&quot; } }&#x60;.  |  -  |
 **401** | Invalid or missing authentication token |  -  |
 **500** | Internal server error |  -  |
 

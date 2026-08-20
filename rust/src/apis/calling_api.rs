@@ -43,8 +43,8 @@ pub enum UpdateCallingSettingsError {
 }
 
 
-/// WhatsApp Calling API settings (beta). Requires Meta Calling enablement on the WABA. Not production-complete — paths and webhook field names may change. Trial/subscription-limited channels are blocked. 
-pub async fn get_calling_settings(configuration: &configuration::Configuration, token: &str) -> Result<std::collections::HashMap<String, serde_json::Value>, Error<GetCallingSettingsError>> {
+/// Return WhatsApp Calling API settings for this channel (beta).  Proxies upstream `GET /calling/settings`.  **Prerequisites** - Number must be eligible for Meta Calling (Cloud API; not COEX) - Trial / `subscriptionBlocked` channels receive **403** plain text - You need your own WebRTC or SIP stack; 1msg is a **signaling proxy** only   and does **not** store call history or recordings  See the **Calling** tag overview for inbound/outbound flows and webhooks. 
+pub async fn get_calling_settings(configuration: &configuration::Configuration, token: &str) -> Result<models::CallingSettings, Error<GetCallingSettingsError>> {
     // add a prefix to parameters to efficiently prevent name collisions
     let p_query_token = token;
 
@@ -79,8 +79,8 @@ pub async fn get_calling_settings(configuration: &configuration::Configuration, 
         let content = resp.text().await?;
         match content_type {
             ContentType::Json => serde_json::from_str(&content).map_err(Error::from),
-            ContentType::Text => return Err(Error::from(serde_json::Error::custom("Received `text/plain` content type response that cannot be converted to `std::collections::HashMap&lt;String, serde_json::Value&gt;`"))),
-            ContentType::Unsupported(unknown_type) => return Err(Error::from(serde_json::Error::custom(format!("Received `{unknown_type}` content type response that cannot be converted to `std::collections::HashMap&lt;String, serde_json::Value&gt;`")))),
+            ContentType::Text => return Err(Error::from(serde_json::Error::custom("Received `text/plain` content type response that cannot be converted to `models::CallingSettings`"))),
+            ContentType::Unsupported(unknown_type) => return Err(Error::from(serde_json::Error::custom(format!("Received `{unknown_type}` content type response that cannot be converted to `models::CallingSettings`")))),
         }
     } else {
         let content = resp.text().await?;
@@ -89,11 +89,11 @@ pub async fn get_calling_settings(configuration: &configuration::Configuration, 
     }
 }
 
-/// Outbound Calling API (beta). Requires Meta Calling enablement and product consent. Not production-complete — verify on stage before relying on this in production. Trial/subscription-limited channels are blocked. 
-pub async fn initiate_call(configuration: &configuration::Configuration, token: &str, request_body: Option<std::collections::HashMap<String, serde_json::Value>>) -> Result<std::collections::HashMap<String, serde_json::Value>, Error<InitiateCallError>> {
+/// Perform a WhatsApp Calling action (beta).  Proxies upstream `POST /calling/calls`. Despite the historical path name `/initiateCall`, this endpoint handles **all** call actions:  | action | Use | Required | |--------|-----|----------| | `connect` | Outbound business → user | `to` + `session` (`sdp_type: offer`) | | `pre_accept` | Inbound (optional, reduces audio clipping) | `call_id` + `session` (`sdp_type: answer`) | | `accept` | Inbound answer | `call_id` + `session` (`sdp_type: answer`) | | `reject` | Decline inbound | `call_id` | | `terminate` | Hang up | `call_id` |  **SDP / media (critical)** - `accept` / `pre_accept` require a **WebRTC-generated SDP answer**. - Do **not** send Meta's offer SDP back as the answer. - Postman (or curl) alone **cannot** establish real media — you need a   WebRTC or SIP stack. 1msg only proxies signaling.  Answer within ~**30–60 seconds** of an inbound `connect` webhook or Meta terminates as unanswered. Common Meta errors include Calling not enabled (`138000`), no permission (`138006`), SDP validation failures.  **Outbound** requires a prior Call Permission Request (CPR) acceptance. See the **Calling** tag overview for the full outbound flow and CPR limits.  Trial / `subscriptionBlocked` → **403** plain text. Upstream failures often return HTTP 200 with `{ \"response\": { \"error\": \"...\" } }`. 
+pub async fn initiate_call(configuration: &configuration::Configuration, token: &str, initiate_call_request: models::InitiateCallRequest) -> Result<models::InitiateCallResponse, Error<InitiateCallError>> {
     // add a prefix to parameters to efficiently prevent name collisions
     let p_query_token = token;
-    let p_body_request_body = request_body;
+    let p_body_initiate_call_request = initiate_call_request;
 
     let uri_str = format!("{}/initiateCall", configuration.base_path);
     let mut req_builder = configuration.client.request(reqwest::Method::POST, &uri_str);
@@ -110,7 +110,7 @@ pub async fn initiate_call(configuration: &configuration::Configuration, token: 
     if let Some(ref user_agent) = configuration.user_agent {
         req_builder = req_builder.header(reqwest::header::USER_AGENT, user_agent.clone());
     }
-    req_builder = req_builder.json(&p_body_request_body);
+    req_builder = req_builder.json(&p_body_initiate_call_request);
 
     let req = req_builder.build()?;
     let resp = configuration.client.execute(req).await?;
@@ -127,8 +127,8 @@ pub async fn initiate_call(configuration: &configuration::Configuration, token: 
         let content = resp.text().await?;
         match content_type {
             ContentType::Json => serde_json::from_str(&content).map_err(Error::from),
-            ContentType::Text => return Err(Error::from(serde_json::Error::custom("Received `text/plain` content type response that cannot be converted to `std::collections::HashMap&lt;String, serde_json::Value&gt;`"))),
-            ContentType::Unsupported(unknown_type) => return Err(Error::from(serde_json::Error::custom(format!("Received `{unknown_type}` content type response that cannot be converted to `std::collections::HashMap&lt;String, serde_json::Value&gt;`")))),
+            ContentType::Text => return Err(Error::from(serde_json::Error::custom("Received `text/plain` content type response that cannot be converted to `models::InitiateCallResponse`"))),
+            ContentType::Unsupported(unknown_type) => return Err(Error::from(serde_json::Error::custom(format!("Received `{unknown_type}` content type response that cannot be converted to `models::InitiateCallResponse`")))),
         }
     } else {
         let content = resp.text().await?;
@@ -137,11 +137,11 @@ pub async fn initiate_call(configuration: &configuration::Configuration, token: 
     }
 }
 
-/// Update WhatsApp Calling API settings (beta). Requires Meta Calling enablement. Trial/subscription-limited channels are blocked. 
-pub async fn update_calling_settings(configuration: &configuration::Configuration, token: &str, request_body: Option<std::collections::HashMap<String, serde_json::Value>>) -> Result<std::collections::HashMap<String, serde_json::Value>, Error<UpdateCallingSettingsError>> {
+/// Enable, disable, or update WhatsApp Calling settings (beta).  Proxies upstream `POST /calling/settings`. Body is forwarded as-is (1msg does not validate fields).  **Common fields under `calling`** - `status` (`ENABLED` | `DISABLED`) — required to turn calling on/off - `call_icon_visibility` (`DEFAULT` | `DISABLE_ALL`) — optional - `callback_permission_status` (`ENABLED` | `DISABLED`) — optional;   when enabled, inbound user calls grant callback permission - `call_hours` — optional hours / timezone object - `sip` — optional SIP trunk; when SIP is ENABLED, Graph call actions and   calling webhooks are not used - `srtp_key_exchange_protocol` (`DTLS` | `SDES`) — SDES only with SIP - `video.status` — optional  Meta may accept only one feature group per request — prefer focused updates (e.g. enable status first, then SIP).  Trial / `subscriptionBlocked` → **403** plain text. 
+pub async fn update_calling_settings(configuration: &configuration::Configuration, token: &str, calling_settings: models::CallingSettings) -> Result<models::UpdateCallingSettings200Response, Error<UpdateCallingSettingsError>> {
     // add a prefix to parameters to efficiently prevent name collisions
     let p_query_token = token;
-    let p_body_request_body = request_body;
+    let p_body_calling_settings = calling_settings;
 
     let uri_str = format!("{}/callingSettings", configuration.base_path);
     let mut req_builder = configuration.client.request(reqwest::Method::POST, &uri_str);
@@ -158,7 +158,7 @@ pub async fn update_calling_settings(configuration: &configuration::Configuratio
     if let Some(ref user_agent) = configuration.user_agent {
         req_builder = req_builder.header(reqwest::header::USER_AGENT, user_agent.clone());
     }
-    req_builder = req_builder.json(&p_body_request_body);
+    req_builder = req_builder.json(&p_body_calling_settings);
 
     let req = req_builder.build()?;
     let resp = configuration.client.execute(req).await?;
@@ -175,8 +175,8 @@ pub async fn update_calling_settings(configuration: &configuration::Configuratio
         let content = resp.text().await?;
         match content_type {
             ContentType::Json => serde_json::from_str(&content).map_err(Error::from),
-            ContentType::Text => return Err(Error::from(serde_json::Error::custom("Received `text/plain` content type response that cannot be converted to `std::collections::HashMap&lt;String, serde_json::Value&gt;`"))),
-            ContentType::Unsupported(unknown_type) => return Err(Error::from(serde_json::Error::custom(format!("Received `{unknown_type}` content type response that cannot be converted to `std::collections::HashMap&lt;String, serde_json::Value&gt;`")))),
+            ContentType::Text => return Err(Error::from(serde_json::Error::custom("Received `text/plain` content type response that cannot be converted to `models::UpdateCallingSettings200Response`"))),
+            ContentType::Unsupported(unknown_type) => return Err(Error::from(serde_json::Error::custom(format!("Received `{unknown_type}` content type response that cannot be converted to `models::UpdateCallingSettings200Response`")))),
         }
     } else {
         let content = resp.text().await?;

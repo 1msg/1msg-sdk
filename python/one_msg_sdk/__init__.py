@@ -15,7 +15,7 @@
 """  # noqa: E501
 
 
-__version__ = "1.0.0"
+__version__ = "1.0.2"
 
 # Define package exports
 __all__ = [
@@ -40,6 +40,13 @@ __all__ = [
     "ApiException",
     "AddTemplateRequest",
     "BlockUserRequest",
+    "CallingSettings",
+    "CallingSettingsCalling",
+    "CallingSettingsCallingAudio",
+    "CallingSettingsCallingCallHours",
+    "CallingSettingsCallingSip",
+    "CallingSettingsCallingSipServersInner",
+    "CallingSettingsCallingVideo",
     "ConversationalAutomation",
     "ConversationalAutomationCommandsInner",
     "CreateCommerce200Response",
@@ -57,6 +64,11 @@ __all__ = [
     "GetMmLiteStatus200Response",
     "GetWebhook200Response",
     "GetWhatsappBusinessEncryption200Response",
+    "InitiateCallRequest",
+    "InitiateCallRequestSession",
+    "InitiateCallResponse",
+    "InitiateCallResponseCallsInner",
+    "InitiateCallResponseResponse",
     "ListBlockedUsers200Response",
     "ListFlows200Response",
     "ListMessages200Response",
@@ -98,6 +110,8 @@ __all__ = [
     "SendTemplateRequestLanguage",
     "SetWhatsappBusinessEncryptionRequest",
     "SuccessResponse",
+    "UpdateCallingSettings200Response",
+    "UpdateCallingSettings200ResponseResponse",
     "UpdateMeRequest",
 ]
 
@@ -127,6 +141,13 @@ from one_msg_sdk.exceptions import ApiException as ApiException
 # import models into sdk package
 from one_msg_sdk.models.add_template_request import AddTemplateRequest as AddTemplateRequest
 from one_msg_sdk.models.block_user_request import BlockUserRequest as BlockUserRequest
+from one_msg_sdk.models.calling_settings import CallingSettings as CallingSettings
+from one_msg_sdk.models.calling_settings_calling import CallingSettingsCalling as CallingSettingsCalling
+from one_msg_sdk.models.calling_settings_calling_audio import CallingSettingsCallingAudio as CallingSettingsCallingAudio
+from one_msg_sdk.models.calling_settings_calling_call_hours import CallingSettingsCallingCallHours as CallingSettingsCallingCallHours
+from one_msg_sdk.models.calling_settings_calling_sip import CallingSettingsCallingSip as CallingSettingsCallingSip
+from one_msg_sdk.models.calling_settings_calling_sip_servers_inner import CallingSettingsCallingSipServersInner as CallingSettingsCallingSipServersInner
+from one_msg_sdk.models.calling_settings_calling_video import CallingSettingsCallingVideo as CallingSettingsCallingVideo
 from one_msg_sdk.models.conversational_automation import ConversationalAutomation as ConversationalAutomation
 from one_msg_sdk.models.conversational_automation_commands_inner import ConversationalAutomationCommandsInner as ConversationalAutomationCommandsInner
 from one_msg_sdk.models.create_commerce200_response import CreateCommerce200Response as CreateCommerce200Response
@@ -144,6 +165,11 @@ from one_msg_sdk.models.get_commerce200_response_inner import GetCommerce200Resp
 from one_msg_sdk.models.get_mm_lite_status200_response import GetMmLiteStatus200Response as GetMmLiteStatus200Response
 from one_msg_sdk.models.get_webhook200_response import GetWebhook200Response as GetWebhook200Response
 from one_msg_sdk.models.get_whatsapp_business_encryption200_response import GetWhatsappBusinessEncryption200Response as GetWhatsappBusinessEncryption200Response
+from one_msg_sdk.models.initiate_call_request import InitiateCallRequest as InitiateCallRequest
+from one_msg_sdk.models.initiate_call_request_session import InitiateCallRequestSession as InitiateCallRequestSession
+from one_msg_sdk.models.initiate_call_response import InitiateCallResponse as InitiateCallResponse
+from one_msg_sdk.models.initiate_call_response_calls_inner import InitiateCallResponseCallsInner as InitiateCallResponseCallsInner
+from one_msg_sdk.models.initiate_call_response_response import InitiateCallResponseResponse as InitiateCallResponseResponse
 from one_msg_sdk.models.list_blocked_users200_response import ListBlockedUsers200Response as ListBlockedUsers200Response
 from one_msg_sdk.models.list_flows200_response import ListFlows200Response as ListFlows200Response
 from one_msg_sdk.models.list_messages200_response import ListMessages200Response as ListMessages200Response
@@ -185,5 +211,7 @@ from one_msg_sdk.models.send_template_request import SendTemplateRequest as Send
 from one_msg_sdk.models.send_template_request_language import SendTemplateRequestLanguage as SendTemplateRequestLanguage
 from one_msg_sdk.models.set_whatsapp_business_encryption_request import SetWhatsappBusinessEncryptionRequest as SetWhatsappBusinessEncryptionRequest
 from one_msg_sdk.models.success_response import SuccessResponse as SuccessResponse
+from one_msg_sdk.models.update_calling_settings200_response import UpdateCallingSettings200Response as UpdateCallingSettings200Response
+from one_msg_sdk.models.update_calling_settings200_response_response import UpdateCallingSettings200ResponseResponse as UpdateCallingSettings200ResponseResponse
 from one_msg_sdk.models.update_me_request import UpdateMeRequest as UpdateMeRequest
 

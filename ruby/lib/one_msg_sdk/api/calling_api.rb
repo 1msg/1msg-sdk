@@ -20,20 +20,20 @@ module OneMsgSdk
       @api_client = api_client
     end
     # Get calling settings
-    # WhatsApp Calling API settings (beta). Requires Meta Calling enablement on the WABA. Not production-complete — paths and webhook field names may change. Trial/subscription-limited channels are blocked. 
+    # Return WhatsApp Calling API settings for this channel (beta).  Proxies upstream `GET /calling/settings`.  **Prerequisites** - Number must be eligible for Meta Calling (Cloud API; not COEX) - Trial / `subscriptionBlocked` channels receive **403** plain text - You need your own WebRTC or SIP stack; 1msg is a **signaling proxy** only   and does **not** store call history or recordings  See the **Calling** tag overview for inbound/outbound flows and webhooks. 
     # @param token [String] JWT token or API key for authorization
     # @param [Hash] opts the optional parameters
-    # @return [Hash<String, Object>]
+    # @return [CallingSettings]
     def get_calling_settings(token, opts = {})
       data, _status_code, _headers = get_calling_settings_with_http_info(token, opts)
       data
     end
 
     # Get calling settings
-    # WhatsApp Calling API settings (beta). Requires Meta Calling enablement on the WABA. Not production-complete — paths and webhook field names may change. Trial/subscription-limited channels are blocked. 
+    # Return WhatsApp Calling API settings for this channel (beta).  Proxies upstream &#x60;GET /calling/settings&#x60;.  **Prerequisites** - Number must be eligible for Meta Calling (Cloud API; not COEX) - Trial / &#x60;subscriptionBlocked&#x60; channels receive **403** plain text - You need your own WebRTC or SIP stack; 1msg is a **signaling proxy** only   and does **not** store call history or recordings  See the **Calling** tag overview for inbound/outbound flows and webhooks. 
     # @param token [String] JWT token or API key for authorization
     # @param [Hash] opts the optional parameters
-    # @return [Array<(Hash<String, Object>, Integer, Hash)>] Hash<String, Object> data, response status code and response headers
+    # @return [Array<(CallingSettings, Integer, Hash)>] CallingSettings data, response status code and response headers
     def get_calling_settings_with_http_info(token, opts = {})
       if @api_client.config.debugging
         @api_client.config.logger.debug 'Calling API: CallingApi.get_calling_settings ...'
@@ -61,7 +61,7 @@ module OneMsgSdk
       post_body = opts[:debug_body]
 
       # return_type
-      return_type = opts[:debug_return_type] || 'Hash<String, Object>'
+      return_type = opts[:debug_return_type] || 'CallingSettings'
 
       # auth_names
       auth_names = opts[:debug_auth_names] || ['tokenAuth']
@@ -83,30 +83,34 @@ module OneMsgSdk
       return data, status_code, headers
     end
 
-    # Initiate WhatsApp call
-    # Outbound Calling API (beta). Requires Meta Calling enablement and product consent. Not production-complete — verify on stage before relying on this in production. Trial/subscription-limited channels are blocked. 
+    # Call action (connect / pre_accept / accept / reject / terminate)
+    # Perform a WhatsApp Calling action (beta).  Proxies upstream `POST /calling/calls`. Despite the historical path name `/initiateCall`, this endpoint handles **all** call actions:  | action | Use | Required | |--------|-----|----------| | `connect` | Outbound business → user | `to` + `session` (`sdp_type: offer`) | | `pre_accept` | Inbound (optional, reduces audio clipping) | `call_id` + `session` (`sdp_type: answer`) | | `accept` | Inbound answer | `call_id` + `session` (`sdp_type: answer`) | | `reject` | Decline inbound | `call_id` | | `terminate` | Hang up | `call_id` |  **SDP / media (critical)** - `accept` / `pre_accept` require a **WebRTC-generated SDP answer**. - Do **not** send Meta's offer SDP back as the answer. - Postman (or curl) alone **cannot** establish real media — you need a   WebRTC or SIP stack. 1msg only proxies signaling.  Answer within ~**30–60 seconds** of an inbound `connect` webhook or Meta terminates as unanswered. Common Meta errors include Calling not enabled (`138000`), no permission (`138006`), SDP validation failures.  **Outbound** requires a prior Call Permission Request (CPR) acceptance. See the **Calling** tag overview for the full outbound flow and CPR limits.  Trial / `subscriptionBlocked` → **403** plain text. Upstream failures often return HTTP 200 with `{ \"response\": { \"error\": \"...\" } }`. 
     # @param token [String] JWT token or API key for authorization
+    # @param initiate_call_request [InitiateCallRequest] 
     # @param [Hash] opts the optional parameters
-    # @option opts [Hash<String, Object>] :request_body 
-    # @return [Hash<String, Object>]
-    def initiate_call(token, opts = {})
-      data, _status_code, _headers = initiate_call_with_http_info(token, opts)
+    # @return [InitiateCallResponse]
+    def initiate_call(token, initiate_call_request, opts = {})
+      data, _status_code, _headers = initiate_call_with_http_info(token, initiate_call_request, opts)
       data
     end
 
-    # Initiate WhatsApp call
-    # Outbound Calling API (beta). Requires Meta Calling enablement and product consent. Not production-complete — verify on stage before relying on this in production. Trial/subscription-limited channels are blocked. 
+    # Call action (connect / pre_accept / accept / reject / terminate)
+    # Perform a WhatsApp Calling action (beta).  Proxies upstream &#x60;POST /calling/calls&#x60;. Despite the historical path name &#x60;/initiateCall&#x60;, this endpoint handles **all** call actions:  | action | Use | Required | |--------|-----|----------| | &#x60;connect&#x60; | Outbound business → user | &#x60;to&#x60; + &#x60;session&#x60; (&#x60;sdp_type: offer&#x60;) | | &#x60;pre_accept&#x60; | Inbound (optional, reduces audio clipping) | &#x60;call_id&#x60; + &#x60;session&#x60; (&#x60;sdp_type: answer&#x60;) | | &#x60;accept&#x60; | Inbound answer | &#x60;call_id&#x60; + &#x60;session&#x60; (&#x60;sdp_type: answer&#x60;) | | &#x60;reject&#x60; | Decline inbound | &#x60;call_id&#x60; | | &#x60;terminate&#x60; | Hang up | &#x60;call_id&#x60; |  **SDP / media (critical)** - &#x60;accept&#x60; / &#x60;pre_accept&#x60; require a **WebRTC-generated SDP answer**. - Do **not** send Meta&#39;s offer SDP back as the answer. - Postman (or curl) alone **cannot** establish real media — you need a   WebRTC or SIP stack. 1msg only proxies signaling.  Answer within ~**30–60 seconds** of an inbound &#x60;connect&#x60; webhook or Meta terminates as unanswered. Common Meta errors include Calling not enabled (&#x60;138000&#x60;), no permission (&#x60;138006&#x60;), SDP validation failures.  **Outbound** requires a prior Call Permission Request (CPR) acceptance. See the **Calling** tag overview for the full outbound flow and CPR limits.  Trial / &#x60;subscriptionBlocked&#x60; → **403** plain text. Upstream failures often return HTTP 200 with &#x60;{ \&quot;response\&quot;: { \&quot;error\&quot;: \&quot;...\&quot; } }&#x60;. 
     # @param token [String] JWT token or API key for authorization
+    # @param initiate_call_request [InitiateCallRequest] 
     # @param [Hash] opts the optional parameters
-    # @option opts [Hash<String, Object>] :request_body 
-    # @return [Array<(Hash<String, Object>, Integer, Hash)>] Hash<String, Object> data, response status code and response headers
-    def initiate_call_with_http_info(token, opts = {})
+    # @return [Array<(InitiateCallResponse, Integer, Hash)>] InitiateCallResponse data, response status code and response headers
+    def initiate_call_with_http_info(token, initiate_call_request, opts = {})
       if @api_client.config.debugging
         @api_client.config.logger.debug 'Calling API: CallingApi.initiate_call ...'
       end
       # verify the required parameter 'token' is set
       if @api_client.config.client_side_validation && token.nil?
         fail ArgumentError, "Missing the required parameter 'token' when calling CallingApi.initiate_call"
+      end
+      # verify the required parameter 'initiate_call_request' is set
+      if @api_client.config.client_side_validation && initiate_call_request.nil?
+        fail ArgumentError, "Missing the required parameter 'initiate_call_request' when calling CallingApi.initiate_call"
       end
       # resource path
       local_var_path = '/initiateCall'
@@ -129,10 +133,10 @@ module OneMsgSdk
       form_params = opts[:form_params] || {}
 
       # http body (model)
-      post_body = opts[:debug_body] || @api_client.object_to_http_body(opts[:'request_body'])
+      post_body = opts[:debug_body] || @api_client.object_to_http_body(initiate_call_request)
 
       # return_type
-      return_type = opts[:debug_return_type] || 'Hash<String, Object>'
+      return_type = opts[:debug_return_type] || 'InitiateCallResponse'
 
       # auth_names
       auth_names = opts[:debug_auth_names] || ['tokenAuth']
@@ -155,29 +159,33 @@ module OneMsgSdk
     end
 
     # Update calling settings
-    # Update WhatsApp Calling API settings (beta). Requires Meta Calling enablement. Trial/subscription-limited channels are blocked. 
+    # Enable, disable, or update WhatsApp Calling settings (beta).  Proxies upstream `POST /calling/settings`. Body is forwarded as-is (1msg does not validate fields).  **Common fields under `calling`** - `status` (`ENABLED` | `DISABLED`) — required to turn calling on/off - `call_icon_visibility` (`DEFAULT` | `DISABLE_ALL`) — optional - `callback_permission_status` (`ENABLED` | `DISABLED`) — optional;   when enabled, inbound user calls grant callback permission - `call_hours` — optional hours / timezone object - `sip` — optional SIP trunk; when SIP is ENABLED, Graph call actions and   calling webhooks are not used - `srtp_key_exchange_protocol` (`DTLS` | `SDES`) — SDES only with SIP - `video.status` — optional  Meta may accept only one feature group per request — prefer focused updates (e.g. enable status first, then SIP).  Trial / `subscriptionBlocked` → **403** plain text. 
     # @param token [String] JWT token or API key for authorization
+    # @param calling_settings [CallingSettings] 
     # @param [Hash] opts the optional parameters
-    # @option opts [Hash<String, Object>] :request_body 
-    # @return [Hash<String, Object>]
-    def update_calling_settings(token, opts = {})
-      data, _status_code, _headers = update_calling_settings_with_http_info(token, opts)
+    # @return [UpdateCallingSettings200Response]
+    def update_calling_settings(token, calling_settings, opts = {})
+      data, _status_code, _headers = update_calling_settings_with_http_info(token, calling_settings, opts)
       data
     end
 
     # Update calling settings
-    # Update WhatsApp Calling API settings (beta). Requires Meta Calling enablement. Trial/subscription-limited channels are blocked. 
+    # Enable, disable, or update WhatsApp Calling settings (beta).  Proxies upstream &#x60;POST /calling/settings&#x60;. Body is forwarded as-is (1msg does not validate fields).  **Common fields under &#x60;calling&#x60;** - &#x60;status&#x60; (&#x60;ENABLED&#x60; | &#x60;DISABLED&#x60;) — required to turn calling on/off - &#x60;call_icon_visibility&#x60; (&#x60;DEFAULT&#x60; | &#x60;DISABLE_ALL&#x60;) — optional - &#x60;callback_permission_status&#x60; (&#x60;ENABLED&#x60; | &#x60;DISABLED&#x60;) — optional;   when enabled, inbound user calls grant callback permission - &#x60;call_hours&#x60; — optional hours / timezone object - &#x60;sip&#x60; — optional SIP trunk; when SIP is ENABLED, Graph call actions and   calling webhooks are not used - &#x60;srtp_key_exchange_protocol&#x60; (&#x60;DTLS&#x60; | &#x60;SDES&#x60;) — SDES only with SIP - &#x60;video.status&#x60; — optional  Meta may accept only one feature group per request — prefer focused updates (e.g. enable status first, then SIP).  Trial / &#x60;subscriptionBlocked&#x60; → **403** plain text. 
     # @param token [String] JWT token or API key for authorization
+    # @param calling_settings [CallingSettings] 
     # @param [Hash] opts the optional parameters
-    # @option opts [Hash<String, Object>] :request_body 
-    # @return [Array<(Hash<String, Object>, Integer, Hash)>] Hash<String, Object> data, response status code and response headers
-    def update_calling_settings_with_http_info(token, opts = {})
+    # @return [Array<(UpdateCallingSettings200Response, Integer, Hash)>] UpdateCallingSettings200Response data, response status code and response headers
+    def update_calling_settings_with_http_info(token, calling_settings, opts = {})
       if @api_client.config.debugging
         @api_client.config.logger.debug 'Calling API: CallingApi.update_calling_settings ...'
       end
       # verify the required parameter 'token' is set
       if @api_client.config.client_side_validation && token.nil?
         fail ArgumentError, "Missing the required parameter 'token' when calling CallingApi.update_calling_settings"
+      end
+      # verify the required parameter 'calling_settings' is set
+      if @api_client.config.client_side_validation && calling_settings.nil?
+        fail ArgumentError, "Missing the required parameter 'calling_settings' when calling CallingApi.update_calling_settings"
       end
       # resource path
       local_var_path = '/callingSettings'
@@ -200,10 +208,10 @@ module OneMsgSdk
       form_params = opts[:form_params] || {}
 
       # http body (model)
-      post_body = opts[:debug_body] || @api_client.object_to_http_body(opts[:'request_body'])
+      post_body = opts[:debug_body] || @api_client.object_to_http_body(calling_settings)
 
       # return_type
-      return_type = opts[:debug_return_type] || 'Hash<String, Object>'
+      return_type = opts[:debug_return_type] || 'UpdateCallingSettings200Response'
 
       # auth_names
       auth_names = opts[:debug_auth_names] || ['tokenAuth']

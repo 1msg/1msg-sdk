@@ -10,7 +10,7 @@ package: "one_msg_sdk"
 registry: https://rubygems.org/gems/one_msg_sdk
 repository: https://github.com/1msg/1msg-sdk/tree/main/ruby
 language: Ruby
-version: 2.0.0
+version: 2.0.2
 public_only: true
 never_mention: chat-api
 ```
@@ -75,7 +75,7 @@ operationId: getCallingSettings
 http: GET /callingSettings
 clientGroup: calling
 summary: Get calling settings
-description: WhatsApp Calling API settings (beta). Requires Meta Calling enablement on the WABA. Not production-complete — paths and webhook field names may change. Trial/subscription-limited channels are blocked.
+description: Return WhatsApp Calling API settings for this channel (beta). Proxies upstream `GET /calling/settings`. **Prerequisites** - Number must be eligible for Meta Calling (Cloud API; not COEX) - Trial / `subscriptionBlocked` channels receive **403** plain text - You need your own WebRTC or SIP stack; 1msg is a **signaling proxy** only and does **not** store call history or recordings See the **Calling** tag overview for inbound/outbound flows and webhooks.
 responses: 200, 401, 500
 ```
 
@@ -85,8 +85,8 @@ responses: 200, 401, 500
 operationId: initiateCall
 http: POST /initiateCall
 clientGroup: calling
-summary: Initiate WhatsApp call
-description: Outbound Calling API (beta). Requires Meta Calling enablement and product consent. Not production-complete — verify on stage before relying on this in production. Trial/subscription-limited channels are blocked.
+summary: Call action (connect / pre_accept / accept / reject / terminate)
+description: Perform a WhatsApp Calling action (beta). Proxies upstream `POST /calling/calls`. Despite the historical path name `/initiateCall`, this endpoint handles **all** call actions: | action | Use | Required | |--------|-----|----------| | `connect` | Outbound business → user | `to` + `session` (`sdp_type: offer`) | | `pre_accept` | Inbound (optional, reduces audio clipping) | `call_id` + `session` (`sdp_type: answer`) | | `accept` | Inbound answer | `call_id` + `session` (`sdp_type: answer`) | | `reject` | Decline inbound | `call_id` | | `terminate` | Hang up | `call_id` | **SDP / media (critical)** - `accept` / `pre_accept` require a **WebRTC-generated SDP answer**. - Do **not** send Meta's offer SDP back as the answer. - Postman (or curl) alone **cannot** establish real media — you need a WebRTC or SIP stack. 1msg only proxies signaling. Answer within ~**30–60 seconds** of an inbound `connect` webhook or Meta terminates as unanswered. Common Meta errors include Calling not enabled (`138000`), no permission (`138006`), SDP validation failures. **Outbound** requires a prior Call Permission Request (CPR) acceptance. See the **Calling** tag overview for the full outbound flow and CPR limits. Trial / `subscriptionBlocked` → **403** plain text. Upstream failures often return HTTP 200 with `{ "response": { "error": "..." } }`.
 responses: 200, 401, 500
 ```
 
@@ -97,7 +97,7 @@ operationId: updateCallingSettings
 http: POST /callingSettings
 clientGroup: calling
 summary: Update calling settings
-description: Update WhatsApp Calling API settings (beta). Requires Meta Calling enablement. Trial/subscription-limited channels are blocked.
+description: Enable, disable, or update WhatsApp Calling settings (beta). Proxies upstream `POST /calling/settings`. Body is forwarded as-is (1msg does not validate fields). **Common fields under `calling`** - `status` (`ENABLED` | `DISABLED`) — required to turn calling on/off - `call_icon_visibility` (`DEFAULT` | `DISABLE_ALL`) — optional - `callback_permission_status` (`ENABLED` | `DISABLED`) — optional; when enabled, inbound user calls grant callback permission - `call_hours` — optional hours / timezone object - `sip` — optional SIP trunk; when SIP is ENABLED, Graph call actions and calling webhooks are not used - `srtp_key_exchange_protocol` (`DTLS` | `SDES`) — SDES only with SIP - `video.status` — optional Meta may accept only one feature group per request — prefer focused updates (e.g. enable status first, then SIP). Trial / `subscriptionBlocked` → **403** plain text.
 responses: 200, 401, 500
 ```
 
@@ -693,7 +693,7 @@ operationId: setWebhook
 http: POST /webhook
 clientGroup: webhooks
 summary: Set webhook URL
-description: Configure the client webhook URL for inbound events.
+description: Configure the client webhook URL for inbound events. WhatsApp **Calling** events (`field=calls`) are forwarded as passthrough payloads with `type: "calls"` and `instanceId` (connect / status / terminate). Call permission replies arrive on the normal messages path (`call_permission_reply`). Details: **Calling** tag.
 responses: 200, 401, 500
 ```
 

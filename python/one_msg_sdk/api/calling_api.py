@@ -17,8 +17,11 @@ from typing import Any, Dict, List, Optional, Tuple, Union
 from typing_extensions import Annotated
 
 from pydantic import Field, StrictStr
-from typing import Any, Dict, Optional
 from typing_extensions import Annotated
+from one_msg_sdk.models.calling_settings import CallingSettings
+from one_msg_sdk.models.initiate_call_request import InitiateCallRequest
+from one_msg_sdk.models.initiate_call_response import InitiateCallResponse
+from one_msg_sdk.models.update_calling_settings200_response import UpdateCallingSettings200Response
 
 from one_msg_sdk.api_client import ApiClient, RequestSerialized
 from one_msg_sdk.api_response import ApiResponse
@@ -54,10 +57,10 @@ class CallingApi:
         _content_type: Optional[StrictStr] = None,
         _headers: Optional[Dict[StrictStr, Any]] = None,
         _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
-    ) -> Dict[str, object]:
+    ) -> CallingSettings:
         """Get calling settings
 
-        WhatsApp Calling API settings (beta). Requires Meta Calling enablement on the WABA. Not production-complete — paths and webhook field names may change. Trial/subscription-limited channels are blocked. 
+        Return WhatsApp Calling API settings for this channel (beta).  Proxies upstream `GET /calling/settings`.  **Prerequisites** - Number must be eligible for Meta Calling (Cloud API; not COEX) - Trial / `subscriptionBlocked` channels receive **403** plain text - You need your own WebRTC or SIP stack; 1msg is a **signaling proxy** only   and does **not** store call history or recordings  See the **Calling** tag overview for inbound/outbound flows and webhooks. 
 
         :param token: JWT token or API key for authorization (required)
         :type token: str
@@ -92,7 +95,7 @@ class CallingApi:
         )
 
         _response_types_map: Dict[str, Optional[str]] = {
-            '200': "Dict[str, object]",
+            '200': "CallingSettings",
             '401': "ErrorResponse",
             '500': "ErrorResponse",
         }
@@ -123,10 +126,10 @@ class CallingApi:
         _content_type: Optional[StrictStr] = None,
         _headers: Optional[Dict[StrictStr, Any]] = None,
         _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
-    ) -> ApiResponse[Dict[str, object]]:
+    ) -> ApiResponse[CallingSettings]:
         """Get calling settings
 
-        WhatsApp Calling API settings (beta). Requires Meta Calling enablement on the WABA. Not production-complete — paths and webhook field names may change. Trial/subscription-limited channels are blocked. 
+        Return WhatsApp Calling API settings for this channel (beta).  Proxies upstream `GET /calling/settings`.  **Prerequisites** - Number must be eligible for Meta Calling (Cloud API; not COEX) - Trial / `subscriptionBlocked` channels receive **403** plain text - You need your own WebRTC or SIP stack; 1msg is a **signaling proxy** only   and does **not** store call history or recordings  See the **Calling** tag overview for inbound/outbound flows and webhooks. 
 
         :param token: JWT token or API key for authorization (required)
         :type token: str
@@ -161,7 +164,7 @@ class CallingApi:
         )
 
         _response_types_map: Dict[str, Optional[str]] = {
-            '200': "Dict[str, object]",
+            '200': "CallingSettings",
             '401': "ErrorResponse",
             '500': "ErrorResponse",
         }
@@ -195,7 +198,7 @@ class CallingApi:
     ) -> RESTResponseType:
         """Get calling settings
 
-        WhatsApp Calling API settings (beta). Requires Meta Calling enablement on the WABA. Not production-complete — paths and webhook field names may change. Trial/subscription-limited channels are blocked. 
+        Return WhatsApp Calling API settings for this channel (beta).  Proxies upstream `GET /calling/settings`.  **Prerequisites** - Number must be eligible for Meta Calling (Cloud API; not COEX) - Trial / `subscriptionBlocked` channels receive **403** plain text - You need your own WebRTC or SIP stack; 1msg is a **signaling proxy** only   and does **not** store call history or recordings  See the **Calling** tag overview for inbound/outbound flows and webhooks. 
 
         :param token: JWT token or API key for authorization (required)
         :type token: str
@@ -230,7 +233,7 @@ class CallingApi:
         )
 
         _response_types_map: Dict[str, Optional[str]] = {
-            '200': "Dict[str, object]",
+            '200': "CallingSettings",
             '401': "ErrorResponse",
             '500': "ErrorResponse",
         }
@@ -311,7 +314,7 @@ class CallingApi:
     def initiate_call(
         self,
         token: Annotated[StrictStr, Field(description="JWT token or API key for authorization")],
-        request_body: Optional[Dict[str, Any]] = None,
+        initiate_call_request: InitiateCallRequest,
         _request_timeout: Union[
             None,
             Annotated[StrictFloat, Field(gt=0)],
@@ -324,15 +327,15 @@ class CallingApi:
         _content_type: Optional[StrictStr] = None,
         _headers: Optional[Dict[StrictStr, Any]] = None,
         _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
-    ) -> Dict[str, object]:
-        """Initiate WhatsApp call
+    ) -> InitiateCallResponse:
+        """Call action (connect / pre_accept / accept / reject / terminate)
 
-        Outbound Calling API (beta). Requires Meta Calling enablement and product consent. Not production-complete — verify on stage before relying on this in production. Trial/subscription-limited channels are blocked. 
+        Perform a WhatsApp Calling action (beta).  Proxies upstream `POST /calling/calls`. Despite the historical path name `/initiateCall`, this endpoint handles **all** call actions:  | action | Use | Required | |--------|-----|----------| | `connect` | Outbound business → user | `to` + `session` (`sdp_type: offer`) | | `pre_accept` | Inbound (optional, reduces audio clipping) | `call_id` + `session` (`sdp_type: answer`) | | `accept` | Inbound answer | `call_id` + `session` (`sdp_type: answer`) | | `reject` | Decline inbound | `call_id` | | `terminate` | Hang up | `call_id` |  **SDP / media (critical)** - `accept` / `pre_accept` require a **WebRTC-generated SDP answer**. - Do **not** send Meta's offer SDP back as the answer. - Postman (or curl) alone **cannot** establish real media — you need a   WebRTC or SIP stack. 1msg only proxies signaling.  Answer within ~**30–60 seconds** of an inbound `connect` webhook or Meta terminates as unanswered. Common Meta errors include Calling not enabled (`138000`), no permission (`138006`), SDP validation failures.  **Outbound** requires a prior Call Permission Request (CPR) acceptance. See the **Calling** tag overview for the full outbound flow and CPR limits.  Trial / `subscriptionBlocked` → **403** plain text. Upstream failures often return HTTP 200 with `{ \"response\": { \"error\": \"...\" } }`. 
 
         :param token: JWT token or API key for authorization (required)
         :type token: str
-        :param request_body:
-        :type request_body: Dict[str, object]
+        :param initiate_call_request: (required)
+        :type initiate_call_request: InitiateCallRequest
         :param _request_timeout: timeout setting for this request. If one
                                  number provided, it will be total request
                                  timeout. It can also be a pair (tuple) of
@@ -357,7 +360,7 @@ class CallingApi:
 
         _param = self._initiate_call_serialize(
             token=token,
-            request_body=request_body,
+            initiate_call_request=initiate_call_request,
             _request_auth=_request_auth,
             _content_type=_content_type,
             _headers=_headers,
@@ -365,7 +368,7 @@ class CallingApi:
         )
 
         _response_types_map: Dict[str, Optional[str]] = {
-            '200': "Dict[str, object]",
+            '200': "InitiateCallResponse",
             '401': "ErrorResponse",
             '500': "ErrorResponse",
         }
@@ -384,7 +387,7 @@ class CallingApi:
     def initiate_call_with_http_info(
         self,
         token: Annotated[StrictStr, Field(description="JWT token or API key for authorization")],
-        request_body: Optional[Dict[str, Any]] = None,
+        initiate_call_request: InitiateCallRequest,
         _request_timeout: Union[
             None,
             Annotated[StrictFloat, Field(gt=0)],
@@ -397,15 +400,15 @@ class CallingApi:
         _content_type: Optional[StrictStr] = None,
         _headers: Optional[Dict[StrictStr, Any]] = None,
         _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
-    ) -> ApiResponse[Dict[str, object]]:
-        """Initiate WhatsApp call
+    ) -> ApiResponse[InitiateCallResponse]:
+        """Call action (connect / pre_accept / accept / reject / terminate)
 
-        Outbound Calling API (beta). Requires Meta Calling enablement and product consent. Not production-complete — verify on stage before relying on this in production. Trial/subscription-limited channels are blocked. 
+        Perform a WhatsApp Calling action (beta).  Proxies upstream `POST /calling/calls`. Despite the historical path name `/initiateCall`, this endpoint handles **all** call actions:  | action | Use | Required | |--------|-----|----------| | `connect` | Outbound business → user | `to` + `session` (`sdp_type: offer`) | | `pre_accept` | Inbound (optional, reduces audio clipping) | `call_id` + `session` (`sdp_type: answer`) | | `accept` | Inbound answer | `call_id` + `session` (`sdp_type: answer`) | | `reject` | Decline inbound | `call_id` | | `terminate` | Hang up | `call_id` |  **SDP / media (critical)** - `accept` / `pre_accept` require a **WebRTC-generated SDP answer**. - Do **not** send Meta's offer SDP back as the answer. - Postman (or curl) alone **cannot** establish real media — you need a   WebRTC or SIP stack. 1msg only proxies signaling.  Answer within ~**30–60 seconds** of an inbound `connect` webhook or Meta terminates as unanswered. Common Meta errors include Calling not enabled (`138000`), no permission (`138006`), SDP validation failures.  **Outbound** requires a prior Call Permission Request (CPR) acceptance. See the **Calling** tag overview for the full outbound flow and CPR limits.  Trial / `subscriptionBlocked` → **403** plain text. Upstream failures often return HTTP 200 with `{ \"response\": { \"error\": \"...\" } }`. 
 
         :param token: JWT token or API key for authorization (required)
         :type token: str
-        :param request_body:
-        :type request_body: Dict[str, object]
+        :param initiate_call_request: (required)
+        :type initiate_call_request: InitiateCallRequest
         :param _request_timeout: timeout setting for this request. If one
                                  number provided, it will be total request
                                  timeout. It can also be a pair (tuple) of
@@ -430,7 +433,7 @@ class CallingApi:
 
         _param = self._initiate_call_serialize(
             token=token,
-            request_body=request_body,
+            initiate_call_request=initiate_call_request,
             _request_auth=_request_auth,
             _content_type=_content_type,
             _headers=_headers,
@@ -438,7 +441,7 @@ class CallingApi:
         )
 
         _response_types_map: Dict[str, Optional[str]] = {
-            '200': "Dict[str, object]",
+            '200': "InitiateCallResponse",
             '401': "ErrorResponse",
             '500': "ErrorResponse",
         }
@@ -457,7 +460,7 @@ class CallingApi:
     def initiate_call_without_preload_content(
         self,
         token: Annotated[StrictStr, Field(description="JWT token or API key for authorization")],
-        request_body: Optional[Dict[str, Any]] = None,
+        initiate_call_request: InitiateCallRequest,
         _request_timeout: Union[
             None,
             Annotated[StrictFloat, Field(gt=0)],
@@ -471,14 +474,14 @@ class CallingApi:
         _headers: Optional[Dict[StrictStr, Any]] = None,
         _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
     ) -> RESTResponseType:
-        """Initiate WhatsApp call
+        """Call action (connect / pre_accept / accept / reject / terminate)
 
-        Outbound Calling API (beta). Requires Meta Calling enablement and product consent. Not production-complete — verify on stage before relying on this in production. Trial/subscription-limited channels are blocked. 
+        Perform a WhatsApp Calling action (beta).  Proxies upstream `POST /calling/calls`. Despite the historical path name `/initiateCall`, this endpoint handles **all** call actions:  | action | Use | Required | |--------|-----|----------| | `connect` | Outbound business → user | `to` + `session` (`sdp_type: offer`) | | `pre_accept` | Inbound (optional, reduces audio clipping) | `call_id` + `session` (`sdp_type: answer`) | | `accept` | Inbound answer | `call_id` + `session` (`sdp_type: answer`) | | `reject` | Decline inbound | `call_id` | | `terminate` | Hang up | `call_id` |  **SDP / media (critical)** - `accept` / `pre_accept` require a **WebRTC-generated SDP answer**. - Do **not** send Meta's offer SDP back as the answer. - Postman (or curl) alone **cannot** establish real media — you need a   WebRTC or SIP stack. 1msg only proxies signaling.  Answer within ~**30–60 seconds** of an inbound `connect` webhook or Meta terminates as unanswered. Common Meta errors include Calling not enabled (`138000`), no permission (`138006`), SDP validation failures.  **Outbound** requires a prior Call Permission Request (CPR) acceptance. See the **Calling** tag overview for the full outbound flow and CPR limits.  Trial / `subscriptionBlocked` → **403** plain text. Upstream failures often return HTTP 200 with `{ \"response\": { \"error\": \"...\" } }`. 
 
         :param token: JWT token or API key for authorization (required)
         :type token: str
-        :param request_body:
-        :type request_body: Dict[str, object]
+        :param initiate_call_request: (required)
+        :type initiate_call_request: InitiateCallRequest
         :param _request_timeout: timeout setting for this request. If one
                                  number provided, it will be total request
                                  timeout. It can also be a pair (tuple) of
@@ -503,7 +506,7 @@ class CallingApi:
 
         _param = self._initiate_call_serialize(
             token=token,
-            request_body=request_body,
+            initiate_call_request=initiate_call_request,
             _request_auth=_request_auth,
             _content_type=_content_type,
             _headers=_headers,
@@ -511,7 +514,7 @@ class CallingApi:
         )
 
         _response_types_map: Dict[str, Optional[str]] = {
-            '200': "Dict[str, object]",
+            '200': "InitiateCallResponse",
             '401': "ErrorResponse",
             '500': "ErrorResponse",
         }
@@ -525,7 +528,7 @@ class CallingApi:
     def _initiate_call_serialize(
         self,
         token,
-        request_body,
+        initiate_call_request,
         _request_auth,
         _content_type,
         _headers,
@@ -555,8 +558,8 @@ class CallingApi:
         # process the header parameters
         # process the form parameters
         # process the body parameter
-        if request_body is not None:
-            _body_params = request_body
+        if initiate_call_request is not None:
+            _body_params = initiate_call_request
 
 
         # set the HTTP header `Accept`
@@ -608,7 +611,7 @@ class CallingApi:
     def update_calling_settings(
         self,
         token: Annotated[StrictStr, Field(description="JWT token or API key for authorization")],
-        request_body: Optional[Dict[str, Any]] = None,
+        calling_settings: CallingSettings,
         _request_timeout: Union[
             None,
             Annotated[StrictFloat, Field(gt=0)],
@@ -621,15 +624,15 @@ class CallingApi:
         _content_type: Optional[StrictStr] = None,
         _headers: Optional[Dict[StrictStr, Any]] = None,
         _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
-    ) -> Dict[str, object]:
+    ) -> UpdateCallingSettings200Response:
         """Update calling settings
 
-        Update WhatsApp Calling API settings (beta). Requires Meta Calling enablement. Trial/subscription-limited channels are blocked. 
+        Enable, disable, or update WhatsApp Calling settings (beta).  Proxies upstream `POST /calling/settings`. Body is forwarded as-is (1msg does not validate fields).  **Common fields under `calling`** - `status` (`ENABLED` | `DISABLED`) — required to turn calling on/off - `call_icon_visibility` (`DEFAULT` | `DISABLE_ALL`) — optional - `callback_permission_status` (`ENABLED` | `DISABLED`) — optional;   when enabled, inbound user calls grant callback permission - `call_hours` — optional hours / timezone object - `sip` — optional SIP trunk; when SIP is ENABLED, Graph call actions and   calling webhooks are not used - `srtp_key_exchange_protocol` (`DTLS` | `SDES`) — SDES only with SIP - `video.status` — optional  Meta may accept only one feature group per request — prefer focused updates (e.g. enable status first, then SIP).  Trial / `subscriptionBlocked` → **403** plain text. 
 
         :param token: JWT token or API key for authorization (required)
         :type token: str
-        :param request_body:
-        :type request_body: Dict[str, object]
+        :param calling_settings: (required)
+        :type calling_settings: CallingSettings
         :param _request_timeout: timeout setting for this request. If one
                                  number provided, it will be total request
                                  timeout. It can also be a pair (tuple) of
@@ -654,7 +657,7 @@ class CallingApi:
 
         _param = self._update_calling_settings_serialize(
             token=token,
-            request_body=request_body,
+            calling_settings=calling_settings,
             _request_auth=_request_auth,
             _content_type=_content_type,
             _headers=_headers,
@@ -662,7 +665,7 @@ class CallingApi:
         )
 
         _response_types_map: Dict[str, Optional[str]] = {
-            '200': "Dict[str, object]",
+            '200': "UpdateCallingSettings200Response",
             '401': "ErrorResponse",
             '500': "ErrorResponse",
         }
@@ -681,7 +684,7 @@ class CallingApi:
     def update_calling_settings_with_http_info(
         self,
         token: Annotated[StrictStr, Field(description="JWT token or API key for authorization")],
-        request_body: Optional[Dict[str, Any]] = None,
+        calling_settings: CallingSettings,
         _request_timeout: Union[
             None,
             Annotated[StrictFloat, Field(gt=0)],
@@ -694,15 +697,15 @@ class CallingApi:
         _content_type: Optional[StrictStr] = None,
         _headers: Optional[Dict[StrictStr, Any]] = None,
         _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
-    ) -> ApiResponse[Dict[str, object]]:
+    ) -> ApiResponse[UpdateCallingSettings200Response]:
         """Update calling settings
 
-        Update WhatsApp Calling API settings (beta). Requires Meta Calling enablement. Trial/subscription-limited channels are blocked. 
+        Enable, disable, or update WhatsApp Calling settings (beta).  Proxies upstream `POST /calling/settings`. Body is forwarded as-is (1msg does not validate fields).  **Common fields under `calling`** - `status` (`ENABLED` | `DISABLED`) — required to turn calling on/off - `call_icon_visibility` (`DEFAULT` | `DISABLE_ALL`) — optional - `callback_permission_status` (`ENABLED` | `DISABLED`) — optional;   when enabled, inbound user calls grant callback permission - `call_hours` — optional hours / timezone object - `sip` — optional SIP trunk; when SIP is ENABLED, Graph call actions and   calling webhooks are not used - `srtp_key_exchange_protocol` (`DTLS` | `SDES`) — SDES only with SIP - `video.status` — optional  Meta may accept only one feature group per request — prefer focused updates (e.g. enable status first, then SIP).  Trial / `subscriptionBlocked` → **403** plain text. 
 
         :param token: JWT token or API key for authorization (required)
         :type token: str
-        :param request_body:
-        :type request_body: Dict[str, object]
+        :param calling_settings: (required)
+        :type calling_settings: CallingSettings
         :param _request_timeout: timeout setting for this request. If one
                                  number provided, it will be total request
                                  timeout. It can also be a pair (tuple) of
@@ -727,7 +730,7 @@ class CallingApi:
 
         _param = self._update_calling_settings_serialize(
             token=token,
-            request_body=request_body,
+            calling_settings=calling_settings,
             _request_auth=_request_auth,
             _content_type=_content_type,
             _headers=_headers,
@@ -735,7 +738,7 @@ class CallingApi:
         )
 
         _response_types_map: Dict[str, Optional[str]] = {
-            '200': "Dict[str, object]",
+            '200': "UpdateCallingSettings200Response",
             '401': "ErrorResponse",
             '500': "ErrorResponse",
         }
@@ -754,7 +757,7 @@ class CallingApi:
     def update_calling_settings_without_preload_content(
         self,
         token: Annotated[StrictStr, Field(description="JWT token or API key for authorization")],
-        request_body: Optional[Dict[str, Any]] = None,
+        calling_settings: CallingSettings,
         _request_timeout: Union[
             None,
             Annotated[StrictFloat, Field(gt=0)],
@@ -770,12 +773,12 @@ class CallingApi:
     ) -> RESTResponseType:
         """Update calling settings
 
-        Update WhatsApp Calling API settings (beta). Requires Meta Calling enablement. Trial/subscription-limited channels are blocked. 
+        Enable, disable, or update WhatsApp Calling settings (beta).  Proxies upstream `POST /calling/settings`. Body is forwarded as-is (1msg does not validate fields).  **Common fields under `calling`** - `status` (`ENABLED` | `DISABLED`) — required to turn calling on/off - `call_icon_visibility` (`DEFAULT` | `DISABLE_ALL`) — optional - `callback_permission_status` (`ENABLED` | `DISABLED`) — optional;   when enabled, inbound user calls grant callback permission - `call_hours` — optional hours / timezone object - `sip` — optional SIP trunk; when SIP is ENABLED, Graph call actions and   calling webhooks are not used - `srtp_key_exchange_protocol` (`DTLS` | `SDES`) — SDES only with SIP - `video.status` — optional  Meta may accept only one feature group per request — prefer focused updates (e.g. enable status first, then SIP).  Trial / `subscriptionBlocked` → **403** plain text. 
 
         :param token: JWT token or API key for authorization (required)
         :type token: str
-        :param request_body:
-        :type request_body: Dict[str, object]
+        :param calling_settings: (required)
+        :type calling_settings: CallingSettings
         :param _request_timeout: timeout setting for this request. If one
                                  number provided, it will be total request
                                  timeout. It can also be a pair (tuple) of
@@ -800,7 +803,7 @@ class CallingApi:
 
         _param = self._update_calling_settings_serialize(
             token=token,
-            request_body=request_body,
+            calling_settings=calling_settings,
             _request_auth=_request_auth,
             _content_type=_content_type,
             _headers=_headers,
@@ -808,7 +811,7 @@ class CallingApi:
         )
 
         _response_types_map: Dict[str, Optional[str]] = {
-            '200': "Dict[str, object]",
+            '200': "UpdateCallingSettings200Response",
             '401': "ErrorResponse",
             '500': "ErrorResponse",
         }
@@ -822,7 +825,7 @@ class CallingApi:
     def _update_calling_settings_serialize(
         self,
         token,
-        request_body,
+        calling_settings,
         _request_auth,
         _content_type,
         _headers,
@@ -852,8 +855,8 @@ class CallingApi:
         # process the header parameters
         # process the form parameters
         # process the body parameter
-        if request_body is not None:
-            _body_params = request_body
+        if calling_settings is not None:
+            _body_params = calling_settings
 
 
         # set the HTTP header `Accept`

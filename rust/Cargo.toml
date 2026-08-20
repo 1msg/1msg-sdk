@@ -1,12 +1,11 @@
 [package]
 name = "one-msg-sdk"
-version = "2.0.1"
+version = "2.0.2"
 authors = ["support@1msg.io"]
-description = "Official Rust SDK for the 1MSG WhatsApp Business API"
-license = "MIT"
+description = "Public client API for sending messages, managing groups, flows, and templates.  This is the API exposed to end customers via platform.1msg.io  **Authentication:** All requests require `token` query parameter with JWT or API key.  **Documentation:** https://help.1msg.io/platform-1msg/getting-start/quick-start **API Docs:** https://docs.1msg.io/ "
+# Override this license by providing a License Object in the OpenAPI.
+license = "Unlicense"
 edition = "2021"
-repository = "https://github.com/1msg/1msg-sdk"
-homepage = "https://1msg.io"
 
 [dependencies]
 serde = { version = "^1.0", features = ["derive"] }

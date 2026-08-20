@@ -34,10 +34,10 @@ describe 'CallingApi' do
 
   # unit tests for get_calling_settings
   # Get calling settings
-  # WhatsApp Calling API settings (beta). Requires Meta Calling enablement on the WABA. Not production-complete — paths and webhook field names may change. Trial/subscription-limited channels are blocked. 
+  # Return WhatsApp Calling API settings for this channel (beta).  Proxies upstream &#x60;GET /calling/settings&#x60;.  **Prerequisites** - Number must be eligible for Meta Calling (Cloud API; not COEX) - Trial / &#x60;subscriptionBlocked&#x60; channels receive **403** plain text - You need your own WebRTC or SIP stack; 1msg is a **signaling proxy** only   and does **not** store call history or recordings  See the **Calling** tag overview for inbound/outbound flows and webhooks. 
   # @param token JWT token or API key for authorization
   # @param [Hash] opts the optional parameters
-  # @return [Hash<String, Object>]
+  # @return [CallingSettings]
   describe 'get_calling_settings test' do
     it 'should work' do
       # assertion here. ref: https://rspec.info/features/3-12/rspec-expectations/built-in-matchers/
@@ -45,12 +45,12 @@ describe 'CallingApi' do
   end
 
   # unit tests for initiate_call
-  # Initiate WhatsApp call
-  # Outbound Calling API (beta). Requires Meta Calling enablement and product consent. Not production-complete — verify on stage before relying on this in production. Trial/subscription-limited channels are blocked. 
+  # Call action (connect / pre_accept / accept / reject / terminate)
+  # Perform a WhatsApp Calling action (beta).  Proxies upstream &#x60;POST /calling/calls&#x60;. Despite the historical path name &#x60;/initiateCall&#x60;, this endpoint handles **all** call actions:  | action | Use | Required | |--------|-----|----------| | &#x60;connect&#x60; | Outbound business → user | &#x60;to&#x60; + &#x60;session&#x60; (&#x60;sdp_type: offer&#x60;) | | &#x60;pre_accept&#x60; | Inbound (optional, reduces audio clipping) | &#x60;call_id&#x60; + &#x60;session&#x60; (&#x60;sdp_type: answer&#x60;) | | &#x60;accept&#x60; | Inbound answer | &#x60;call_id&#x60; + &#x60;session&#x60; (&#x60;sdp_type: answer&#x60;) | | &#x60;reject&#x60; | Decline inbound | &#x60;call_id&#x60; | | &#x60;terminate&#x60; | Hang up | &#x60;call_id&#x60; |  **SDP / media (critical)** - &#x60;accept&#x60; / &#x60;pre_accept&#x60; require a **WebRTC-generated SDP answer**. - Do **not** send Meta&#39;s offer SDP back as the answer. - Postman (or curl) alone **cannot** establish real media — you need a   WebRTC or SIP stack. 1msg only proxies signaling.  Answer within ~**30–60 seconds** of an inbound &#x60;connect&#x60; webhook or Meta terminates as unanswered. Common Meta errors include Calling not enabled (&#x60;138000&#x60;), no permission (&#x60;138006&#x60;), SDP validation failures.  **Outbound** requires a prior Call Permission Request (CPR) acceptance. See the **Calling** tag overview for the full outbound flow and CPR limits.  Trial / &#x60;subscriptionBlocked&#x60; → **403** plain text. Upstream failures often return HTTP 200 with &#x60;{ \&quot;response\&quot;: { \&quot;error\&quot;: \&quot;...\&quot; } }&#x60;. 
   # @param token JWT token or API key for authorization
+  # @param initiate_call_request 
   # @param [Hash] opts the optional parameters
-  # @option opts [Hash<String, Object>] :request_body 
-  # @return [Hash<String, Object>]
+  # @return [InitiateCallResponse]
   describe 'initiate_call test' do
     it 'should work' do
       # assertion here. ref: https://rspec.info/features/3-12/rspec-expectations/built-in-matchers/
@@ -59,11 +59,11 @@ describe 'CallingApi' do
 
   # unit tests for update_calling_settings
   # Update calling settings
-  # Update WhatsApp Calling API settings (beta). Requires Meta Calling enablement. Trial/subscription-limited channels are blocked. 
+  # Enable, disable, or update WhatsApp Calling settings (beta).  Proxies upstream &#x60;POST /calling/settings&#x60;. Body is forwarded as-is (1msg does not validate fields).  **Common fields under &#x60;calling&#x60;** - &#x60;status&#x60; (&#x60;ENABLED&#x60; | &#x60;DISABLED&#x60;) — required to turn calling on/off - &#x60;call_icon_visibility&#x60; (&#x60;DEFAULT&#x60; | &#x60;DISABLE_ALL&#x60;) — optional - &#x60;callback_permission_status&#x60; (&#x60;ENABLED&#x60; | &#x60;DISABLED&#x60;) — optional;   when enabled, inbound user calls grant callback permission - &#x60;call_hours&#x60; — optional hours / timezone object - &#x60;sip&#x60; — optional SIP trunk; when SIP is ENABLED, Graph call actions and   calling webhooks are not used - &#x60;srtp_key_exchange_protocol&#x60; (&#x60;DTLS&#x60; | &#x60;SDES&#x60;) — SDES only with SIP - &#x60;video.status&#x60; — optional  Meta may accept only one feature group per request — prefer focused updates (e.g. enable status first, then SIP).  Trial / &#x60;subscriptionBlocked&#x60; → **403** plain text. 
   # @param token JWT token or API key for authorization
+  # @param calling_settings 
   # @param [Hash] opts the optional parameters
-  # @option opts [Hash<String, Object>] :request_body 
-  # @return [Hash<String, Object>]
+  # @return [UpdateCallingSettings200Response]
   describe 'update_calling_settings test' do
     it 'should work' do
       # assertion here. ref: https://rspec.info/features/3-12/rspec-expectations/built-in-matchers/

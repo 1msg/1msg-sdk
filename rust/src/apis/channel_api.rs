@@ -15,24 +15,6 @@ use crate::{apis::ResponseContent, models};
 use super::{Error, configuration, ContentType};
 
 
-/// struct for typed errors of method [`create_commerce`]
-#[derive(Debug, Clone, Serialize, Deserialize)]
-#[serde(untagged)]
-pub enum CreateCommerceError {
-    Status401(models::ErrorResponse),
-    Status500(models::ErrorResponse),
-    UnknownValue(serde_json::Value),
-}
-
-/// struct for typed errors of method [`get_commerce`]
-#[derive(Debug, Clone, Serialize, Deserialize)]
-#[serde(untagged)]
-pub enum GetCommerceError {
-    Status401(models::ErrorResponse),
-    Status500(models::ErrorResponse),
-    UnknownValue(serde_json::Value),
-}
-
 /// struct for typed errors of method [`get_conversational_automation`]
 #[derive(Debug, Clone, Serialize, Deserialize)]
 #[serde(untagged)]
@@ -61,102 +43,8 @@ pub enum SetConversationalAutomationError {
 }
 
 
-/// Update catalog/cart commerce settings (`params` object). Blocked when the channel subscription limit is exceeded. Requires commerce-capable channel (Cloud Functions `/commerceWAV2`). 
-pub async fn create_commerce(configuration: &configuration::Configuration, token: &str, create_commerce_request: Option<models::CreateCommerceRequest>) -> Result<models::CreateCommerce200Response, Error<CreateCommerceError>> {
-    // add a prefix to parameters to efficiently prevent name collisions
-    let p_query_token = token;
-    let p_body_create_commerce_request = create_commerce_request;
-
-    let uri_str = format!("{}/commerce", configuration.base_path);
-    let mut req_builder = configuration.client.request(reqwest::Method::POST, &uri_str);
-
-    req_builder = req_builder.query(&[("token", &p_query_token.to_string())]);
-    if let Some(ref apikey) = configuration.api_key {
-        let key = apikey.key.clone();
-        let value = match apikey.prefix {
-            Some(ref prefix) => format!("{} {}", prefix, key),
-            None => key,
-        };
-        req_builder = req_builder.query(&[("token", value)]);
-    }
-    if let Some(ref user_agent) = configuration.user_agent {
-        req_builder = req_builder.header(reqwest::header::USER_AGENT, user_agent.clone());
-    }
-    req_builder = req_builder.json(&p_body_create_commerce_request);
-
-    let req = req_builder.build()?;
-    let resp = configuration.client.execute(req).await?;
-
-    let status = resp.status();
-    let content_type = resp
-        .headers()
-        .get("content-type")
-        .and_then(|v| v.to_str().ok())
-        .unwrap_or("application/octet-stream");
-    let content_type = super::ContentType::from(content_type);
-
-    if !status.is_client_error() && !status.is_server_error() {
-        let content = resp.text().await?;
-        match content_type {
-            ContentType::Json => serde_json::from_str(&content).map_err(Error::from),
-            ContentType::Text => return Err(Error::from(serde_json::Error::custom("Received `text/plain` content type response that cannot be converted to `models::CreateCommerce200Response`"))),
-            ContentType::Unsupported(unknown_type) => return Err(Error::from(serde_json::Error::custom(format!("Received `{unknown_type}` content type response that cannot be converted to `models::CreateCommerce200Response`")))),
-        }
-    } else {
-        let content = resp.text().await?;
-        let entity: Option<CreateCommerceError> = serde_json::from_str(&content).ok();
-        Err(Error::ResponseError(ResponseContent { status, content, entity }))
-    }
-}
-
-/// Returns catalog/cart commerce settings for the channel. `is_catalog_visible` — show catalog storefront icon. `is_cart_enabled` — enable cart. 
-pub async fn get_commerce(configuration: &configuration::Configuration, token: &str) -> Result<Vec<models::GetCommerce200ResponseInner>, Error<GetCommerceError>> {
-    // add a prefix to parameters to efficiently prevent name collisions
-    let p_query_token = token;
-
-    let uri_str = format!("{}/commerce", configuration.base_path);
-    let mut req_builder = configuration.client.request(reqwest::Method::GET, &uri_str);
-
-    req_builder = req_builder.query(&[("token", &p_query_token.to_string())]);
-    if let Some(ref apikey) = configuration.api_key {
-        let key = apikey.key.clone();
-        let value = match apikey.prefix {
-            Some(ref prefix) => format!("{} {}", prefix, key),
-            None => key,
-        };
-        req_builder = req_builder.query(&[("token", value)]);
-    }
-    if let Some(ref user_agent) = configuration.user_agent {
-        req_builder = req_builder.header(reqwest::header::USER_AGENT, user_agent.clone());
-    }
-
-    let req = req_builder.build()?;
-    let resp = configuration.client.execute(req).await?;
-
-    let status = resp.status();
-    let content_type = resp
-        .headers()
-        .get("content-type")
-        .and_then(|v| v.to_str().ok())
-        .unwrap_or("application/octet-stream");
-    let content_type = super::ContentType::from(content_type);
-
-    if !status.is_client_error() && !status.is_server_error() {
-        let content = resp.text().await?;
-        match content_type {
-            ContentType::Json => serde_json::from_str(&content).map_err(Error::from),
-            ContentType::Text => return Err(Error::from(serde_json::Error::custom("Received `text/plain` content type response that cannot be converted to `Vec&lt;models::GetCommerce200ResponseInner&gt;`"))),
-            ContentType::Unsupported(unknown_type) => return Err(Error::from(serde_json::Error::custom(format!("Received `{unknown_type}` content type response that cannot be converted to `Vec&lt;models::GetCommerce200ResponseInner&gt;`")))),
-        }
-    } else {
-        let content = resp.text().await?;
-        let entity: Option<GetCommerceError> = serde_json::from_str(&content).ok();
-        Err(Error::ResponseError(ResponseContent { status, content, entity }))
-    }
-}
-
-/// Proxy to WABA conversational_automation. Path verified per channel/provider.
-pub async fn get_conversational_automation(configuration: &configuration::Configuration, token: &str) -> Result<std::collections::HashMap<String, serde_json::Value>, Error<GetConversationalAutomationError>> {
+/// Get WhatsApp conversational components for the channel (welcome message, ice-breaker prompts, and slash commands).  Proxies Meta/360dialog `GET /conversational_automation`.  When `enable_welcome_message` is true and a user opens chat for the first time, Meta delivers a webhook message with `type: request_welcome`. The inbound formatter exposes that as `type: \"request_welcome\"` and `meta.request_welcome: true` so your webhook can send a custom welcome reply. 
+pub async fn get_conversational_automation(configuration: &configuration::Configuration, token: &str) -> Result<models::ConversationalAutomation, Error<GetConversationalAutomationError>> {
     // add a prefix to parameters to efficiently prevent name collisions
     let p_query_token = token;
 
@@ -191,8 +79,8 @@ pub async fn get_conversational_automation(configuration: &configuration::Config
         let content = resp.text().await?;
         match content_type {
             ContentType::Json => serde_json::from_str(&content).map_err(Error::from),
-            ContentType::Text => return Err(Error::from(serde_json::Error::custom("Received `text/plain` content type response that cannot be converted to `std::collections::HashMap&lt;String, serde_json::Value&gt;`"))),
-            ContentType::Unsupported(unknown_type) => return Err(Error::from(serde_json::Error::custom(format!("Received `{unknown_type}` content type response that cannot be converted to `std::collections::HashMap&lt;String, serde_json::Value&gt;`")))),
+            ContentType::Text => return Err(Error::from(serde_json::Error::custom("Received `text/plain` content type response that cannot be converted to `models::ConversationalAutomation`"))),
+            ContentType::Unsupported(unknown_type) => return Err(Error::from(serde_json::Error::custom(format!("Received `{unknown_type}` content type response that cannot be converted to `models::ConversationalAutomation`")))),
         }
     } else {
         let content = resp.text().await?;
@@ -247,11 +135,11 @@ pub async fn get_status(configuration: &configuration::Configuration, token: &st
     }
 }
 
-/// Update WABA conversational_automation settings.
-pub async fn set_conversational_automation(configuration: &configuration::Configuration, token: &str, request_body: Option<std::collections::HashMap<String, serde_json::Value>>) -> Result<std::collections::HashMap<String, serde_json::Value>, Error<SetConversationalAutomationError>> {
+/// Update WhatsApp conversational components.  Allowed body fields (others are ignored): - `enable_welcome_message` (boolean) - `prompts` (string[], max 4, each ≤ 80 chars) - `commands` (`{ command_name, command_description }[]`)  Proxies Meta/360dialog `POST /conversational_automation`. 
+pub async fn set_conversational_automation(configuration: &configuration::Configuration, token: &str, conversational_automation: models::ConversationalAutomation) -> Result<std::collections::HashMap<String, serde_json::Value>, Error<SetConversationalAutomationError>> {
     // add a prefix to parameters to efficiently prevent name collisions
     let p_query_token = token;
-    let p_body_request_body = request_body;
+    let p_body_conversational_automation = conversational_automation;
 
     let uri_str = format!("{}/conversationalAutomation", configuration.base_path);
     let mut req_builder = configuration.client.request(reqwest::Method::POST, &uri_str);
@@ -268,7 +156,7 @@ pub async fn set_conversational_automation(configuration: &configuration::Config
     if let Some(ref user_agent) = configuration.user_agent {
         req_builder = req_builder.header(reqwest::header::USER_AGENT, user_agent.clone());
     }
-    req_builder = req_builder.json(&p_body_request_body);
+    req_builder = req_builder.json(&p_body_conversational_automation);
 
     let req = req_builder.build()?;
     let resp = configuration.client.execute(req).await?;

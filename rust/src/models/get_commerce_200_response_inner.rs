@@ -13,10 +13,13 @@ use serde::{Deserialize, Serialize};
 
 #[derive(Clone, Default, Debug, PartialEq, Serialize, Deserialize)]
 pub struct GetCommerce200ResponseInner {
+    /// Catalog id
     #[serde(rename = "id", skip_serializing_if = "Option::is_none")]
     pub id: Option<String>,
+    /// Whether the cart is enabled
     #[serde(rename = "is_cart_enabled", skip_serializing_if = "Option::is_none")]
     pub is_cart_enabled: Option<bool>,
+    /// Whether the catalog storefront icon is shown
     #[serde(rename = "is_catalog_visible", skip_serializing_if = "Option::is_none")]
     pub is_catalog_visible: Option<bool>,
 }

@@ -13,14 +13,14 @@ use serde::{Deserialize, Serialize};
 
 #[derive(Clone, Default, Debug, PartialEq, Serialize, Deserialize)]
 pub struct CreateCommerceRequest {
-    #[serde(rename = "params", skip_serializing_if = "Option::is_none")]
-    pub params: Option<std::collections::HashMap<String, serde_json::Value>>,
+    #[serde(rename = "params")]
+    pub params: models::CreateCommerceRequestParams,
 }
 
 impl CreateCommerceRequest {
-    pub fn new() -> CreateCommerceRequest {
+    pub fn new(params: models::CreateCommerceRequestParams) -> CreateCommerceRequest {
         CreateCommerceRequest {
-            params: None,
+            params,
         }
     }
 }

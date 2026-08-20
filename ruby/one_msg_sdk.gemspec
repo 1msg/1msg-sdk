@@ -22,8 +22,8 @@ Gem::Specification.new do |s|
   s.authors     = ["1MSG"]
   s.email       = ["support@1msg.io"]
   s.homepage    = "https://github.com/1msg/1msg-sdk"
-  s.summary     = "Official Ruby SDK for the 1MSG WhatsApp Business API"
-  s.description = "Official Ruby client for the 1MSG WhatsApp Business API"
+  s.summary     = "Official Ruby SDK for the 1msg WhatsApp Business API"
+  s.description = "Official Ruby client for the 1msg WhatsApp Business API"
   s.license     = "MIT"
   s.required_ruby_version = ">= 2.7"
   s.metadata    = {}

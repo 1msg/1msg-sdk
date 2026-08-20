@@ -5,17 +5,17 @@ All URIs are relative to *https://api.1msg.io*
 | Method | HTTP request | Description |
 | ------ | ------------ | ----------- |
 | [**get_calling_settings**](CallingApi.md#get_calling_settings) | **GET** /callingSettings | Get calling settings |
-| [**initiate_call**](CallingApi.md#initiate_call) | **POST** /initiateCall | Initiate WhatsApp call |
+| [**initiate_call**](CallingApi.md#initiate_call) | **POST** /initiateCall | Call action (connect / pre_accept / accept / reject / terminate) |
 | [**update_calling_settings**](CallingApi.md#update_calling_settings) | **POST** /callingSettings | Update calling settings |
 
 
 ## get_calling_settings
 
-> Hash&lt;String, Object&gt; get_calling_settings(token)
+> <CallingSettings> get_calling_settings(token)
 
 Get calling settings
 
-WhatsApp Calling API settings (beta). Requires Meta Calling enablement on the WABA. Not production-complete — paths and webhook field names may change. Trial/subscription-limited channels are blocked. 
+Return WhatsApp Calling API settings for this channel (beta).  Proxies upstream `GET /calling/settings`.  **Prerequisites** - Number must be eligible for Meta Calling (Cloud API; not COEX) - Trial / `subscriptionBlocked` channels receive **403** plain text - You need your own WebRTC or SIP stack; 1msg is a **signaling proxy** only   and does **not** store call history or recordings  See the **Calling** tag overview for inbound/outbound flows and webhooks. 
 
 ### Examples
 
@@ -46,7 +46,7 @@ end
 
 This returns an Array which contains the response data, status code and headers.
 
-> <Array(Hash&lt;String, Object&gt;, Integer, Hash)> get_calling_settings_with_http_info(token)
+> <Array(<CallingSettings>, Integer, Hash)> get_calling_settings_with_http_info(token)
 
 ```ruby
 begin
@@ -54,7 +54,7 @@ begin
   data, status_code, headers = api_instance.get_calling_settings_with_http_info(token)
   p status_code # => 2xx
   p headers # => { ... }
-  p data # => Hash&lt;String, Object&gt;
+  p data # => <CallingSettings>
 rescue OneMsgSdk::ApiError => e
   puts "Error when calling CallingApi->get_calling_settings_with_http_info: #{e}"
 end
@@ -68,7 +68,7 @@ end
 
 ### Return type
 
-**Hash&lt;String, Object&gt;**
+[**CallingSettings**](CallingSettings.md)
 
 ### Authorization
 
@@ -82,11 +82,11 @@ end
 
 ## initiate_call
 
-> Hash&lt;String, Object&gt; initiate_call(token, opts)
+> <InitiateCallResponse> initiate_call(token, initiate_call_request)
 
-Initiate WhatsApp call
+Call action (connect / pre_accept / accept / reject / terminate)
 
-Outbound Calling API (beta). Requires Meta Calling enablement and product consent. Not production-complete — verify on stage before relying on this in production. Trial/subscription-limited channels are blocked. 
+Perform a WhatsApp Calling action (beta).  Proxies upstream `POST /calling/calls`. Despite the historical path name `/initiateCall`, this endpoint handles **all** call actions:  | action | Use | Required | |--------|-----|----------| | `connect` | Outbound business → user | `to` + `session` (`sdp_type: offer`) | | `pre_accept` | Inbound (optional, reduces audio clipping) | `call_id` + `session` (`sdp_type: answer`) | | `accept` | Inbound answer | `call_id` + `session` (`sdp_type: answer`) | | `reject` | Decline inbound | `call_id` | | `terminate` | Hang up | `call_id` |  **SDP / media (critical)** - `accept` / `pre_accept` require a **WebRTC-generated SDP answer**. - Do **not** send Meta's offer SDP back as the answer. - Postman (or curl) alone **cannot** establish real media — you need a   WebRTC or SIP stack. 1msg only proxies signaling.  Answer within ~**30–60 seconds** of an inbound `connect` webhook or Meta terminates as unanswered. Common Meta errors include Calling not enabled (`138000`), no permission (`138006`), SDP validation failures.  **Outbound** requires a prior Call Permission Request (CPR) acceptance. See the **Calling** tag overview for the full outbound flow and CPR limits.  Trial / `subscriptionBlocked` → **403** plain text. Upstream failures often return HTTP 200 with `{ \"response\": { \"error\": \"...\" } }`. 
 
 ### Examples
 
@@ -103,13 +103,11 @@ end
 
 api_instance = OneMsgSdk::CallingApi.new
 token = 'token_example' # String | JWT token or API key for authorization
-opts = {
-  request_body: { key: 3.56} # Hash<String, Object> | 
-}
+initiate_call_request = OneMsgSdk::InitiateCallRequest.new({messaging_product: 'whatsapp', action: 'connect'}) # InitiateCallRequest | 
 
 begin
-  # Initiate WhatsApp call
-  result = api_instance.initiate_call(token, opts)
+  # Call action (connect / pre_accept / accept / reject / terminate)
+  result = api_instance.initiate_call(token, initiate_call_request)
   p result
 rescue OneMsgSdk::ApiError => e
   puts "Error when calling CallingApi->initiate_call: #{e}"
@@ -120,15 +118,15 @@ end
 
 This returns an Array which contains the response data, status code and headers.
 
-> <Array(Hash&lt;String, Object&gt;, Integer, Hash)> initiate_call_with_http_info(token, opts)
+> <Array(<InitiateCallResponse>, Integer, Hash)> initiate_call_with_http_info(token, initiate_call_request)
 
 ```ruby
 begin
-  # Initiate WhatsApp call
-  data, status_code, headers = api_instance.initiate_call_with_http_info(token, opts)
+  # Call action (connect / pre_accept / accept / reject / terminate)
+  data, status_code, headers = api_instance.initiate_call_with_http_info(token, initiate_call_request)
   p status_code # => 2xx
   p headers # => { ... }
-  p data # => Hash&lt;String, Object&gt;
+  p data # => <InitiateCallResponse>
 rescue OneMsgSdk::ApiError => e
   puts "Error when calling CallingApi->initiate_call_with_http_info: #{e}"
 end
@@ -139,11 +137,11 @@ end
 | Name | Type | Description | Notes |
 | ---- | ---- | ----------- | ----- |
 | **token** | **String** | JWT token or API key for authorization |  |
-| **request_body** | [**Hash&lt;String, Object&gt;**](Object.md) |  | [optional] |
+| **initiate_call_request** | [**InitiateCallRequest**](InitiateCallRequest.md) |  |  |
 
 ### Return type
 
-**Hash&lt;String, Object&gt;**
+[**InitiateCallResponse**](InitiateCallResponse.md)
 
 ### Authorization
 
@@ -157,11 +155,11 @@ end
 
 ## update_calling_settings
 
-> Hash&lt;String, Object&gt; update_calling_settings(token, opts)
+> <UpdateCallingSettings200Response> update_calling_settings(token, calling_settings)
 
 Update calling settings
 
-Update WhatsApp Calling API settings (beta). Requires Meta Calling enablement. Trial/subscription-limited channels are blocked. 
+Enable, disable, or update WhatsApp Calling settings (beta).  Proxies upstream `POST /calling/settings`. Body is forwarded as-is (1msg does not validate fields).  **Common fields under `calling`** - `status` (`ENABLED` | `DISABLED`) — required to turn calling on/off - `call_icon_visibility` (`DEFAULT` | `DISABLE_ALL`) — optional - `callback_permission_status` (`ENABLED` | `DISABLED`) — optional;   when enabled, inbound user calls grant callback permission - `call_hours` — optional hours / timezone object - `sip` — optional SIP trunk; when SIP is ENABLED, Graph call actions and   calling webhooks are not used - `srtp_key_exchange_protocol` (`DTLS` | `SDES`) — SDES only with SIP - `video.status` — optional  Meta may accept only one feature group per request — prefer focused updates (e.g. enable status first, then SIP).  Trial / `subscriptionBlocked` → **403** plain text. 
 
 ### Examples
 
@@ -178,13 +176,11 @@ end
 
 api_instance = OneMsgSdk::CallingApi.new
 token = 'token_example' # String | JWT token or API key for authorization
-opts = {
-  request_body: { key: 3.56} # Hash<String, Object> | 
-}
+calling_settings = OneMsgSdk::CallingSettings.new # CallingSettings | 
 
 begin
   # Update calling settings
-  result = api_instance.update_calling_settings(token, opts)
+  result = api_instance.update_calling_settings(token, calling_settings)
   p result
 rescue OneMsgSdk::ApiError => e
   puts "Error when calling CallingApi->update_calling_settings: #{e}"
@@ -195,15 +191,15 @@ end
 
 This returns an Array which contains the response data, status code and headers.
 
-> <Array(Hash&lt;String, Object&gt;, Integer, Hash)> update_calling_settings_with_http_info(token, opts)
+> <Array(<UpdateCallingSettings200Response>, Integer, Hash)> update_calling_settings_with_http_info(token, calling_settings)
 
 ```ruby
 begin
   # Update calling settings
-  data, status_code, headers = api_instance.update_calling_settings_with_http_info(token, opts)
+  data, status_code, headers = api_instance.update_calling_settings_with_http_info(token, calling_settings)
   p status_code # => 2xx
   p headers # => { ... }
-  p data # => Hash&lt;String, Object&gt;
+  p data # => <UpdateCallingSettings200Response>
 rescue OneMsgSdk::ApiError => e
   puts "Error when calling CallingApi->update_calling_settings_with_http_info: #{e}"
 end
@@ -214,11 +210,11 @@ end
 | Name | Type | Description | Notes |
 | ---- | ---- | ----------- | ----- |
 | **token** | **String** | JWT token or API key for authorization |  |
-| **request_body** | [**Hash&lt;String, Object&gt;**](Object.md) |  | [optional] |
+| **calling_settings** | [**CallingSettings**](CallingSettings.md) |  |  |
 
 ### Return type
 
-**Hash&lt;String, Object&gt;**
+[**UpdateCallingSettings200Response**](UpdateCallingSettings200Response.md)
 
 ### Authorization
 

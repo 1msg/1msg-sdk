@@ -102,6 +102,8 @@ Name | Type | Description  | Required | Notes
 > std::collections::HashMap<String, serde_json::Value> send_template(token, send_template_request)
 Send Template Message
 
+Send a WhatsApp template message (works outside the 24-hour session window).  Supported `params` button `sub_type` values include: `url`, `quick_reply`, `copy_code` / `coupon_code`, `catalog`, `flow`, `limited_time_offer`, and **`order_details`** (WhatsApp Payments **India only** — requires an approved Utility template with an ORDER_DETAILS button).  For India order/invoice payments outside 24h, include a button component:  ```json {   \"type\": \"button\",   \"sub_type\": \"order_details\",   \"index\": 0,   \"parameters\": [{     \"type\": \"action\",     \"action\": { \"order_details\": { \"reference_id\": \"...\", \"currency\": \"INR\", \"order\": {} } }   }] } ```  Convenience wrapper with structured fields: `POST /sendOrderDetails`. 
+
 ### Parameters
 
 

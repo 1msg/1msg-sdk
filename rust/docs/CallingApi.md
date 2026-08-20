@@ -5,17 +5,17 @@ All URIs are relative to *https://api.1msg.io*
 Method | HTTP request | Description
 ------------- | ------------- | -------------
 [**get_calling_settings**](CallingApi.md#get_calling_settings) | **GET** /callingSettings | Get calling settings
-[**initiate_call**](CallingApi.md#initiate_call) | **POST** /initiateCall | Initiate WhatsApp call
+[**initiate_call**](CallingApi.md#initiate_call) | **POST** /initiateCall | Call action (connect / pre_accept / accept / reject / terminate)
 [**update_calling_settings**](CallingApi.md#update_calling_settings) | **POST** /callingSettings | Update calling settings
 
 
 
 ## get_calling_settings
 
-> std::collections::HashMap<String, serde_json::Value> get_calling_settings(token)
+> models::CallingSettings get_calling_settings(token)
 Get calling settings
 
-WhatsApp Calling API settings (beta). Requires Meta Calling enablement on the WABA. Not production-complete — paths and webhook field names may change. Trial/subscription-limited channels are blocked. 
+Return WhatsApp Calling API settings for this channel (beta).  Proxies upstream `GET /calling/settings`.  **Prerequisites** - Number must be eligible for Meta Calling (Cloud API; not COEX) - Trial / `subscriptionBlocked` channels receive **403** plain text - You need your own WebRTC or SIP stack; 1msg is a **signaling proxy** only   and does **not** store call history or recordings  See the **Calling** tag overview for inbound/outbound flows and webhooks. 
 
 ### Parameters
 
@@ -26,7 +26,7 @@ Name | Type | Description  | Required | Notes
 
 ### Return type
 
-[**std::collections::HashMap<String, serde_json::Value>**](serde_json::Value.md)
+[**models::CallingSettings**](CallingSettings.md)
 
 ### Authorization
 
@@ -42,10 +42,10 @@ Name | Type | Description  | Required | Notes
 
 ## initiate_call
 
-> std::collections::HashMap<String, serde_json::Value> initiate_call(token, request_body)
-Initiate WhatsApp call
+> models::InitiateCallResponse initiate_call(token, initiate_call_request)
+Call action (connect / pre_accept / accept / reject / terminate)
 
-Outbound Calling API (beta). Requires Meta Calling enablement and product consent. Not production-complete — verify on stage before relying on this in production. Trial/subscription-limited channels are blocked. 
+Perform a WhatsApp Calling action (beta).  Proxies upstream `POST /calling/calls`. Despite the historical path name `/initiateCall`, this endpoint handles **all** call actions:  | action | Use | Required | |--------|-----|----------| | `connect` | Outbound business → user | `to` + `session` (`sdp_type: offer`) | | `pre_accept` | Inbound (optional, reduces audio clipping) | `call_id` + `session` (`sdp_type: answer`) | | `accept` | Inbound answer | `call_id` + `session` (`sdp_type: answer`) | | `reject` | Decline inbound | `call_id` | | `terminate` | Hang up | `call_id` |  **SDP / media (critical)** - `accept` / `pre_accept` require a **WebRTC-generated SDP answer**. - Do **not** send Meta's offer SDP back as the answer. - Postman (or curl) alone **cannot** establish real media — you need a   WebRTC or SIP stack. 1msg only proxies signaling.  Answer within ~**30–60 seconds** of an inbound `connect` webhook or Meta terminates as unanswered. Common Meta errors include Calling not enabled (`138000`), no permission (`138006`), SDP validation failures.  **Outbound** requires a prior Call Permission Request (CPR) acceptance. See the **Calling** tag overview for the full outbound flow and CPR limits.  Trial / `subscriptionBlocked` → **403** plain text. Upstream failures often return HTTP 200 with `{ \"response\": { \"error\": \"...\" } }`. 
 
 ### Parameters
 
@@ -53,11 +53,11 @@ Outbound Calling API (beta). Requires Meta Calling enablement and product consen
 Name | Type | Description  | Required | Notes
 ------------- | ------------- | ------------- | ------------- | -------------
 **token** | **String** | JWT token or API key for authorization | [required] |
-**request_body** | Option<[**std::collections::HashMap<String, serde_json::Value>**](SerdeJson__Value.md)> |  |  |
+**initiate_call_request** | [**InitiateCallRequest**](InitiateCallRequest.md) |  | [required] |
 
 ### Return type
 
-[**std::collections::HashMap<String, serde_json::Value>**](serde_json::Value.md)
+[**models::InitiateCallResponse**](InitiateCallResponse.md)
 
 ### Authorization
 
@@ -73,10 +73,10 @@ Name | Type | Description  | Required | Notes
 
 ## update_calling_settings
 
-> std::collections::HashMap<String, serde_json::Value> update_calling_settings(token, request_body)
+> models::UpdateCallingSettings200Response update_calling_settings(token, calling_settings)
 Update calling settings
 
-Update WhatsApp Calling API settings (beta). Requires Meta Calling enablement. Trial/subscription-limited channels are blocked. 
+Enable, disable, or update WhatsApp Calling settings (beta).  Proxies upstream `POST /calling/settings`. Body is forwarded as-is (1msg does not validate fields).  **Common fields under `calling`** - `status` (`ENABLED` | `DISABLED`) — required to turn calling on/off - `call_icon_visibility` (`DEFAULT` | `DISABLE_ALL`) — optional - `callback_permission_status` (`ENABLED` | `DISABLED`) — optional;   when enabled, inbound user calls grant callback permission - `call_hours` — optional hours / timezone object - `sip` — optional SIP trunk; when SIP is ENABLED, Graph call actions and   calling webhooks are not used - `srtp_key_exchange_protocol` (`DTLS` | `SDES`) — SDES only with SIP - `video.status` — optional  Meta may accept only one feature group per request — prefer focused updates (e.g. enable status first, then SIP).  Trial / `subscriptionBlocked` → **403** plain text. 
 
 ### Parameters
 
@@ -84,11 +84,11 @@ Update WhatsApp Calling API settings (beta). Requires Meta Calling enablement. T
 Name | Type | Description  | Required | Notes
 ------------- | ------------- | ------------- | ------------- | -------------
 **token** | **String** | JWT token or API key for authorization | [required] |
-**request_body** | Option<[**std::collections::HashMap<String, serde_json::Value>**](SerdeJson__Value.md)> |  |  |
+**calling_settings** | [**CallingSettings**](CallingSettings.md) |  | [required] |
 
 ### Return type
 
-[**std::collections::HashMap<String, serde_json::Value>**](serde_json::Value.md)
+[**models::UpdateCallingSettings200Response**](updateCallingSettings_200_response.md)
 
 ### Authorization
 

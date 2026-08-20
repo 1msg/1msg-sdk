@@ -84,7 +84,7 @@ module OneMsgSdk
     end
 
     # Set webhook URL
-    # Configure the client webhook URL for inbound events.
+    # Configure the client webhook URL for inbound events.  WhatsApp **Calling** events (`field=calls`) are forwarded as passthrough payloads with `type: \"calls\"` and `instanceId` (connect / status / terminate). Call permission replies arrive on the normal messages path (`call_permission_reply`). Details: **Calling** tag. 
     # @param token [String] JWT token or API key for authorization
     # @param [Hash] opts the optional parameters
     # @option opts [GetWebhook200Response] :get_webhook200_response 
@@ -95,7 +95,7 @@ module OneMsgSdk
     end
 
     # Set webhook URL
-    # Configure the client webhook URL for inbound events.
+    # Configure the client webhook URL for inbound events.  WhatsApp **Calling** events (&#x60;field&#x3D;calls&#x60;) are forwarded as passthrough payloads with &#x60;type: \&quot;calls\&quot;&#x60; and &#x60;instanceId&#x60; (connect / status / terminate). Call permission replies arrive on the normal messages path (&#x60;call_permission_reply&#x60;). Details: **Calling** tag. 
     # @param token [String] JWT token or API key for authorization
     # @param [Hash] opts the optional parameters
     # @option opts [GetWebhook200Response] :get_webhook200_response 

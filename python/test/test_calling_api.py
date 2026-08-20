@@ -37,7 +37,7 @@ class TestCallingApi(unittest.TestCase):
     def test_initiate_call(self) -> None:
         """Test case for initiate_call
 
-        Initiate WhatsApp call
+        Call action (connect / pre_accept / accept / reject / terminate)
         """
         pass
 

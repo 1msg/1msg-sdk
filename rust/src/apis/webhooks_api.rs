@@ -80,7 +80,7 @@ pub async fn get_webhook(configuration: &configuration::Configuration, token: &s
     }
 }
 
-/// Configure the client webhook URL for inbound events.
+/// Configure the client webhook URL for inbound events.  WhatsApp **Calling** events (`field=calls`) are forwarded as passthrough payloads with `type: \"calls\"` and `instanceId` (connect / status / terminate). Call permission replies arrive on the normal messages path (`call_permission_reply`). Details: **Calling** tag. 
 pub async fn set_webhook(configuration: &configuration::Configuration, token: &str, get_webhook200_response: Option<models::GetWebhook200Response>) -> Result<std::collections::HashMap<String, serde_json::Value>, Error<SetWebhookError>> {
     // add a prefix to parameters to efficiently prevent name collisions
     let p_query_token = token;

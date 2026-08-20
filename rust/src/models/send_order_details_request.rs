@@ -13,30 +13,38 @@ use serde::{Deserialize, Serialize};
 
 #[derive(Clone, Default, Debug, PartialEq, Serialize, Deserialize)]
 pub struct SendOrderDetailsRequest {
+    /// Recipient phone (India E.164 digits, no +). Use phone or chatId.
     #[serde(rename = "phone", skip_serializing_if = "Option::is_none")]
     pub phone: Option<i32>,
+    /// Recipient chatId (e.g. phone@c.us). Use phone or chatId.
     #[serde(rename = "chatId", skip_serializing_if = "Option::is_none")]
     pub chat_id: Option<String>,
+    /// Approved Utility template name that includes an ORDER_DETAILS button
     #[serde(rename = "template")]
     pub template: String,
+    /// Template namespace from the channel / template list
     #[serde(rename = "namespace")]
     pub namespace: String,
     #[serde(rename = "language")]
-    pub language: std::collections::HashMap<String, serde_json::Value>,
+    pub language: models::SendOrderDetailsRequestLanguage,
+    /// Extra template components (HEADER / BODY / etc.). If an order_details button is missing, the API appends one from order / referenceId / currency / paymentSettings. 
     #[serde(rename = "params", skip_serializing_if = "Option::is_none")]
     pub params: Option<Vec<std::collections::HashMap<String, serde_json::Value>>>,
-    #[serde(rename = "order")]
-    pub order: std::collections::HashMap<String, serde_json::Value>,
+    /// Unique order / payment reference id (maps to reference_id)
     #[serde(rename = "referenceId", skip_serializing_if = "Option::is_none")]
     pub reference_id: Option<String>,
-    #[serde(rename = "paymentSettings", skip_serializing_if = "Option::is_none")]
-    pub payment_settings: Option<std::collections::HashMap<String, serde_json::Value>>,
+    /// Currency code for India payments
     #[serde(rename = "currency", skip_serializing_if = "Option::is_none")]
     pub currency: Option<String>,
+    /// Optional payment settings (UPI / payment gateway / payment link). Forwarded as payment_settings on the order_details action. 
+    #[serde(rename = "paymentSettings", skip_serializing_if = "Option::is_none")]
+    pub payment_settings: Option<std::collections::HashMap<String, serde_json::Value>>,
+    #[serde(rename = "order")]
+    pub order: models::SendOrderDetailsRequestOrder,
 }
 
 impl SendOrderDetailsRequest {
-    pub fn new(template: String, namespace: String, language: std::collections::HashMap<String, serde_json::Value>, order: std::collections::HashMap<String, serde_json::Value>) -> SendOrderDetailsRequest {
+    pub fn new(template: String, namespace: String, language: models::SendOrderDetailsRequestLanguage, order: models::SendOrderDetailsRequestOrder) -> SendOrderDetailsRequest {
         SendOrderDetailsRequest {
             phone: None,
             chat_id: None,
@@ -44,10 +52,10 @@ impl SendOrderDetailsRequest {
             namespace,
             language,
             params: None,
-            order,
             reference_id: None,
-            payment_settings: None,
             currency: None,
+            payment_settings: None,
+            order,
         }
     }
 }

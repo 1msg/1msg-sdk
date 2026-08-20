@@ -580,7 +580,7 @@ pub async fn retrieve_media(configuration: &configuration::Configuration, token:
     }
 }
 
-/// Request shipping address from user (India only).
+/// Request shipping address from the user (WhatsApp interactive `address_message`).  **India and Singapore only.** Requires: - Business WhatsApp number registered in that country - Recipient phone matching the country (`+91` ↔ `IN`, `+65` ↔ `SG`)  Pass `country: \"IN\"` or `country: \"SG\"`. Eligibility is validated upstream; mismatches (e.g. Singapore phone with `country: \"IN\"`) return errors such as `Unsupported Interactive Message type` (HTTP 200 with `sent: false`).  Optional action parameters: `values`, `saved_addresses`, `validation_errors`. 
 pub async fn send_address_message(configuration: &configuration::Configuration, token: &str, send_address_message_request: models::SendAddressMessageRequest) -> Result<models::MessageSentResponse, Error<SendAddressMessageError>> {
     // add a prefix to parameters to efficiently prevent name collisions
     let p_query_token = token;
@@ -1248,7 +1248,7 @@ pub async fn send_message(configuration: &configuration::Configuration, token: &
     }
 }
 
-/// Send a WhatsApp order_details template (payments flow). Requires commerce-enabled channel and a pre-approved order_details template. Region/product gates apply. 
+/// Send a WhatsApp **order details** payment / invoice message using a pre-approved **Utility** template that has an `ORDER_DETAILS` button.  **India only** (WhatsApp Payments India). Requires: - India WhatsApp Business number - Commerce enabled on the channel (`GET`/`POST /commerce`) - Approved template with an `ORDER_DETAILS` button  Use this method when you need structured fields (`order`, `referenceId`, `currency`, `paymentSettings`). The API appends a template button `sub_type: order_details` and sends via the same path as `POST /sendTemplate`.  Works **outside the 24-hour session window** (template message).  You can also send the same payload yourself with `POST /sendTemplate` by including a button component in `params`:  ```json {   \"type\": \"button\",   \"sub_type\": \"order_details\",   \"index\": 0,   \"parameters\": [{     \"type\": \"action\",     \"action\": {       \"order_details\": {         \"reference_id\": \"order-123\",         \"currency\": \"INR\",         \"order\": { \"status\": \"pending\", \"items\": [], \"subtotal\": { \"offset\": 100, \"value\": 50000 } }       }     }   }] } ``` 
 pub async fn send_order_details(configuration: &configuration::Configuration, token: &str, send_order_details_request: models::SendOrderDetailsRequest) -> Result<models::MessageSentResponse, Error<SendOrderDetailsError>> {
     // add a prefix to parameters to efficiently prevent name collisions
     let p_query_token = token;
