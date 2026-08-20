@@ -46,6 +46,8 @@ Use environment variables (`MSG_API_TOKEN`, `MSG_INSTANCE_ID`). Never commit tok
 
 ## Quick start
 
+Maven Central `1.0.2` still imports `io.onemsg.chat.api`. The snippet below matches this repository and the next patch.
+
 ```scala
 import io.onemsg.sdk.api.MessagingApi
 import sttp.client3.HttpURLConnectionBackend
@@ -96,7 +98,7 @@ TemplatesApi
 
 ## Package notes
 
-Maven coordinates are `io.1msg:sdk-scala_2.12` / `sdk-scala_2.13`. Source packages live under `io.onemsg.sdk`.
+Maven coordinates are `io.1msg:sdk-scala_2.12` / `sdk-scala_2.13`. Source in this repo is `io.onemsg.sdk`. Maven Central `1.0.2` still uses `io.onemsg.chat` until the next patch.
 
 ## API reference
 

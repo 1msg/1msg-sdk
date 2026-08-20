@@ -10,7 +10,7 @@ mavenPublishing {
     coordinates('io.1msg', 'sdk-kotlin', version.toString())
 
     pom {
-        name = '1msg Kotlin SDK'
+        name = '1MSG Kotlin SDK'
         description = 'Public Kotlin/JVM SDK for the 1msg.io extended WhatsApp API'
         inceptionYear = '2026'
         url = 'https://github.com/1msg/1msg-sdk'
