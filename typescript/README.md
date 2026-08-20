@@ -1,6 +1,6 @@
 # @1msg/sdk
 
-Official TypeScript/JavaScript SDK for the **1msg WhatsApp Business API**.
+Official TypeScript/JavaScript SDK for the **1MSG WhatsApp Business API**.
 
 This document is auto-generated from the public OpenAPI contract plus generated
 TypeScript client signatures. It is intended to be exhaustive: every public operation,
@@ -95,7 +95,7 @@ const profile = await client.profile.getMe(client.config.token);
 createClient({ baseUrl: string; instanceId: string; token: string; });
 ```
 
-### `ChatApiConfig` fields
+### `ClientConfig` fields
 
 | Field | Type | Description |
 |-------|------|-------------|
@@ -141,8 +141,8 @@ Outside the window use **`sendTemplate`** with an approved Meta template.
 ## Client architecture
 
 ```text
-createClient() → ChatApiClient
-  ├─ config: ChatApiConfig
+createClient() → Client
+  ├─ config: ClientConfig
   ├─ messaging: MessagingApi   (16 operations)
   ├─ profile: ProfileApi       (1 operation)
   ├─ groups: GroupsApi         (7 operations)
@@ -4241,10 +4241,6 @@ await client.flows.createFlowsFlowIdPublish('FLOW_ID', client.config.token);
 ### Can I use this SDK in the browser?
 
 No. Tokens must stay server-side. Use a backend proxy.
-
-### Difference between `createClient` and `createChatApiClient`?
-
-`createChatApiClient` is deprecated. Use `createClient`.
 
 ### How are versions published?
 

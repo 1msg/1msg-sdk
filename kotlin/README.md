@@ -1,6 +1,6 @@
-# 1msg Kotlin SDK
+# 1MSG Kotlin SDK
 
-Official Kotlin SDK for the **1msg WhatsApp Business API**.
+Official Kotlin SDK for the **1MSG WhatsApp Business API**.
 
 This document is generated from the public OpenAPI contract. It covers install,
 auth, quick start, and every public operation available in the client.
@@ -44,8 +44,10 @@ Use environment variables (`MSG_API_TOKEN`, `MSG_INSTANCE_ID`). Never commit tok
 
 ## Quick start
 
+Maven Central `1.0.2` still imports `io.onemsg.chat.api`. The snippet below matches this repository and the next patch.
+
 ```kotlin
-import io.onemsg.chat.api.MessagingApi
+import io.onemsg.sdk.api.MessagingApi
 
 val messaging = MessagingApi(basePath = "https://api.1msg.io/${System.getenv("MSG_INSTANCE_ID")}")
 messaging.sendMessage(
@@ -91,7 +93,7 @@ WebhooksApi
 
 ## Package notes
 
-Maven coordinates are `io.1msg:sdk-kotlin`. Source packages live under `io.onemsg.chat`.
+Maven coordinates are `io.1msg:sdk-kotlin`. Source in this repo is `io.onemsg.sdk`. Maven Central `1.0.2` still uses `io.onemsg.chat` until the next patch.
 
 ## API reference
 

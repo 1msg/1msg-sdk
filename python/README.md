@@ -1,6 +1,6 @@
-# 1msg Python SDK
+# 1MSG Python SDK
 
-Official Python SDK for the **1msg WhatsApp Business API**.
+Official Python SDK for the **1MSG WhatsApp Business API**.
 
 This document is generated from the public OpenAPI contract. It covers install,
 auth, quick start, and every public operation available in the client.
@@ -21,7 +21,7 @@ auth, quick start, and every public operation available in the client.
 ## Install
 
 ```bash
-pip install one-msg-sdk==1.0.0
+pip install one-msg-sdk==1.0.1
 ```
 
 ## Requirements

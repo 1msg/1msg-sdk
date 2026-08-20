@@ -1,13 +1,12 @@
 export { SDK_VERSION } from './version';
 export {
-  ChatApiConfig,
-  type ChatApiConfigOptions,
-} from './chat-api-config';
+  ClientConfig,
+  type ClientConfigOptions,
+} from './client-config';
 export {
-  ChatApiClient,
-  createChatApiClient,
+  Client,
   createClient,
-} from './chat-api-client';
+} from './client';
 
 export * from './generated/src/runtime';
 export {

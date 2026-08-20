@@ -8,15 +8,15 @@
     <OutputType>Library</OutputType>
     <Authors>1MSG</Authors>
     <Company>1MSG</Company>
-    <AssemblyTitle>1MSG Chat API SDK</AssemblyTitle>
-    <Description>Public 1MSG Chat API client SDK</Description>
+    <AssemblyTitle>1MSG SDK</AssemblyTitle>
+    <Description>Public 1MSG WhatsApp Business API client SDK</Description>
     <Copyright>Copyright 1MSG</Copyright>
     <RootNamespace>OneMsg.Sdk</RootNamespace>
     <Version>2.0.0</Version>
     <DocumentationFile>bin\$(Configuration)\$(TargetFramework)\OneMsg.Sdk.xml</DocumentationFile>
     <RepositoryUrl>https://github.com/1msg/1msg-sdk</RepositoryUrl>
     <RepositoryType>git</RepositoryType>
-    <PackageReleaseNotes>Generated from the public 1MSG Chat API OpenAPI spec.</PackageReleaseNotes>
+    <PackageReleaseNotes>Generated from the public 1MSG OpenAPI spec.</PackageReleaseNotes>
     <PackageTags>1msg-sdk-whatsapp</PackageTags>
     <ManagePackageVersionsCentrally>false</ManagePackageVersionsCentrally>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
