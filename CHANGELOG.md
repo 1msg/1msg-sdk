@@ -19,17 +19,16 @@ Package versions per language are listed in [README.md](./README.md) and
 
 ## Published packages (2026-08-20)
 
-Patch bump after 1MSG API `v3.3.0` / Cloud MCP 1.2.1. C# and Ruby registry
-publishes did not complete in this round (self-hosted runner install).
+Patch bump after 1MSG API `v3.3.0` / Cloud MCP 1.2.1.
 
 - TypeScript `@1msg/sdk` 1.0.3 (npm)
 - Python `one-msg-sdk` 1.0.2 (PyPI)
 - Java `io.1msg:sdk` 1.0.2 (Maven Central)
 - Kotlin `io.1msg:sdk-kotlin` 1.0.3 (Maven Central)
 - Scala `io.1msg:sdk-scala` 1.0.3 (Maven Central)
-- C# `OneMsg.Sdk` 2.0.0 (NuGet) — unchanged
+- C# `OneMsg.Sdk` 2.0.1 (NuGet)
 - Rust `one-msg-sdk` 2.0.2 (crates.io)
-- Ruby `one_msg_sdk` 2.0.1 (RubyGems) — unchanged
+- Ruby `one_msg_sdk` 2.0.2 (RubyGems)
 - Go `github.com/1msg/1msg-sdk-go` v1.1.1
 - Swift `1msg/1msg-sdk-swift` 1.1.1
 - PHP `1msg/sdk` 1.1.1 on GitHub (Packagist not published yet)

@@ -93,7 +93,7 @@ Source: [`scala/`](./scala) · [README](./scala/README.md)
 Package: [`OneMsg.Sdk`](https://www.nuget.org/packages/OneMsg.Sdk)
 
 ```bash
-dotnet add package OneMsg.Sdk --version 2.0.0
+dotnet add package OneMsg.Sdk --version 2.0.1
 ```
 
 Source: [`csharp/`](./csharp) · [README](./csharp/README.md)
@@ -113,7 +113,7 @@ Source: [`rust/`](./rust) · [README](./rust/README.md)
 Package: [`one_msg_sdk`](https://rubygems.org/gems/one_msg_sdk)
 
 ```bash
-gem install one_msg_sdk -v 2.0.1
+gem install one_msg_sdk -v 2.0.2
 ```
 
 Source: [`ruby/`](./ruby) · [README](./ruby/README.md)
@@ -170,9 +170,9 @@ Source: [github.com/1msg/1msg-sdk-cpp](https://github.com/1msg/1msg-sdk-cpp)
 | Java | `io.1msg:sdk` | 1.0.2 |
 | Kotlin | `io.1msg:sdk-kotlin` | 1.0.3 |
 | Scala | `io.1msg:sdk-scala` | 1.0.3 |
-| C# | `OneMsg.Sdk` | 2.0.0 |
+| C# | `OneMsg.Sdk` | 2.0.1 |
 | Rust | `one-msg-sdk` | 2.0.2 |
-| Ruby | `one_msg_sdk` | 2.0.1 |
+| Ruby | `one_msg_sdk` | 2.0.2 |
 | Go | `github.com/1msg/1msg-sdk-go` | v1.1.1 |
 | Swift | `1msg/1msg-sdk-swift` | 1.1.1 |
 | PHP | `1msg/sdk` | 1.1.1 (repo) |
