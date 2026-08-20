@@ -1,0 +1,135 @@
+name: Changelog
+
+# On semver tag push: publish a GitHub Release and commit CHANGELOG.md to the
+# default branch. Does not publish language packages to npm/PyPI/etc.
+
+on:
+  push:
+    tags:
+      - 'v*'
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: Existing tag to (re)generate notes for, e.g. v1.2.3
+        required: true
+        default: ''
+      dry_run:
+        description: Print notes to the job log; do NOT create/update Release or commit
+        type: boolean
+        default: true
+
+permissions:
+  contents: write
+
+concurrency:
+  group: changelog-${{ github.event_name == 'workflow_dispatch' && inputs.tag || github.ref_name }}
+  cancel-in-progress: false
+
+jobs:
+  release-notes:
+    name: Generate release notes
+    runs-on: ubuntu-latest
+    steps:
+      - name: Resolve tag
+        id: tag
+        run: |
+          set -euo pipefail
+          if [[ "${{ github.event_name }}" == "workflow_dispatch" ]]; then
+            tag="${{ inputs.tag }}"
+          else
+            tag="${GITHUB_REF_NAME}"
+          fi
+          if [[ ! "$tag" =~ ^v[0-9]+\.[0-9]+\.[0-9]+(-[0-9A-Za-z.-]+)?$ ]]; then
+            echo "Tag '$tag' is not a release tag (expected vX.Y.Z or vX.Y.Z-rc.N). Skipping."
+            echo "skip=true" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+          echo "tag=$tag" >> "$GITHUB_OUTPUT"
+          if [[ "$tag" == *-* ]]; then
+            echo "prerelease=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "prerelease=false" >> "$GITHUB_OUTPUT"
+          fi
+          echo "default_branch=${{ github.event.repository.default_branch }}" >> "$GITHUB_OUTPUT"
+
+      - name: Checkout tag (full history)
+        if: steps.tag.outputs.skip != 'true'
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ steps.tag.outputs.tag }}
+          fetch-depth: 0
+          fetch-tags: true
+
+      - name: Generate release notes
+        if: steps.tag.outputs.skip != 'true'
+        id: cliff_notes
+        uses: orhun/git-cliff-action@v4
+        with:
+          config: .github/cliff.toml
+          args: --current --strip all
+        env:
+          OUTPUT: RELEASE_NOTES.md
+
+      - name: Ensure release notes file
+        if: steps.tag.outputs.skip != 'true'
+        run: |
+          set -euo pipefail
+          if [[ ! -s RELEASE_NOTES.md ]]; then
+            echo "_No changelog-relevant commits since previous tag._" > RELEASE_NOTES.md
+          fi
+
+      - name: Dry-run output
+        if: steps.tag.outputs.skip != 'true' && github.event_name == 'workflow_dispatch' && inputs.dry_run
+        run: |
+          echo "===== DRY RUN: release notes for ${{ steps.tag.outputs.tag }} ====="
+          cat RELEASE_NOTES.md || true
+          echo "===== (no Release / no CHANGELOG.md commit) ====="
+
+      - name: Publish or update GitHub Release
+        if: steps.tag.outputs.skip != 'true' && !(github.event_name == 'workflow_dispatch' && inputs.dry_run)
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ${{ steps.tag.outputs.tag }}
+          name: ${{ steps.tag.outputs.tag }}
+          body_path: RELEASE_NOTES.md
+          prerelease: ${{ steps.tag.outputs.prerelease == 'true' }}
+          make_latest: ${{ steps.tag.outputs.prerelease != 'true' }}
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Checkout default branch for CHANGELOG.md
+        if: steps.tag.outputs.skip != 'true' && !(github.event_name == 'workflow_dispatch' && inputs.dry_run)
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ steps.tag.outputs.default_branch }}
+          fetch-depth: 0
+          fetch-tags: true
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Generate CHANGELOG.md
+        if: steps.tag.outputs.skip != 'true' && !(github.event_name == 'workflow_dispatch' && inputs.dry_run)
+        uses: orhun/git-cliff-action@v4
+        with:
+          config: .github/cliff.toml
+          args: --tag ${{ steps.tag.outputs.tag }}
+        env:
+          OUTPUT: CHANGELOG.md
+
+      - name: Commit and push CHANGELOG.md
+        if: steps.tag.outputs.skip != 'true' && !(github.event_name == 'workflow_dispatch' && inputs.dry_run)
+        env:
+          TAG: ${{ steps.tag.outputs.tag }}
+          BRANCH: ${{ steps.tag.outputs.default_branch }}
+        run: |
+          set -euo pipefail
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+
+          git add CHANGELOG.md
+          if git diff --staged --quiet; then
+            echo "CHANGELOG.md unchanged; nothing to commit."
+            exit 0
+          fi
+
+          git commit -m "chore(release): update CHANGELOG.md for ${TAG} [skip ci]"
+          git push origin "HEAD:${BRANCH}"
