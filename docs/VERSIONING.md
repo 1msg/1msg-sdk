@@ -6,12 +6,12 @@
 
 | Number | Where | What it is |
 |--------|-------|------------|
-| `v3.2.5` | git tags + `CHANGELOG.md` | Service / deploy version of 1msg-api |
+| `v3.2.6` | git tags + `CHANGELOG.md` | Service / deploy version of 1msg-api |
 | `1.0.0` | `public/openapi.bundled.yaml` `info.version` | Public API **contract** customers integrate against |
 | `1.0.1` | root / Nest `package.json` | Stale npm workspace field; not the release number |
 
 SDK packages track the **public contract** (`1.0.x`), not the service tag
-(`v3.2.5`). Jumping every SDK to `3.2.5` would be a fake major and would not
+(`v3.2.6`). Jumping every SDK to `3.2.6` would be a fake major and would not
 match the OpenAPI document customers generate from.
 
 ## Registry rule

@@ -11,7 +11,7 @@ Official client SDKs for the [1MSG](https://1msg.io) WhatsApp Business API.
 | **Versioning** | [docs/VERSIONING.md](./docs/VERSIONING.md) |
 | **Support** | support@1msg.io |
 
-Public OpenAPI contract: `1.0.0`. 1MSG API service (git tags): `v3.2.5`.
+Public OpenAPI contract: `1.0.0`. 1MSG API service (git tags): `v3.2.6`.
 SDK packages track the public contract (`1.0.x`). Where a registry already
 required a republish after the package rename, the published line is `2.0.x`
 and further bumps are patch-only.
