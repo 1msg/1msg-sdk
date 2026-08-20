@@ -1,6 +1,6 @@
-# 1msg Rust SDK
+# 1MSG Rust SDK
 
-Official Rust SDK for the **1msg WhatsApp Business API**.
+Official Rust SDK for the **1MSG WhatsApp Business API**.
 
 This document is generated from the public OpenAPI contract. It covers install,
 auth, quick start, and every public operation available in the client.
@@ -21,7 +21,7 @@ auth, quick start, and every public operation available in the client.
 ## Install
 
 ```bash
-cargo add one-msg-sdk@2.0.0
+cargo add one-msg-sdk@2.0.1
 ```
 
 ## Requirements

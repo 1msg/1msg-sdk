@@ -1,4 +1,4 @@
-export interface ChatApiConfigOptions {
+export interface ClientConfigOptions {
   /** API root without instance segment, e.g. https://api.stage.1msg.io */
   baseUrl: string;
   /** Channel instance id, e.g. ODI371267300 */
@@ -7,27 +7,30 @@ export interface ChatApiConfigOptions {
   token: string;
 }
 
+/** @deprecated Use ClientConfigOptions. */
+export type ChatApiConfigOptions = ClientConfigOptions;
+
 /**
- * Normalizes URL segments for Chat API requests.
+ * Normalizes URL segments for 1MSG API requests.
  * Pattern: {baseUrl}/{instanceId}{path}?token={token}
  */
-export class ChatApiConfig {
+export class ClientConfig {
   readonly baseUrl: string;
   readonly instanceId: string;
   readonly token: string;
 
-  constructor(options: ChatApiConfigOptions) {
+  constructor(options: ClientConfigOptions) {
     if (!options.baseUrl?.trim()) {
-      throw new Error('ChatApiConfig.baseUrl is required');
+      throw new Error('ClientConfig.baseUrl is required');
     }
     if (!options.instanceId?.trim()) {
-      throw new Error('ChatApiConfig.instanceId is required');
+      throw new Error('ClientConfig.instanceId is required');
     }
     if (!options.token?.trim()) {
-      throw new Error('ChatApiConfig.token is required');
+      throw new Error('ClientConfig.token is required');
     }
 
-    this.baseUrl = ChatApiConfig.stripTrailingSlash(options.baseUrl.trim());
+    this.baseUrl = ClientConfig.stripTrailingSlash(options.baseUrl.trim());
     this.instanceId = options.instanceId.trim();
     this.token = options.token.trim();
   }
@@ -52,3 +55,7 @@ export class ChatApiConfig {
     return value.replace(/\/+$/, '');
   }
 }
+
+/** @deprecated Use ClientConfig. */
+export const ChatApiConfig = ClientConfig;
+export type ChatApiConfig = ClientConfig;

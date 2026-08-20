@@ -45,7 +45,7 @@ Need WhatsApp messaging from Node/TS?
 ## Client map
 
 ```typescript
-client.config      // ChatApiConfig
+client.config      // ClientConfig
 client.messaging   // MessagingApi — send/list messages, media, interactive
 client.profile     // ProfileApi — getMe
 client.groups      // GroupsApi — create/list/manage groups

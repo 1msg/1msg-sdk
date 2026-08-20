@@ -1,0 +1,45 @@
+# SDK versioning
+
+## What “API version” means
+
+`1msg-api` has three numbers that look like versions:
+
+| Number | Where | What it is |
+|--------|-------|------------|
+| `v3.2.5` | git tags + `CHANGELOG.md` | Service / deploy version of 1msg-api |
+| `1.0.0` | `public/openapi.bundled.yaml` `info.version` | Public API **contract** customers integrate against |
+| `1.0.1` | root / Nest `package.json` | Stale npm workspace field; not the release number |
+
+SDK packages track the **public contract** (`1.0.x`), not the service tag
+(`v3.2.5`). Jumping every SDK to `3.2.5` would be a fake major and would not
+match the OpenAPI document customers generate from.
+
+## Registry rule
+
+Most registries refuse to replace an already-published version. If a publish
+must be repeated (docs, rename, metadata):
+
+- stay on the same major.minor as the public contract
+- bump only the **patch** (last of the three digits)
+
+Example: `1.0.0` → `1.0.1` → `1.0.2`. Not `2.0.0`.
+
+## Already-published exceptions
+
+C#, Rust, and Ruby were republished under new names after dropping “Chat API”
+from the package id. Those registries already have `2.0.x`. Those lines stay
+on `2.0.x`; further republishes are patch-only (`2.0.1`, `2.0.2`, …).
+
+Go and Swift tags are already at `1.1.0`. Do not open a new minor for
+docs-only republishes; next bump there is `1.1.1` unless the public contract
+changes.
+
+PHP and C++ are not on a public registry yet. First Packagist / Conan
+release can still start at `1.0.0`.
+
+## Umbrella GitHub Releases
+
+This repository’s `vX.Y.Z` tags document the SDK umbrella (README, changelog,
+synced clients). They are created with **Create release tag** and turned into
+GitHub Releases + `CHANGELOG.md` by the Changelog workflow — the same pattern
+as `1msg-api`.

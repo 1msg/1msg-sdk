@@ -1,6 +1,6 @@
-# 1msg Java SDK
+# 1MSG Java SDK
 
-Official Java SDK for the **1msg WhatsApp Business API**.
+Official Java SDK for the **1MSG WhatsApp Business API**.
 
 This document is generated from the public OpenAPI contract. It covers install,
 auth, quick start, and every public operation available in the client.

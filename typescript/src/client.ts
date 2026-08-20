@@ -1,4 +1,4 @@
-import { ChatApiConfig, type ChatApiConfigOptions } from './chat-api-config';
+import { ClientConfig, type ClientConfigOptions } from './client-config';
 import { Configuration } from './generated/src/runtime';
 import {
   CallingApi,
@@ -15,15 +15,15 @@ import {
 import type { SendMessageRequest } from './generated/src/models/SendMessageRequest';
 import type { MessageSentResponse } from './generated/src/models/MessageSentResponse';
 
-export type { ChatApiConfigOptions };
-export { ChatApiConfig };
+export type { ClientConfigOptions, ChatApiConfigOptions } from './client-config';
+export { ClientConfig, ChatApiConfig } from './client-config';
 
 /**
- * High-level client for the 1msg Chat API.
+ * High-level client for the 1MSG WhatsApp Business API.
  * Configures generated API classes with instance path prefix and injects token auth.
  */
-export class ChatApiClient {
-  readonly config: ChatApiConfig;
+export class Client {
+  readonly config: ClientConfig;
   readonly messaging: MessagingApi;
   readonly users: UsersApi;
   readonly flows: FlowsApi;
@@ -35,7 +35,7 @@ export class ChatApiClient {
   readonly webhooks: WebhooksApi;
   readonly calling: CallingApi;
 
-  constructor(config: ChatApiConfig) {
+  constructor(config: ClientConfig) {
     this.config = config;
     const configuration = new Configuration({
       basePath: config.basePath,
@@ -55,7 +55,7 @@ export class ChatApiClient {
 
   /**
    * Send a text message (operationId: sendMessage).
-   * Token and instance path prefix are applied from ChatApiConfig.
+   * Token and instance path prefix are applied from ClientConfig.
    */
   async sendMessage(request: SendMessageRequest): Promise<MessageSentResponse> {
     return this.messaging.sendMessage(
@@ -68,9 +68,13 @@ export class ChatApiClient {
   }
 }
 
-/** Factory: create a configured 1msg API client from connection options. */
-export function createClient(options: ChatApiConfigOptions): ChatApiClient {
-  return new ChatApiClient(new ChatApiConfig(options));
+/** @deprecated Use Client. */
+export const ChatApiClient = Client;
+export type ChatApiClient = Client;
+
+/** Factory: create a configured 1MSG API client from connection options. */
+export function createClient(options: ClientConfigOptions): Client {
+  return new Client(new ClientConfig(options));
 }
 
 /** @deprecated Use `createClient` instead. */

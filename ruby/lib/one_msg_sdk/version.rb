@@ -11,5 +11,5 @@ Generator version: 7.22.0
 =end
 
 module OneMsgSdk
-  VERSION = '2.0.0'
+  VERSION = '2.0.1'
 end

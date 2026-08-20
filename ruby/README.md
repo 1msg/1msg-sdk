@@ -1,6 +1,6 @@
-# 1msg Ruby SDK
+# 1MSG Ruby SDK
 
-Official Ruby SDK for the **1msg WhatsApp Business API**.
+Official Ruby SDK for the **1MSG WhatsApp Business API**.
 
 This document is generated from the public OpenAPI contract. It covers install,
 auth, quick start, and every public operation available in the client.
@@ -21,7 +21,7 @@ auth, quick start, and every public operation available in the client.
 ## Install
 
 ```bash
-gem install one_msg_sdk -v 2.0.0
+gem install one_msg_sdk -v 2.0.1
 ```
 
 ## Requirements

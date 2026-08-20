@@ -1,7 +1,7 @@
-import { createClient } from '../chat-api-client';
+import { Client, createClient, ChatApiClient } from '../client';
 import type { MessageSentResponse } from '../generated/src/models/MessageSentResponse';
 
-describe('ChatApiClient', () => {
+describe('Client', () => {
   const options = {
     baseUrl: 'https://api.stage.1msg.io',
     instanceId: 'ODI371267300',
@@ -63,5 +63,9 @@ describe('ChatApiClient', () => {
     expect(client.config.basePath).toBe(
       'https://api.stage.1msg.io/ODI371267300',
     );
+  });
+
+  it('keeps ChatApiClient as a deprecated alias', () => {
+    expect(ChatApiClient).toBe(Client);
   });
 });
