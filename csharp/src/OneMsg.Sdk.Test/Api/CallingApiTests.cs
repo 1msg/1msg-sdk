@@ -63,7 +63,7 @@ namespace OneMsg.Sdk.Test.Api
             // TODO uncomment below to test the method and replace null with proper value
             //string token = null;
             //var response = instance.GetCallingSettings(token);
-            //Assert.IsType<Dictionary<string, Object>>(response);
+            //Assert.IsType<CallingSettings>(response);
         }
 
         /// <summary>
@@ -74,9 +74,9 @@ namespace OneMsg.Sdk.Test.Api
         {
             // TODO uncomment below to test the method and replace null with proper value
             //string token = null;
-            //Dictionary<string, Object> requestBody = null;
-            //var response = instance.InitiateCall(token, requestBody);
-            //Assert.IsType<Dictionary<string, Object>>(response);
+            //InitiateCallRequest initiateCallRequest = null;
+            //var response = instance.InitiateCall(token, initiateCallRequest);
+            //Assert.IsType<InitiateCallResponse>(response);
         }
 
         /// <summary>
@@ -87,9 +87,9 @@ namespace OneMsg.Sdk.Test.Api
         {
             // TODO uncomment below to test the method and replace null with proper value
             //string token = null;
-            //Dictionary<string, Object> requestBody = null;
-            //var response = instance.UpdateCallingSettings(token, requestBody);
-            //Assert.IsType<Dictionary<string, Object>>(response);
+            //CallingSettings callingSettings = null;
+            //var response = instance.UpdateCallingSettings(token, callingSettings);
+            //Assert.IsType<UpdateCallingSettings200Response>(response);
         }
     }
 }

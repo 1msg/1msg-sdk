@@ -5,16 +5,16 @@ All URIs are relative to *https://api.1msg.io*
 | Method | HTTP request | Description |
 |--------|--------------|-------------|
 | [**GetCallingSettings**](CallingApi.md#getcallingsettings) | **GET** /callingSettings | Get calling settings |
-| [**InitiateCall**](CallingApi.md#initiatecall) | **POST** /initiateCall | Initiate WhatsApp call |
+| [**InitiateCall**](CallingApi.md#initiatecall) | **POST** /initiateCall | Call action (connect / pre_accept / accept / reject / terminate) |
 | [**UpdateCallingSettings**](CallingApi.md#updatecallingsettings) | **POST** /callingSettings | Update calling settings |
 
 <a id="getcallingsettings"></a>
 # **GetCallingSettings**
-> Dictionary&lt;string, Object&gt; GetCallingSettings (string token)
+> CallingSettings GetCallingSettings (string token)
 
 Get calling settings
 
-WhatsApp Calling API settings (beta). Requires Meta Calling enablement on the WABA. Not production-complete — paths and webhook field names may change. Trial/subscription-limited channels are blocked. 
+Return WhatsApp Calling API settings for this channel (beta).  Proxies upstream `GET /calling/settings`.  **Prerequisites** - Number must be eligible for Meta Calling (Cloud API; not COEX) - Trial / `subscriptionBlocked` channels receive **403** plain text - You need your own WebRTC or SIP stack; 1msg is a **signaling proxy** only   and does **not** store call history or recordings  See the **Calling** tag overview for inbound/outbound flows and webhooks. 
 
 ### Example
 ```csharp
@@ -47,7 +47,7 @@ namespace Example
             try
             {
                 // Get calling settings
-                Dictionary<string, Object> result = apiInstance.GetCallingSettings(token);
+                CallingSettings result = apiInstance.GetCallingSettings(token);
                 Debug.WriteLine(result);
             }
             catch (ApiException  e)
@@ -68,7 +68,7 @@ This returns an ApiResponse object which contains the response data, status code
 try
 {
     // Get calling settings
-    ApiResponse<Dictionary<string, Object>> response = apiInstance.GetCallingSettingsWithHttpInfo(token);
+    ApiResponse<CallingSettings> response = apiInstance.GetCallingSettingsWithHttpInfo(token);
     Debug.Write("Status Code: " + response.StatusCode);
     Debug.Write("Response Headers: " + response.Headers);
     Debug.Write("Response Body: " + response.Data);
@@ -89,7 +89,7 @@ catch (ApiException e)
 
 ### Return type
 
-**Dictionary<string, Object>**
+[**CallingSettings**](CallingSettings.md)
 
 ### Authorization
 
@@ -104,7 +104,7 @@ catch (ApiException e)
 ### HTTP response details
 | Status code | Description | Response headers |
 |-------------|-------------|------------------|
-| **200** | Calling settings |  -  |
+| **200** | Calling settings (and possibly other Cloud API settings Meta returns) |  -  |
 | **401** | Invalid or missing authentication token |  -  |
 | **500** | Internal server error |  -  |
 
@@ -112,11 +112,11 @@ catch (ApiException e)
 
 <a id="initiatecall"></a>
 # **InitiateCall**
-> Dictionary&lt;string, Object&gt; InitiateCall (string token, Dictionary<string, Object> requestBody = null)
+> InitiateCallResponse InitiateCall (string token, InitiateCallRequest initiateCallRequest)
 
-Initiate WhatsApp call
+Call action (connect / pre_accept / accept / reject / terminate)
 
-Outbound Calling API (beta). Requires Meta Calling enablement and product consent. Not production-complete — verify on stage before relying on this in production. Trial/subscription-limited channels are blocked. 
+Perform a WhatsApp Calling action (beta).  Proxies upstream `POST /calling/calls`. Despite the historical path name `/initiateCall`, this endpoint handles **all** call actions:  | action | Use | Required | |- -- -- -- -|- -- --|- -- -- -- -- -| | `connect` | Outbound business → user | `to` + `session` (`sdp_type: offer`) | | `pre_accept` | Inbound (optional, reduces audio clipping) | `call_id` + `session` (`sdp_type: answer`) | | `accept` | Inbound answer | `call_id` + `session` (`sdp_type: answer`) | | `reject` | Decline inbound | `call_id` | | `terminate` | Hang up | `call_id` |  **SDP / media (critical)** - `accept` / `pre_accept` require a **WebRTC-generated SDP answer**. - Do **not** send Meta's offer SDP back as the answer. - Postman (or curl) alone **cannot** establish real media — you need a   WebRTC or SIP stack. 1msg only proxies signaling.  Answer within ~**30–60 seconds** of an inbound `connect` webhook or Meta terminates as unanswered. Common Meta errors include Calling not enabled (`138000`), no permission (`138006`), SDP validation failures.  **Outbound** requires a prior Call Permission Request (CPR) acceptance. See the **Calling** tag overview for the full outbound flow and CPR limits.  Trial / `subscriptionBlocked` → **403** plain text. Upstream failures often return HTTP 200 with `{ \"response\": { \"error\": \"...\" } }`. 
 
 ### Example
 ```csharp
@@ -145,12 +145,12 @@ namespace Example
             HttpClientHandler httpClientHandler = new HttpClientHandler();
             var apiInstance = new CallingApi(httpClient, config, httpClientHandler);
             var token = "token_example";  // string | JWT token or API key for authorization
-            var requestBody = new Dictionary<string, Object>(); // Dictionary<string, Object> |  (optional) 
+            var initiateCallRequest = new InitiateCallRequest(); // InitiateCallRequest | 
 
             try
             {
-                // Initiate WhatsApp call
-                Dictionary<string, Object> result = apiInstance.InitiateCall(token, requestBody);
+                // Call action (connect / pre_accept / accept / reject / terminate)
+                InitiateCallResponse result = apiInstance.InitiateCall(token, initiateCallRequest);
                 Debug.WriteLine(result);
             }
             catch (ApiException  e)
@@ -170,8 +170,8 @@ This returns an ApiResponse object which contains the response data, status code
 ```csharp
 try
 {
-    // Initiate WhatsApp call
-    ApiResponse<Dictionary<string, Object>> response = apiInstance.InitiateCallWithHttpInfo(token, requestBody);
+    // Call action (connect / pre_accept / accept / reject / terminate)
+    ApiResponse<InitiateCallResponse> response = apiInstance.InitiateCallWithHttpInfo(token, initiateCallRequest);
     Debug.Write("Status Code: " + response.StatusCode);
     Debug.Write("Response Headers: " + response.Headers);
     Debug.Write("Response Body: " + response.Data);
@@ -189,11 +189,11 @@ catch (ApiException e)
 | Name | Type | Description | Notes |
 |------|------|-------------|-------|
 | **token** | **string** | JWT token or API key for authorization |  |
-| **requestBody** | [**Dictionary&lt;string, Object&gt;**](Object.md) |  | [optional]  |
+| **initiateCallRequest** | [**InitiateCallRequest**](InitiateCallRequest.md) |  |  |
 
 ### Return type
 
-**Dictionary<string, Object>**
+[**InitiateCallResponse**](InitiateCallResponse.md)
 
 ### Authorization
 
@@ -208,7 +208,7 @@ catch (ApiException e)
 ### HTTP response details
 | Status code | Description | Response headers |
 |-------------|-------------|------------------|
-| **200** | Call initiated |  -  |
+| **200** | Call action result from upstream, or legacy error wrapper |  -  |
 | **401** | Invalid or missing authentication token |  -  |
 | **500** | Internal server error |  -  |
 
@@ -216,11 +216,11 @@ catch (ApiException e)
 
 <a id="updatecallingsettings"></a>
 # **UpdateCallingSettings**
-> Dictionary&lt;string, Object&gt; UpdateCallingSettings (string token, Dictionary<string, Object> requestBody = null)
+> UpdateCallingSettings200Response UpdateCallingSettings (string token, CallingSettings callingSettings)
 
 Update calling settings
 
-Update WhatsApp Calling API settings (beta). Requires Meta Calling enablement. Trial/subscription-limited channels are blocked. 
+Enable, disable, or update WhatsApp Calling settings (beta).  Proxies upstream `POST /calling/settings`. Body is forwarded as-is (1msg does not validate fields).  **Common fields under `calling`** - `status` (`ENABLED` | `DISABLED`) — required to turn calling on/off - `call_icon_visibility` (`DEFAULT` | `DISABLE_ALL`) — optional - `callback_permission_status` (`ENABLED` | `DISABLED`) — optional;   when enabled, inbound user calls grant callback permission - `call_hours` — optional hours / timezone object - `sip` — optional SIP trunk; when SIP is ENABLED, Graph call actions and   calling webhooks are not used - `srtp_key_exchange_protocol` (`DTLS` | `SDES`) — SDES only with SIP - `video.status` — optional  Meta may accept only one feature group per request — prefer focused updates (e.g. enable status first, then SIP).  Trial / `subscriptionBlocked` → **403** plain text. 
 
 ### Example
 ```csharp
@@ -249,12 +249,12 @@ namespace Example
             HttpClientHandler httpClientHandler = new HttpClientHandler();
             var apiInstance = new CallingApi(httpClient, config, httpClientHandler);
             var token = "token_example";  // string | JWT token or API key for authorization
-            var requestBody = new Dictionary<string, Object>(); // Dictionary<string, Object> |  (optional) 
+            var callingSettings = new CallingSettings(); // CallingSettings | 
 
             try
             {
                 // Update calling settings
-                Dictionary<string, Object> result = apiInstance.UpdateCallingSettings(token, requestBody);
+                UpdateCallingSettings200Response result = apiInstance.UpdateCallingSettings(token, callingSettings);
                 Debug.WriteLine(result);
             }
             catch (ApiException  e)
@@ -275,7 +275,7 @@ This returns an ApiResponse object which contains the response data, status code
 try
 {
     // Update calling settings
-    ApiResponse<Dictionary<string, Object>> response = apiInstance.UpdateCallingSettingsWithHttpInfo(token, requestBody);
+    ApiResponse<UpdateCallingSettings200Response> response = apiInstance.UpdateCallingSettingsWithHttpInfo(token, callingSettings);
     Debug.Write("Status Code: " + response.StatusCode);
     Debug.Write("Response Headers: " + response.Headers);
     Debug.Write("Response Body: " + response.Data);
@@ -293,11 +293,11 @@ catch (ApiException e)
 | Name | Type | Description | Notes |
 |------|------|-------------|-------|
 | **token** | **string** | JWT token or API key for authorization |  |
-| **requestBody** | [**Dictionary&lt;string, Object&gt;**](Object.md) |  | [optional]  |
+| **callingSettings** | [**CallingSettings**](CallingSettings.md) |  |  |
 
 ### Return type
 
-**Dictionary<string, Object>**
+[**UpdateCallingSettings200Response**](UpdateCallingSettings200Response.md)
 
 ### Authorization
 
@@ -312,7 +312,7 @@ catch (ApiException e)
 ### HTTP response details
 | Status code | Description | Response headers |
 |-------------|-------------|------------------|
-| **200** | Updated |  -  |
+| **200** | Usually &#x60;{ \&quot;success\&quot;: true }&#x60; from upstream, or legacy &#x60;{ \&quot;result\&quot;: \&quot;success\&quot; }&#x60; / &#x60;{ \&quot;response\&quot;: { \&quot;error\&quot;: \&quot;...\&quot; } }&#x60;.  |  -  |
 | **401** | Invalid or missing authentication token |  -  |
 | **500** | Internal server error |  -  |
 

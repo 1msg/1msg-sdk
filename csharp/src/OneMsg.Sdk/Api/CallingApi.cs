@@ -32,69 +32,69 @@ namespace OneMsg.Sdk.Api
         /// Get calling settings
         /// </summary>
         /// <remarks>
-        /// WhatsApp Calling API settings (beta). Requires Meta Calling enablement on the WABA. Not production-complete — paths and webhook field names may change. Trial/subscription-limited channels are blocked. 
+        /// Return WhatsApp Calling API settings for this channel (beta).  Proxies upstream &#x60;GET /calling/settings&#x60;.  **Prerequisites** - Number must be eligible for Meta Calling (Cloud API; not COEX) - Trial / &#x60;subscriptionBlocked&#x60; channels receive **403** plain text - You need your own WebRTC or SIP stack; 1msg is a **signaling proxy** only   and does **not** store call history or recordings  See the **Calling** tag overview for inbound/outbound flows and webhooks. 
         /// </remarks>
         /// <exception cref="OneMsg.Sdk.Client.ApiException">Thrown when fails to make API call</exception>
         /// <param name="token">JWT token or API key for authorization</param>
-        /// <returns>Dictionary&lt;string, Object&gt;</returns>
-        Dictionary<string, Object> GetCallingSettings(string token);
+        /// <returns>CallingSettings</returns>
+        CallingSettings GetCallingSettings(string token);
 
         /// <summary>
         /// Get calling settings
         /// </summary>
         /// <remarks>
-        /// WhatsApp Calling API settings (beta). Requires Meta Calling enablement on the WABA. Not production-complete — paths and webhook field names may change. Trial/subscription-limited channels are blocked. 
+        /// Return WhatsApp Calling API settings for this channel (beta).  Proxies upstream &#x60;GET /calling/settings&#x60;.  **Prerequisites** - Number must be eligible for Meta Calling (Cloud API; not COEX) - Trial / &#x60;subscriptionBlocked&#x60; channels receive **403** plain text - You need your own WebRTC or SIP stack; 1msg is a **signaling proxy** only   and does **not** store call history or recordings  See the **Calling** tag overview for inbound/outbound flows and webhooks. 
         /// </remarks>
         /// <exception cref="OneMsg.Sdk.Client.ApiException">Thrown when fails to make API call</exception>
         /// <param name="token">JWT token or API key for authorization</param>
-        /// <returns>ApiResponse of Dictionary&lt;string, Object&gt;</returns>
-        ApiResponse<Dictionary<string, Object>> GetCallingSettingsWithHttpInfo(string token);
+        /// <returns>ApiResponse of CallingSettings</returns>
+        ApiResponse<CallingSettings> GetCallingSettingsWithHttpInfo(string token);
         /// <summary>
-        /// Initiate WhatsApp call
+        /// Call action (connect / pre_accept / accept / reject / terminate)
         /// </summary>
         /// <remarks>
-        /// Outbound Calling API (beta). Requires Meta Calling enablement and product consent. Not production-complete — verify on stage before relying on this in production. Trial/subscription-limited channels are blocked. 
+        /// Perform a WhatsApp Calling action (beta).  Proxies upstream &#x60;POST /calling/calls&#x60;. Despite the historical path name &#x60;/initiateCall&#x60;, this endpoint handles **all** call actions:  | action | Use | Required | |- -- -- -- -|- -- --|- -- -- -- -- -| | &#x60;connect&#x60; | Outbound business → user | &#x60;to&#x60; + &#x60;session&#x60; (&#x60;sdp_type: offer&#x60;) | | &#x60;pre_accept&#x60; | Inbound (optional, reduces audio clipping) | &#x60;call_id&#x60; + &#x60;session&#x60; (&#x60;sdp_type: answer&#x60;) | | &#x60;accept&#x60; | Inbound answer | &#x60;call_id&#x60; + &#x60;session&#x60; (&#x60;sdp_type: answer&#x60;) | | &#x60;reject&#x60; | Decline inbound | &#x60;call_id&#x60; | | &#x60;terminate&#x60; | Hang up | &#x60;call_id&#x60; |  **SDP / media (critical)** - &#x60;accept&#x60; / &#x60;pre_accept&#x60; require a **WebRTC-generated SDP answer**. - Do **not** send Meta&#39;s offer SDP back as the answer. - Postman (or curl) alone **cannot** establish real media — you need a   WebRTC or SIP stack. 1msg only proxies signaling.  Answer within ~**30–60 seconds** of an inbound &#x60;connect&#x60; webhook or Meta terminates as unanswered. Common Meta errors include Calling not enabled (&#x60;138000&#x60;), no permission (&#x60;138006&#x60;), SDP validation failures.  **Outbound** requires a prior Call Permission Request (CPR) acceptance. See the **Calling** tag overview for the full outbound flow and CPR limits.  Trial / &#x60;subscriptionBlocked&#x60; → **403** plain text. Upstream failures often return HTTP 200 with &#x60;{ \&quot;response\&quot;: { \&quot;error\&quot;: \&quot;...\&quot; } }&#x60;. 
         /// </remarks>
         /// <exception cref="OneMsg.Sdk.Client.ApiException">Thrown when fails to make API call</exception>
         /// <param name="token">JWT token or API key for authorization</param>
-        /// <param name="requestBody"> (optional)</param>
-        /// <returns>Dictionary&lt;string, Object&gt;</returns>
-        Dictionary<string, Object> InitiateCall(string token, Dictionary<string, Object> requestBody = default);
+        /// <param name="initiateCallRequest"></param>
+        /// <returns>InitiateCallResponse</returns>
+        InitiateCallResponse InitiateCall(string token, InitiateCallRequest initiateCallRequest);
 
         /// <summary>
-        /// Initiate WhatsApp call
+        /// Call action (connect / pre_accept / accept / reject / terminate)
         /// </summary>
         /// <remarks>
-        /// Outbound Calling API (beta). Requires Meta Calling enablement and product consent. Not production-complete — verify on stage before relying on this in production. Trial/subscription-limited channels are blocked. 
+        /// Perform a WhatsApp Calling action (beta).  Proxies upstream &#x60;POST /calling/calls&#x60;. Despite the historical path name &#x60;/initiateCall&#x60;, this endpoint handles **all** call actions:  | action | Use | Required | |- -- -- -- -|- -- --|- -- -- -- -- -| | &#x60;connect&#x60; | Outbound business → user | &#x60;to&#x60; + &#x60;session&#x60; (&#x60;sdp_type: offer&#x60;) | | &#x60;pre_accept&#x60; | Inbound (optional, reduces audio clipping) | &#x60;call_id&#x60; + &#x60;session&#x60; (&#x60;sdp_type: answer&#x60;) | | &#x60;accept&#x60; | Inbound answer | &#x60;call_id&#x60; + &#x60;session&#x60; (&#x60;sdp_type: answer&#x60;) | | &#x60;reject&#x60; | Decline inbound | &#x60;call_id&#x60; | | &#x60;terminate&#x60; | Hang up | &#x60;call_id&#x60; |  **SDP / media (critical)** - &#x60;accept&#x60; / &#x60;pre_accept&#x60; require a **WebRTC-generated SDP answer**. - Do **not** send Meta&#39;s offer SDP back as the answer. - Postman (or curl) alone **cannot** establish real media — you need a   WebRTC or SIP stack. 1msg only proxies signaling.  Answer within ~**30–60 seconds** of an inbound &#x60;connect&#x60; webhook or Meta terminates as unanswered. Common Meta errors include Calling not enabled (&#x60;138000&#x60;), no permission (&#x60;138006&#x60;), SDP validation failures.  **Outbound** requires a prior Call Permission Request (CPR) acceptance. See the **Calling** tag overview for the full outbound flow and CPR limits.  Trial / &#x60;subscriptionBlocked&#x60; → **403** plain text. Upstream failures often return HTTP 200 with &#x60;{ \&quot;response\&quot;: { \&quot;error\&quot;: \&quot;...\&quot; } }&#x60;. 
         /// </remarks>
         /// <exception cref="OneMsg.Sdk.Client.ApiException">Thrown when fails to make API call</exception>
         /// <param name="token">JWT token or API key for authorization</param>
-        /// <param name="requestBody"> (optional)</param>
-        /// <returns>ApiResponse of Dictionary&lt;string, Object&gt;</returns>
-        ApiResponse<Dictionary<string, Object>> InitiateCallWithHttpInfo(string token, Dictionary<string, Object> requestBody = default);
+        /// <param name="initiateCallRequest"></param>
+        /// <returns>ApiResponse of InitiateCallResponse</returns>
+        ApiResponse<InitiateCallResponse> InitiateCallWithHttpInfo(string token, InitiateCallRequest initiateCallRequest);
         /// <summary>
         /// Update calling settings
         /// </summary>
         /// <remarks>
-        /// Update WhatsApp Calling API settings (beta). Requires Meta Calling enablement. Trial/subscription-limited channels are blocked. 
+        /// Enable, disable, or update WhatsApp Calling settings (beta).  Proxies upstream &#x60;POST /calling/settings&#x60;. Body is forwarded as-is (1msg does not validate fields).  **Common fields under &#x60;calling&#x60;** - &#x60;status&#x60; (&#x60;ENABLED&#x60; | &#x60;DISABLED&#x60;) — required to turn calling on/off - &#x60;call_icon_visibility&#x60; (&#x60;DEFAULT&#x60; | &#x60;DISABLE_ALL&#x60;) — optional - &#x60;callback_permission_status&#x60; (&#x60;ENABLED&#x60; | &#x60;DISABLED&#x60;) — optional;   when enabled, inbound user calls grant callback permission - &#x60;call_hours&#x60; — optional hours / timezone object - &#x60;sip&#x60; — optional SIP trunk; when SIP is ENABLED, Graph call actions and   calling webhooks are not used - &#x60;srtp_key_exchange_protocol&#x60; (&#x60;DTLS&#x60; | &#x60;SDES&#x60;) — SDES only with SIP - &#x60;video.status&#x60; — optional  Meta may accept only one feature group per request — prefer focused updates (e.g. enable status first, then SIP).  Trial / &#x60;subscriptionBlocked&#x60; → **403** plain text. 
         /// </remarks>
         /// <exception cref="OneMsg.Sdk.Client.ApiException">Thrown when fails to make API call</exception>
         /// <param name="token">JWT token or API key for authorization</param>
-        /// <param name="requestBody"> (optional)</param>
-        /// <returns>Dictionary&lt;string, Object&gt;</returns>
-        Dictionary<string, Object> UpdateCallingSettings(string token, Dictionary<string, Object> requestBody = default);
+        /// <param name="callingSettings"></param>
+        /// <returns>UpdateCallingSettings200Response</returns>
+        UpdateCallingSettings200Response UpdateCallingSettings(string token, CallingSettings callingSettings);
 
         /// <summary>
         /// Update calling settings
         /// </summary>
         /// <remarks>
-        /// Update WhatsApp Calling API settings (beta). Requires Meta Calling enablement. Trial/subscription-limited channels are blocked. 
+        /// Enable, disable, or update WhatsApp Calling settings (beta).  Proxies upstream &#x60;POST /calling/settings&#x60;. Body is forwarded as-is (1msg does not validate fields).  **Common fields under &#x60;calling&#x60;** - &#x60;status&#x60; (&#x60;ENABLED&#x60; | &#x60;DISABLED&#x60;) — required to turn calling on/off - &#x60;call_icon_visibility&#x60; (&#x60;DEFAULT&#x60; | &#x60;DISABLE_ALL&#x60;) — optional - &#x60;callback_permission_status&#x60; (&#x60;ENABLED&#x60; | &#x60;DISABLED&#x60;) — optional;   when enabled, inbound user calls grant callback permission - &#x60;call_hours&#x60; — optional hours / timezone object - &#x60;sip&#x60; — optional SIP trunk; when SIP is ENABLED, Graph call actions and   calling webhooks are not used - &#x60;srtp_key_exchange_protocol&#x60; (&#x60;DTLS&#x60; | &#x60;SDES&#x60;) — SDES only with SIP - &#x60;video.status&#x60; — optional  Meta may accept only one feature group per request — prefer focused updates (e.g. enable status first, then SIP).  Trial / &#x60;subscriptionBlocked&#x60; → **403** plain text. 
         /// </remarks>
         /// <exception cref="OneMsg.Sdk.Client.ApiException">Thrown when fails to make API call</exception>
         /// <param name="token">JWT token or API key for authorization</param>
-        /// <param name="requestBody"> (optional)</param>
-        /// <returns>ApiResponse of Dictionary&lt;string, Object&gt;</returns>
-        ApiResponse<Dictionary<string, Object>> UpdateCallingSettingsWithHttpInfo(string token, Dictionary<string, Object> requestBody = default);
+        /// <param name="callingSettings"></param>
+        /// <returns>ApiResponse of UpdateCallingSettings200Response</returns>
+        ApiResponse<UpdateCallingSettings200Response> UpdateCallingSettingsWithHttpInfo(string token, CallingSettings callingSettings);
         #endregion Synchronous Operations
     }
 
@@ -108,75 +108,75 @@ namespace OneMsg.Sdk.Api
         /// Get calling settings
         /// </summary>
         /// <remarks>
-        /// WhatsApp Calling API settings (beta). Requires Meta Calling enablement on the WABA. Not production-complete — paths and webhook field names may change. Trial/subscription-limited channels are blocked. 
+        /// Return WhatsApp Calling API settings for this channel (beta).  Proxies upstream &#x60;GET /calling/settings&#x60;.  **Prerequisites** - Number must be eligible for Meta Calling (Cloud API; not COEX) - Trial / &#x60;subscriptionBlocked&#x60; channels receive **403** plain text - You need your own WebRTC or SIP stack; 1msg is a **signaling proxy** only   and does **not** store call history or recordings  See the **Calling** tag overview for inbound/outbound flows and webhooks. 
         /// </remarks>
         /// <exception cref="OneMsg.Sdk.Client.ApiException">Thrown when fails to make API call</exception>
         /// <param name="token">JWT token or API key for authorization</param>
         /// <param name="cancellationToken">Cancellation Token to cancel the request.</param>
-        /// <returns>Task of Dictionary&lt;string, Object&gt;</returns>
-        System.Threading.Tasks.Task<Dictionary<string, Object>> GetCallingSettingsAsync(string token, System.Threading.CancellationToken cancellationToken = default);
+        /// <returns>Task of CallingSettings</returns>
+        System.Threading.Tasks.Task<CallingSettings> GetCallingSettingsAsync(string token, System.Threading.CancellationToken cancellationToken = default);
 
         /// <summary>
         /// Get calling settings
         /// </summary>
         /// <remarks>
-        /// WhatsApp Calling API settings (beta). Requires Meta Calling enablement on the WABA. Not production-complete — paths and webhook field names may change. Trial/subscription-limited channels are blocked. 
+        /// Return WhatsApp Calling API settings for this channel (beta).  Proxies upstream &#x60;GET /calling/settings&#x60;.  **Prerequisites** - Number must be eligible for Meta Calling (Cloud API; not COEX) - Trial / &#x60;subscriptionBlocked&#x60; channels receive **403** plain text - You need your own WebRTC or SIP stack; 1msg is a **signaling proxy** only   and does **not** store call history or recordings  See the **Calling** tag overview for inbound/outbound flows and webhooks. 
         /// </remarks>
         /// <exception cref="OneMsg.Sdk.Client.ApiException">Thrown when fails to make API call</exception>
         /// <param name="token">JWT token or API key for authorization</param>
         /// <param name="cancellationToken">Cancellation Token to cancel the request.</param>
-        /// <returns>Task of ApiResponse (Dictionary&lt;string, Object&gt;)</returns>
-        System.Threading.Tasks.Task<ApiResponse<Dictionary<string, Object>>> GetCallingSettingsWithHttpInfoAsync(string token, System.Threading.CancellationToken cancellationToken = default);
+        /// <returns>Task of ApiResponse (CallingSettings)</returns>
+        System.Threading.Tasks.Task<ApiResponse<CallingSettings>> GetCallingSettingsWithHttpInfoAsync(string token, System.Threading.CancellationToken cancellationToken = default);
         /// <summary>
-        /// Initiate WhatsApp call
+        /// Call action (connect / pre_accept / accept / reject / terminate)
         /// </summary>
         /// <remarks>
-        /// Outbound Calling API (beta). Requires Meta Calling enablement and product consent. Not production-complete — verify on stage before relying on this in production. Trial/subscription-limited channels are blocked. 
+        /// Perform a WhatsApp Calling action (beta).  Proxies upstream &#x60;POST /calling/calls&#x60;. Despite the historical path name &#x60;/initiateCall&#x60;, this endpoint handles **all** call actions:  | action | Use | Required | |- -- -- -- -|- -- --|- -- -- -- -- -| | &#x60;connect&#x60; | Outbound business → user | &#x60;to&#x60; + &#x60;session&#x60; (&#x60;sdp_type: offer&#x60;) | | &#x60;pre_accept&#x60; | Inbound (optional, reduces audio clipping) | &#x60;call_id&#x60; + &#x60;session&#x60; (&#x60;sdp_type: answer&#x60;) | | &#x60;accept&#x60; | Inbound answer | &#x60;call_id&#x60; + &#x60;session&#x60; (&#x60;sdp_type: answer&#x60;) | | &#x60;reject&#x60; | Decline inbound | &#x60;call_id&#x60; | | &#x60;terminate&#x60; | Hang up | &#x60;call_id&#x60; |  **SDP / media (critical)** - &#x60;accept&#x60; / &#x60;pre_accept&#x60; require a **WebRTC-generated SDP answer**. - Do **not** send Meta&#39;s offer SDP back as the answer. - Postman (or curl) alone **cannot** establish real media — you need a   WebRTC or SIP stack. 1msg only proxies signaling.  Answer within ~**30–60 seconds** of an inbound &#x60;connect&#x60; webhook or Meta terminates as unanswered. Common Meta errors include Calling not enabled (&#x60;138000&#x60;), no permission (&#x60;138006&#x60;), SDP validation failures.  **Outbound** requires a prior Call Permission Request (CPR) acceptance. See the **Calling** tag overview for the full outbound flow and CPR limits.  Trial / &#x60;subscriptionBlocked&#x60; → **403** plain text. Upstream failures often return HTTP 200 with &#x60;{ \&quot;response\&quot;: { \&quot;error\&quot;: \&quot;...\&quot; } }&#x60;. 
         /// </remarks>
         /// <exception cref="OneMsg.Sdk.Client.ApiException">Thrown when fails to make API call</exception>
         /// <param name="token">JWT token or API key for authorization</param>
-        /// <param name="requestBody"> (optional)</param>
+        /// <param name="initiateCallRequest"></param>
         /// <param name="cancellationToken">Cancellation Token to cancel the request.</param>
-        /// <returns>Task of Dictionary&lt;string, Object&gt;</returns>
-        System.Threading.Tasks.Task<Dictionary<string, Object>> InitiateCallAsync(string token, Dictionary<string, Object> requestBody = default, System.Threading.CancellationToken cancellationToken = default);
+        /// <returns>Task of InitiateCallResponse</returns>
+        System.Threading.Tasks.Task<InitiateCallResponse> InitiateCallAsync(string token, InitiateCallRequest initiateCallRequest, System.Threading.CancellationToken cancellationToken = default);
 
         /// <summary>
-        /// Initiate WhatsApp call
+        /// Call action (connect / pre_accept / accept / reject / terminate)
         /// </summary>
         /// <remarks>
-        /// Outbound Calling API (beta). Requires Meta Calling enablement and product consent. Not production-complete — verify on stage before relying on this in production. Trial/subscription-limited channels are blocked. 
+        /// Perform a WhatsApp Calling action (beta).  Proxies upstream &#x60;POST /calling/calls&#x60;. Despite the historical path name &#x60;/initiateCall&#x60;, this endpoint handles **all** call actions:  | action | Use | Required | |- -- -- -- -|- -- --|- -- -- -- -- -| | &#x60;connect&#x60; | Outbound business → user | &#x60;to&#x60; + &#x60;session&#x60; (&#x60;sdp_type: offer&#x60;) | | &#x60;pre_accept&#x60; | Inbound (optional, reduces audio clipping) | &#x60;call_id&#x60; + &#x60;session&#x60; (&#x60;sdp_type: answer&#x60;) | | &#x60;accept&#x60; | Inbound answer | &#x60;call_id&#x60; + &#x60;session&#x60; (&#x60;sdp_type: answer&#x60;) | | &#x60;reject&#x60; | Decline inbound | &#x60;call_id&#x60; | | &#x60;terminate&#x60; | Hang up | &#x60;call_id&#x60; |  **SDP / media (critical)** - &#x60;accept&#x60; / &#x60;pre_accept&#x60; require a **WebRTC-generated SDP answer**. - Do **not** send Meta&#39;s offer SDP back as the answer. - Postman (or curl) alone **cannot** establish real media — you need a   WebRTC or SIP stack. 1msg only proxies signaling.  Answer within ~**30–60 seconds** of an inbound &#x60;connect&#x60; webhook or Meta terminates as unanswered. Common Meta errors include Calling not enabled (&#x60;138000&#x60;), no permission (&#x60;138006&#x60;), SDP validation failures.  **Outbound** requires a prior Call Permission Request (CPR) acceptance. See the **Calling** tag overview for the full outbound flow and CPR limits.  Trial / &#x60;subscriptionBlocked&#x60; → **403** plain text. Upstream failures often return HTTP 200 with &#x60;{ \&quot;response\&quot;: { \&quot;error\&quot;: \&quot;...\&quot; } }&#x60;. 
         /// </remarks>
         /// <exception cref="OneMsg.Sdk.Client.ApiException">Thrown when fails to make API call</exception>
         /// <param name="token">JWT token or API key for authorization</param>
-        /// <param name="requestBody"> (optional)</param>
+        /// <param name="initiateCallRequest"></param>
         /// <param name="cancellationToken">Cancellation Token to cancel the request.</param>
-        /// <returns>Task of ApiResponse (Dictionary&lt;string, Object&gt;)</returns>
-        System.Threading.Tasks.Task<ApiResponse<Dictionary<string, Object>>> InitiateCallWithHttpInfoAsync(string token, Dictionary<string, Object> requestBody = default, System.Threading.CancellationToken cancellationToken = default);
+        /// <returns>Task of ApiResponse (InitiateCallResponse)</returns>
+        System.Threading.Tasks.Task<ApiResponse<InitiateCallResponse>> InitiateCallWithHttpInfoAsync(string token, InitiateCallRequest initiateCallRequest, System.Threading.CancellationToken cancellationToken = default);
         /// <summary>
         /// Update calling settings
         /// </summary>
         /// <remarks>
-        /// Update WhatsApp Calling API settings (beta). Requires Meta Calling enablement. Trial/subscription-limited channels are blocked. 
+        /// Enable, disable, or update WhatsApp Calling settings (beta).  Proxies upstream &#x60;POST /calling/settings&#x60;. Body is forwarded as-is (1msg does not validate fields).  **Common fields under &#x60;calling&#x60;** - &#x60;status&#x60; (&#x60;ENABLED&#x60; | &#x60;DISABLED&#x60;) — required to turn calling on/off - &#x60;call_icon_visibility&#x60; (&#x60;DEFAULT&#x60; | &#x60;DISABLE_ALL&#x60;) — optional - &#x60;callback_permission_status&#x60; (&#x60;ENABLED&#x60; | &#x60;DISABLED&#x60;) — optional;   when enabled, inbound user calls grant callback permission - &#x60;call_hours&#x60; — optional hours / timezone object - &#x60;sip&#x60; — optional SIP trunk; when SIP is ENABLED, Graph call actions and   calling webhooks are not used - &#x60;srtp_key_exchange_protocol&#x60; (&#x60;DTLS&#x60; | &#x60;SDES&#x60;) — SDES only with SIP - &#x60;video.status&#x60; — optional  Meta may accept only one feature group per request — prefer focused updates (e.g. enable status first, then SIP).  Trial / &#x60;subscriptionBlocked&#x60; → **403** plain text. 
         /// </remarks>
         /// <exception cref="OneMsg.Sdk.Client.ApiException">Thrown when fails to make API call</exception>
         /// <param name="token">JWT token or API key for authorization</param>
-        /// <param name="requestBody"> (optional)</param>
+        /// <param name="callingSettings"></param>
         /// <param name="cancellationToken">Cancellation Token to cancel the request.</param>
-        /// <returns>Task of Dictionary&lt;string, Object&gt;</returns>
-        System.Threading.Tasks.Task<Dictionary<string, Object>> UpdateCallingSettingsAsync(string token, Dictionary<string, Object> requestBody = default, System.Threading.CancellationToken cancellationToken = default);
+        /// <returns>Task of UpdateCallingSettings200Response</returns>
+        System.Threading.Tasks.Task<UpdateCallingSettings200Response> UpdateCallingSettingsAsync(string token, CallingSettings callingSettings, System.Threading.CancellationToken cancellationToken = default);
 
         /// <summary>
         /// Update calling settings
         /// </summary>
         /// <remarks>
-        /// Update WhatsApp Calling API settings (beta). Requires Meta Calling enablement. Trial/subscription-limited channels are blocked. 
+        /// Enable, disable, or update WhatsApp Calling settings (beta).  Proxies upstream &#x60;POST /calling/settings&#x60;. Body is forwarded as-is (1msg does not validate fields).  **Common fields under &#x60;calling&#x60;** - &#x60;status&#x60; (&#x60;ENABLED&#x60; | &#x60;DISABLED&#x60;) — required to turn calling on/off - &#x60;call_icon_visibility&#x60; (&#x60;DEFAULT&#x60; | &#x60;DISABLE_ALL&#x60;) — optional - &#x60;callback_permission_status&#x60; (&#x60;ENABLED&#x60; | &#x60;DISABLED&#x60;) — optional;   when enabled, inbound user calls grant callback permission - &#x60;call_hours&#x60; — optional hours / timezone object - &#x60;sip&#x60; — optional SIP trunk; when SIP is ENABLED, Graph call actions and   calling webhooks are not used - &#x60;srtp_key_exchange_protocol&#x60; (&#x60;DTLS&#x60; | &#x60;SDES&#x60;) — SDES only with SIP - &#x60;video.status&#x60; — optional  Meta may accept only one feature group per request — prefer focused updates (e.g. enable status first, then SIP).  Trial / &#x60;subscriptionBlocked&#x60; → **403** plain text. 
         /// </remarks>
         /// <exception cref="OneMsg.Sdk.Client.ApiException">Thrown when fails to make API call</exception>
         /// <param name="token">JWT token or API key for authorization</param>
-        /// <param name="requestBody"> (optional)</param>
+        /// <param name="callingSettings"></param>
         /// <param name="cancellationToken">Cancellation Token to cancel the request.</param>
-        /// <returns>Task of ApiResponse (Dictionary&lt;string, Object&gt;)</returns>
-        System.Threading.Tasks.Task<ApiResponse<Dictionary<string, Object>>> UpdateCallingSettingsWithHttpInfoAsync(string token, Dictionary<string, Object> requestBody = default, System.Threading.CancellationToken cancellationToken = default);
+        /// <returns>Task of ApiResponse (UpdateCallingSettings200Response)</returns>
+        System.Threading.Tasks.Task<ApiResponse<UpdateCallingSettings200Response>> UpdateCallingSettingsWithHttpInfoAsync(string token, CallingSettings callingSettings, System.Threading.CancellationToken cancellationToken = default);
         #endregion Asynchronous Operations
     }
 
@@ -391,24 +391,24 @@ namespace OneMsg.Sdk.Api
         }
 
         /// <summary>
-        /// Get calling settings WhatsApp Calling API settings (beta). Requires Meta Calling enablement on the WABA. Not production-complete — paths and webhook field names may change. Trial/subscription-limited channels are blocked. 
+        /// Get calling settings Return WhatsApp Calling API settings for this channel (beta).  Proxies upstream &#x60;GET /calling/settings&#x60;.  **Prerequisites** - Number must be eligible for Meta Calling (Cloud API; not COEX) - Trial / &#x60;subscriptionBlocked&#x60; channels receive **403** plain text - You need your own WebRTC or SIP stack; 1msg is a **signaling proxy** only   and does **not** store call history or recordings  See the **Calling** tag overview for inbound/outbound flows and webhooks. 
         /// </summary>
         /// <exception cref="OneMsg.Sdk.Client.ApiException">Thrown when fails to make API call</exception>
         /// <param name="token">JWT token or API key for authorization</param>
-        /// <returns>Dictionary&lt;string, Object&gt;</returns>
-        public Dictionary<string, Object> GetCallingSettings(string token)
+        /// <returns>CallingSettings</returns>
+        public CallingSettings GetCallingSettings(string token)
         {
-            OneMsg.Sdk.Client.ApiResponse<Dictionary<string, Object>> localVarResponse = GetCallingSettingsWithHttpInfo(token);
+            OneMsg.Sdk.Client.ApiResponse<CallingSettings> localVarResponse = GetCallingSettingsWithHttpInfo(token);
             return localVarResponse.Data;
         }
 
         /// <summary>
-        /// Get calling settings WhatsApp Calling API settings (beta). Requires Meta Calling enablement on the WABA. Not production-complete — paths and webhook field names may change. Trial/subscription-limited channels are blocked. 
+        /// Get calling settings Return WhatsApp Calling API settings for this channel (beta).  Proxies upstream &#x60;GET /calling/settings&#x60;.  **Prerequisites** - Number must be eligible for Meta Calling (Cloud API; not COEX) - Trial / &#x60;subscriptionBlocked&#x60; channels receive **403** plain text - You need your own WebRTC or SIP stack; 1msg is a **signaling proxy** only   and does **not** store call history or recordings  See the **Calling** tag overview for inbound/outbound flows and webhooks. 
         /// </summary>
         /// <exception cref="OneMsg.Sdk.Client.ApiException">Thrown when fails to make API call</exception>
         /// <param name="token">JWT token or API key for authorization</param>
-        /// <returns>ApiResponse of Dictionary&lt;string, Object&gt;</returns>
-        public OneMsg.Sdk.Client.ApiResponse<Dictionary<string, Object>> GetCallingSettingsWithHttpInfo(string token)
+        /// <returns>ApiResponse of CallingSettings</returns>
+        public OneMsg.Sdk.Client.ApiResponse<CallingSettings> GetCallingSettingsWithHttpInfo(string token)
         {
             // verify the required parameter 'token' is set
             if (token == null)
@@ -439,7 +439,7 @@ namespace OneMsg.Sdk.Api
             }
 
             // make the HTTP request
-            var localVarResponse = this.Client.Get<Dictionary<string, Object>>("/callingSettings", localVarRequestOptions, this.Configuration);
+            var localVarResponse = this.Client.Get<CallingSettings>("/callingSettings", localVarRequestOptions, this.Configuration);
 
             if (this.ExceptionFactory != null)
             {
@@ -451,26 +451,26 @@ namespace OneMsg.Sdk.Api
         }
 
         /// <summary>
-        /// Get calling settings WhatsApp Calling API settings (beta). Requires Meta Calling enablement on the WABA. Not production-complete — paths and webhook field names may change. Trial/subscription-limited channels are blocked. 
+        /// Get calling settings Return WhatsApp Calling API settings for this channel (beta).  Proxies upstream &#x60;GET /calling/settings&#x60;.  **Prerequisites** - Number must be eligible for Meta Calling (Cloud API; not COEX) - Trial / &#x60;subscriptionBlocked&#x60; channels receive **403** plain text - You need your own WebRTC or SIP stack; 1msg is a **signaling proxy** only   and does **not** store call history or recordings  See the **Calling** tag overview for inbound/outbound flows and webhooks. 
         /// </summary>
         /// <exception cref="OneMsg.Sdk.Client.ApiException">Thrown when fails to make API call</exception>
         /// <param name="token">JWT token or API key for authorization</param>
         /// <param name="cancellationToken">Cancellation Token to cancel the request.</param>
-        /// <returns>Task of Dictionary&lt;string, Object&gt;</returns>
-        public async System.Threading.Tasks.Task<Dictionary<string, Object>> GetCallingSettingsAsync(string token, System.Threading.CancellationToken cancellationToken = default)
+        /// <returns>Task of CallingSettings</returns>
+        public async System.Threading.Tasks.Task<CallingSettings> GetCallingSettingsAsync(string token, System.Threading.CancellationToken cancellationToken = default)
         {
-            OneMsg.Sdk.Client.ApiResponse<Dictionary<string, Object>> localVarResponse = await GetCallingSettingsWithHttpInfoAsync(token, cancellationToken).ConfigureAwait(false);
+            OneMsg.Sdk.Client.ApiResponse<CallingSettings> localVarResponse = await GetCallingSettingsWithHttpInfoAsync(token, cancellationToken).ConfigureAwait(false);
             return localVarResponse.Data;
         }
 
         /// <summary>
-        /// Get calling settings WhatsApp Calling API settings (beta). Requires Meta Calling enablement on the WABA. Not production-complete — paths and webhook field names may change. Trial/subscription-limited channels are blocked. 
+        /// Get calling settings Return WhatsApp Calling API settings for this channel (beta).  Proxies upstream &#x60;GET /calling/settings&#x60;.  **Prerequisites** - Number must be eligible for Meta Calling (Cloud API; not COEX) - Trial / &#x60;subscriptionBlocked&#x60; channels receive **403** plain text - You need your own WebRTC or SIP stack; 1msg is a **signaling proxy** only   and does **not** store call history or recordings  See the **Calling** tag overview for inbound/outbound flows and webhooks. 
         /// </summary>
         /// <exception cref="OneMsg.Sdk.Client.ApiException">Thrown when fails to make API call</exception>
         /// <param name="token">JWT token or API key for authorization</param>
         /// <param name="cancellationToken">Cancellation Token to cancel the request.</param>
-        /// <returns>Task of ApiResponse (Dictionary&lt;string, Object&gt;)</returns>
-        public async System.Threading.Tasks.Task<OneMsg.Sdk.Client.ApiResponse<Dictionary<string, Object>>> GetCallingSettingsWithHttpInfoAsync(string token, System.Threading.CancellationToken cancellationToken = default)
+        /// <returns>Task of ApiResponse (CallingSettings)</returns>
+        public async System.Threading.Tasks.Task<OneMsg.Sdk.Client.ApiResponse<CallingSettings>> GetCallingSettingsWithHttpInfoAsync(string token, System.Threading.CancellationToken cancellationToken = default)
         {
             // verify the required parameter 'token' is set
             if (token == null)
@@ -504,7 +504,7 @@ namespace OneMsg.Sdk.Api
 
             // make the HTTP request
 
-            var localVarResponse = await this.AsynchronousClient.GetAsync<Dictionary<string, Object>>("/callingSettings", localVarRequestOptions, this.Configuration, cancellationToken).ConfigureAwait(false);
+            var localVarResponse = await this.AsynchronousClient.GetAsync<CallingSettings>("/callingSettings", localVarRequestOptions, this.Configuration, cancellationToken).ConfigureAwait(false);
 
             if (this.ExceptionFactory != null)
             {
@@ -516,30 +516,34 @@ namespace OneMsg.Sdk.Api
         }
 
         /// <summary>
-        /// Initiate WhatsApp call Outbound Calling API (beta). Requires Meta Calling enablement and product consent. Not production-complete — verify on stage before relying on this in production. Trial/subscription-limited channels are blocked. 
+        /// Call action (connect / pre_accept / accept / reject / terminate) Perform a WhatsApp Calling action (beta).  Proxies upstream &#x60;POST /calling/calls&#x60;. Despite the historical path name &#x60;/initiateCall&#x60;, this endpoint handles **all** call actions:  | action | Use | Required | |- -- -- -- -|- -- --|- -- -- -- -- -| | &#x60;connect&#x60; | Outbound business → user | &#x60;to&#x60; + &#x60;session&#x60; (&#x60;sdp_type: offer&#x60;) | | &#x60;pre_accept&#x60; | Inbound (optional, reduces audio clipping) | &#x60;call_id&#x60; + &#x60;session&#x60; (&#x60;sdp_type: answer&#x60;) | | &#x60;accept&#x60; | Inbound answer | &#x60;call_id&#x60; + &#x60;session&#x60; (&#x60;sdp_type: answer&#x60;) | | &#x60;reject&#x60; | Decline inbound | &#x60;call_id&#x60; | | &#x60;terminate&#x60; | Hang up | &#x60;call_id&#x60; |  **SDP / media (critical)** - &#x60;accept&#x60; / &#x60;pre_accept&#x60; require a **WebRTC-generated SDP answer**. - Do **not** send Meta&#39;s offer SDP back as the answer. - Postman (or curl) alone **cannot** establish real media — you need a   WebRTC or SIP stack. 1msg only proxies signaling.  Answer within ~**30–60 seconds** of an inbound &#x60;connect&#x60; webhook or Meta terminates as unanswered. Common Meta errors include Calling not enabled (&#x60;138000&#x60;), no permission (&#x60;138006&#x60;), SDP validation failures.  **Outbound** requires a prior Call Permission Request (CPR) acceptance. See the **Calling** tag overview for the full outbound flow and CPR limits.  Trial / &#x60;subscriptionBlocked&#x60; → **403** plain text. Upstream failures often return HTTP 200 with &#x60;{ \&quot;response\&quot;: { \&quot;error\&quot;: \&quot;...\&quot; } }&#x60;. 
         /// </summary>
         /// <exception cref="OneMsg.Sdk.Client.ApiException">Thrown when fails to make API call</exception>
         /// <param name="token">JWT token or API key for authorization</param>
-        /// <param name="requestBody"> (optional)</param>
-        /// <returns>Dictionary&lt;string, Object&gt;</returns>
-        public Dictionary<string, Object> InitiateCall(string token, Dictionary<string, Object> requestBody = default)
+        /// <param name="initiateCallRequest"></param>
+        /// <returns>InitiateCallResponse</returns>
+        public InitiateCallResponse InitiateCall(string token, InitiateCallRequest initiateCallRequest)
         {
-            OneMsg.Sdk.Client.ApiResponse<Dictionary<string, Object>> localVarResponse = InitiateCallWithHttpInfo(token, requestBody);
+            OneMsg.Sdk.Client.ApiResponse<InitiateCallResponse> localVarResponse = InitiateCallWithHttpInfo(token, initiateCallRequest);
             return localVarResponse.Data;
         }
 
         /// <summary>
-        /// Initiate WhatsApp call Outbound Calling API (beta). Requires Meta Calling enablement and product consent. Not production-complete — verify on stage before relying on this in production. Trial/subscription-limited channels are blocked. 
+        /// Call action (connect / pre_accept / accept / reject / terminate) Perform a WhatsApp Calling action (beta).  Proxies upstream &#x60;POST /calling/calls&#x60;. Despite the historical path name &#x60;/initiateCall&#x60;, this endpoint handles **all** call actions:  | action | Use | Required | |- -- -- -- -|- -- --|- -- -- -- -- -| | &#x60;connect&#x60; | Outbound business → user | &#x60;to&#x60; + &#x60;session&#x60; (&#x60;sdp_type: offer&#x60;) | | &#x60;pre_accept&#x60; | Inbound (optional, reduces audio clipping) | &#x60;call_id&#x60; + &#x60;session&#x60; (&#x60;sdp_type: answer&#x60;) | | &#x60;accept&#x60; | Inbound answer | &#x60;call_id&#x60; + &#x60;session&#x60; (&#x60;sdp_type: answer&#x60;) | | &#x60;reject&#x60; | Decline inbound | &#x60;call_id&#x60; | | &#x60;terminate&#x60; | Hang up | &#x60;call_id&#x60; |  **SDP / media (critical)** - &#x60;accept&#x60; / &#x60;pre_accept&#x60; require a **WebRTC-generated SDP answer**. - Do **not** send Meta&#39;s offer SDP back as the answer. - Postman (or curl) alone **cannot** establish real media — you need a   WebRTC or SIP stack. 1msg only proxies signaling.  Answer within ~**30–60 seconds** of an inbound &#x60;connect&#x60; webhook or Meta terminates as unanswered. Common Meta errors include Calling not enabled (&#x60;138000&#x60;), no permission (&#x60;138006&#x60;), SDP validation failures.  **Outbound** requires a prior Call Permission Request (CPR) acceptance. See the **Calling** tag overview for the full outbound flow and CPR limits.  Trial / &#x60;subscriptionBlocked&#x60; → **403** plain text. Upstream failures often return HTTP 200 with &#x60;{ \&quot;response\&quot;: { \&quot;error\&quot;: \&quot;...\&quot; } }&#x60;. 
         /// </summary>
         /// <exception cref="OneMsg.Sdk.Client.ApiException">Thrown when fails to make API call</exception>
         /// <param name="token">JWT token or API key for authorization</param>
-        /// <param name="requestBody"> (optional)</param>
-        /// <returns>ApiResponse of Dictionary&lt;string, Object&gt;</returns>
-        public OneMsg.Sdk.Client.ApiResponse<Dictionary<string, Object>> InitiateCallWithHttpInfo(string token, Dictionary<string, Object> requestBody = default)
+        /// <param name="initiateCallRequest"></param>
+        /// <returns>ApiResponse of InitiateCallResponse</returns>
+        public OneMsg.Sdk.Client.ApiResponse<InitiateCallResponse> InitiateCallWithHttpInfo(string token, InitiateCallRequest initiateCallRequest)
         {
             // verify the required parameter 'token' is set
             if (token == null)
                 throw new OneMsg.Sdk.Client.ApiException(400, "Missing required parameter 'token' when calling CallingApi->InitiateCall");
+
+            // verify the required parameter 'initiateCallRequest' is set
+            if (initiateCallRequest == null)
+                throw new OneMsg.Sdk.Client.ApiException(400, "Missing required parameter 'initiateCallRequest' when calling CallingApi->InitiateCall");
 
             OneMsg.Sdk.Client.RequestOptions localVarRequestOptions = new OneMsg.Sdk.Client.RequestOptions();
 
@@ -559,7 +563,7 @@ namespace OneMsg.Sdk.Api
             if (localVarAccept != null) localVarRequestOptions.HeaderParameters.Add("Accept", localVarAccept);
 
             localVarRequestOptions.QueryParameters.Add(OneMsg.Sdk.Client.ClientUtils.ParameterToMultiMap("", "token", token));
-            localVarRequestOptions.Data = requestBody;
+            localVarRequestOptions.Data = initiateCallRequest;
 
             // authentication (tokenAuth) required
             if (!string.IsNullOrEmpty(this.Configuration.GetApiKeyWithPrefix("token")))
@@ -568,7 +572,7 @@ namespace OneMsg.Sdk.Api
             }
 
             // make the HTTP request
-            var localVarResponse = this.Client.Post<Dictionary<string, Object>>("/initiateCall", localVarRequestOptions, this.Configuration);
+            var localVarResponse = this.Client.Post<InitiateCallResponse>("/initiateCall", localVarRequestOptions, this.Configuration);
 
             if (this.ExceptionFactory != null)
             {
@@ -580,32 +584,36 @@ namespace OneMsg.Sdk.Api
         }
 
         /// <summary>
-        /// Initiate WhatsApp call Outbound Calling API (beta). Requires Meta Calling enablement and product consent. Not production-complete — verify on stage before relying on this in production. Trial/subscription-limited channels are blocked. 
+        /// Call action (connect / pre_accept / accept / reject / terminate) Perform a WhatsApp Calling action (beta).  Proxies upstream &#x60;POST /calling/calls&#x60;. Despite the historical path name &#x60;/initiateCall&#x60;, this endpoint handles **all** call actions:  | action | Use | Required | |- -- -- -- -|- -- --|- -- -- -- -- -| | &#x60;connect&#x60; | Outbound business → user | &#x60;to&#x60; + &#x60;session&#x60; (&#x60;sdp_type: offer&#x60;) | | &#x60;pre_accept&#x60; | Inbound (optional, reduces audio clipping) | &#x60;call_id&#x60; + &#x60;session&#x60; (&#x60;sdp_type: answer&#x60;) | | &#x60;accept&#x60; | Inbound answer | &#x60;call_id&#x60; + &#x60;session&#x60; (&#x60;sdp_type: answer&#x60;) | | &#x60;reject&#x60; | Decline inbound | &#x60;call_id&#x60; | | &#x60;terminate&#x60; | Hang up | &#x60;call_id&#x60; |  **SDP / media (critical)** - &#x60;accept&#x60; / &#x60;pre_accept&#x60; require a **WebRTC-generated SDP answer**. - Do **not** send Meta&#39;s offer SDP back as the answer. - Postman (or curl) alone **cannot** establish real media — you need a   WebRTC or SIP stack. 1msg only proxies signaling.  Answer within ~**30–60 seconds** of an inbound &#x60;connect&#x60; webhook or Meta terminates as unanswered. Common Meta errors include Calling not enabled (&#x60;138000&#x60;), no permission (&#x60;138006&#x60;), SDP validation failures.  **Outbound** requires a prior Call Permission Request (CPR) acceptance. See the **Calling** tag overview for the full outbound flow and CPR limits.  Trial / &#x60;subscriptionBlocked&#x60; → **403** plain text. Upstream failures often return HTTP 200 with &#x60;{ \&quot;response\&quot;: { \&quot;error\&quot;: \&quot;...\&quot; } }&#x60;. 
         /// </summary>
         /// <exception cref="OneMsg.Sdk.Client.ApiException">Thrown when fails to make API call</exception>
         /// <param name="token">JWT token or API key for authorization</param>
-        /// <param name="requestBody"> (optional)</param>
+        /// <param name="initiateCallRequest"></param>
         /// <param name="cancellationToken">Cancellation Token to cancel the request.</param>
-        /// <returns>Task of Dictionary&lt;string, Object&gt;</returns>
-        public async System.Threading.Tasks.Task<Dictionary<string, Object>> InitiateCallAsync(string token, Dictionary<string, Object> requestBody = default, System.Threading.CancellationToken cancellationToken = default)
+        /// <returns>Task of InitiateCallResponse</returns>
+        public async System.Threading.Tasks.Task<InitiateCallResponse> InitiateCallAsync(string token, InitiateCallRequest initiateCallRequest, System.Threading.CancellationToken cancellationToken = default)
         {
-            OneMsg.Sdk.Client.ApiResponse<Dictionary<string, Object>> localVarResponse = await InitiateCallWithHttpInfoAsync(token, requestBody, cancellationToken).ConfigureAwait(false);
+            OneMsg.Sdk.Client.ApiResponse<InitiateCallResponse> localVarResponse = await InitiateCallWithHttpInfoAsync(token, initiateCallRequest, cancellationToken).ConfigureAwait(false);
             return localVarResponse.Data;
         }
 
         /// <summary>
-        /// Initiate WhatsApp call Outbound Calling API (beta). Requires Meta Calling enablement and product consent. Not production-complete — verify on stage before relying on this in production. Trial/subscription-limited channels are blocked. 
+        /// Call action (connect / pre_accept / accept / reject / terminate) Perform a WhatsApp Calling action (beta).  Proxies upstream &#x60;POST /calling/calls&#x60;. Despite the historical path name &#x60;/initiateCall&#x60;, this endpoint handles **all** call actions:  | action | Use | Required | |- -- -- -- -|- -- --|- -- -- -- -- -| | &#x60;connect&#x60; | Outbound business → user | &#x60;to&#x60; + &#x60;session&#x60; (&#x60;sdp_type: offer&#x60;) | | &#x60;pre_accept&#x60; | Inbound (optional, reduces audio clipping) | &#x60;call_id&#x60; + &#x60;session&#x60; (&#x60;sdp_type: answer&#x60;) | | &#x60;accept&#x60; | Inbound answer | &#x60;call_id&#x60; + &#x60;session&#x60; (&#x60;sdp_type: answer&#x60;) | | &#x60;reject&#x60; | Decline inbound | &#x60;call_id&#x60; | | &#x60;terminate&#x60; | Hang up | &#x60;call_id&#x60; |  **SDP / media (critical)** - &#x60;accept&#x60; / &#x60;pre_accept&#x60; require a **WebRTC-generated SDP answer**. - Do **not** send Meta&#39;s offer SDP back as the answer. - Postman (or curl) alone **cannot** establish real media — you need a   WebRTC or SIP stack. 1msg only proxies signaling.  Answer within ~**30–60 seconds** of an inbound &#x60;connect&#x60; webhook or Meta terminates as unanswered. Common Meta errors include Calling not enabled (&#x60;138000&#x60;), no permission (&#x60;138006&#x60;), SDP validation failures.  **Outbound** requires a prior Call Permission Request (CPR) acceptance. See the **Calling** tag overview for the full outbound flow and CPR limits.  Trial / &#x60;subscriptionBlocked&#x60; → **403** plain text. Upstream failures often return HTTP 200 with &#x60;{ \&quot;response\&quot;: { \&quot;error\&quot;: \&quot;...\&quot; } }&#x60;. 
         /// </summary>
         /// <exception cref="OneMsg.Sdk.Client.ApiException">Thrown when fails to make API call</exception>
         /// <param name="token">JWT token or API key for authorization</param>
-        /// <param name="requestBody"> (optional)</param>
+        /// <param name="initiateCallRequest"></param>
         /// <param name="cancellationToken">Cancellation Token to cancel the request.</param>
-        /// <returns>Task of ApiResponse (Dictionary&lt;string, Object&gt;)</returns>
-        public async System.Threading.Tasks.Task<OneMsg.Sdk.Client.ApiResponse<Dictionary<string, Object>>> InitiateCallWithHttpInfoAsync(string token, Dictionary<string, Object> requestBody = default, System.Threading.CancellationToken cancellationToken = default)
+        /// <returns>Task of ApiResponse (InitiateCallResponse)</returns>
+        public async System.Threading.Tasks.Task<OneMsg.Sdk.Client.ApiResponse<InitiateCallResponse>> InitiateCallWithHttpInfoAsync(string token, InitiateCallRequest initiateCallRequest, System.Threading.CancellationToken cancellationToken = default)
         {
             // verify the required parameter 'token' is set
             if (token == null)
                 throw new OneMsg.Sdk.Client.ApiException(400, "Missing required parameter 'token' when calling CallingApi->InitiateCall");
+
+            // verify the required parameter 'initiateCallRequest' is set
+            if (initiateCallRequest == null)
+                throw new OneMsg.Sdk.Client.ApiException(400, "Missing required parameter 'initiateCallRequest' when calling CallingApi->InitiateCall");
 
 
             OneMsg.Sdk.Client.RequestOptions localVarRequestOptions = new OneMsg.Sdk.Client.RequestOptions();
@@ -627,7 +635,7 @@ namespace OneMsg.Sdk.Api
             if (localVarAccept != null) localVarRequestOptions.HeaderParameters.Add("Accept", localVarAccept);
 
             localVarRequestOptions.QueryParameters.Add(OneMsg.Sdk.Client.ClientUtils.ParameterToMultiMap("", "token", token));
-            localVarRequestOptions.Data = requestBody;
+            localVarRequestOptions.Data = initiateCallRequest;
 
             // authentication (tokenAuth) required
             if (!string.IsNullOrEmpty(this.Configuration.GetApiKeyWithPrefix("token")))
@@ -637,7 +645,7 @@ namespace OneMsg.Sdk.Api
 
             // make the HTTP request
 
-            var localVarResponse = await this.AsynchronousClient.PostAsync<Dictionary<string, Object>>("/initiateCall", localVarRequestOptions, this.Configuration, cancellationToken).ConfigureAwait(false);
+            var localVarResponse = await this.AsynchronousClient.PostAsync<InitiateCallResponse>("/initiateCall", localVarRequestOptions, this.Configuration, cancellationToken).ConfigureAwait(false);
 
             if (this.ExceptionFactory != null)
             {
@@ -649,31 +657,35 @@ namespace OneMsg.Sdk.Api
         }
 
         /// <summary>
-        /// Update calling settings Update WhatsApp Calling API settings (beta). Requires Meta Calling enablement. Trial/subscription-limited channels are blocked. 
+        /// Update calling settings Enable, disable, or update WhatsApp Calling settings (beta).  Proxies upstream &#x60;POST /calling/settings&#x60;. Body is forwarded as-is (1msg does not validate fields).  **Common fields under &#x60;calling&#x60;** - &#x60;status&#x60; (&#x60;ENABLED&#x60; | &#x60;DISABLED&#x60;) — required to turn calling on/off - &#x60;call_icon_visibility&#x60; (&#x60;DEFAULT&#x60; | &#x60;DISABLE_ALL&#x60;) — optional - &#x60;callback_permission_status&#x60; (&#x60;ENABLED&#x60; | &#x60;DISABLED&#x60;) — optional;   when enabled, inbound user calls grant callback permission - &#x60;call_hours&#x60; — optional hours / timezone object - &#x60;sip&#x60; — optional SIP trunk; when SIP is ENABLED, Graph call actions and   calling webhooks are not used - &#x60;srtp_key_exchange_protocol&#x60; (&#x60;DTLS&#x60; | &#x60;SDES&#x60;) — SDES only with SIP - &#x60;video.status&#x60; — optional  Meta may accept only one feature group per request — prefer focused updates (e.g. enable status first, then SIP).  Trial / &#x60;subscriptionBlocked&#x60; → **403** plain text. 
         /// </summary>
         /// <exception cref="OneMsg.Sdk.Client.ApiException">Thrown when fails to make API call</exception>
         /// <param name="token">JWT token or API key for authorization</param>
-        /// <param name="requestBody"> (optional)</param>
-        /// <returns>Dictionary&lt;string, Object&gt;</returns>
-        public Dictionary<string, Object> UpdateCallingSettings(string token, Dictionary<string, Object> requestBody = default)
+        /// <param name="callingSettings"></param>
+        /// <returns>UpdateCallingSettings200Response</returns>
+        public UpdateCallingSettings200Response UpdateCallingSettings(string token, CallingSettings callingSettings)
         {
-            OneMsg.Sdk.Client.ApiResponse<Dictionary<string, Object>> localVarResponse = UpdateCallingSettingsWithHttpInfo(token, requestBody);
+            OneMsg.Sdk.Client.ApiResponse<UpdateCallingSettings200Response> localVarResponse = UpdateCallingSettingsWithHttpInfo(token, callingSettings);
             return localVarResponse.Data;
         }
 
         /// <summary>
-        /// Update calling settings Update WhatsApp Calling API settings (beta). Requires Meta Calling enablement. Trial/subscription-limited channels are blocked. 
+        /// Update calling settings Enable, disable, or update WhatsApp Calling settings (beta).  Proxies upstream &#x60;POST /calling/settings&#x60;. Body is forwarded as-is (1msg does not validate fields).  **Common fields under &#x60;calling&#x60;** - &#x60;status&#x60; (&#x60;ENABLED&#x60; | &#x60;DISABLED&#x60;) — required to turn calling on/off - &#x60;call_icon_visibility&#x60; (&#x60;DEFAULT&#x60; | &#x60;DISABLE_ALL&#x60;) — optional - &#x60;callback_permission_status&#x60; (&#x60;ENABLED&#x60; | &#x60;DISABLED&#x60;) — optional;   when enabled, inbound user calls grant callback permission - &#x60;call_hours&#x60; — optional hours / timezone object - &#x60;sip&#x60; — optional SIP trunk; when SIP is ENABLED, Graph call actions and   calling webhooks are not used - &#x60;srtp_key_exchange_protocol&#x60; (&#x60;DTLS&#x60; | &#x60;SDES&#x60;) — SDES only with SIP - &#x60;video.status&#x60; — optional  Meta may accept only one feature group per request — prefer focused updates (e.g. enable status first, then SIP).  Trial / &#x60;subscriptionBlocked&#x60; → **403** plain text. 
         /// </summary>
         /// <exception cref="OneMsg.Sdk.Client.ApiException">Thrown when fails to make API call</exception>
         /// <param name="token">JWT token or API key for authorization</param>
-        /// <param name="requestBody"> (optional)</param>
-        /// <returns>ApiResponse of Dictionary&lt;string, Object&gt;</returns>
-        public OneMsg.Sdk.Client.ApiResponse<Dictionary<string, Object>> UpdateCallingSettingsWithHttpInfo(string token, Dictionary<string, Object> requestBody = default)
+        /// <param name="callingSettings"></param>
+        /// <returns>ApiResponse of UpdateCallingSettings200Response</returns>
+        public OneMsg.Sdk.Client.ApiResponse<UpdateCallingSettings200Response> UpdateCallingSettingsWithHttpInfo(string token, CallingSettings callingSettings)
         {
             // verify the required parameter 'token' is set
             if (token == null)
                 throw new OneMsg.Sdk.Client.ApiException(400, "Missing required parameter 'token' when calling CallingApi->UpdateCallingSettings");
 
+            // verify the required parameter 'callingSettings' is set
+            if (callingSettings == null)
+                throw new OneMsg.Sdk.Client.ApiException(400, "Missing required parameter 'callingSettings' when calling CallingApi->UpdateCallingSettings");
+
             OneMsg.Sdk.Client.RequestOptions localVarRequestOptions = new OneMsg.Sdk.Client.RequestOptions();
 
             string[] _contentTypes = new string[] {
@@ -692,7 +704,7 @@ namespace OneMsg.Sdk.Api
             if (localVarAccept != null) localVarRequestOptions.HeaderParameters.Add("Accept", localVarAccept);
 
             localVarRequestOptions.QueryParameters.Add(OneMsg.Sdk.Client.ClientUtils.ParameterToMultiMap("", "token", token));
-            localVarRequestOptions.Data = requestBody;
+            localVarRequestOptions.Data = callingSettings;
 
             // authentication (tokenAuth) required
             if (!string.IsNullOrEmpty(this.Configuration.GetApiKeyWithPrefix("token")))
@@ -701,7 +713,7 @@ namespace OneMsg.Sdk.Api
             }
 
             // make the HTTP request
-            var localVarResponse = this.Client.Post<Dictionary<string, Object>>("/callingSettings", localVarRequestOptions, this.Configuration);
+            var localVarResponse = this.Client.Post<UpdateCallingSettings200Response>("/callingSettings", localVarRequestOptions, this.Configuration);
 
             if (this.ExceptionFactory != null)
             {
@@ -713,32 +725,36 @@ namespace OneMsg.Sdk.Api
         }
 
         /// <summary>
-        /// Update calling settings Update WhatsApp Calling API settings (beta). Requires Meta Calling enablement. Trial/subscription-limited channels are blocked. 
+        /// Update calling settings Enable, disable, or update WhatsApp Calling settings (beta).  Proxies upstream &#x60;POST /calling/settings&#x60;. Body is forwarded as-is (1msg does not validate fields).  **Common fields under &#x60;calling&#x60;** - &#x60;status&#x60; (&#x60;ENABLED&#x60; | &#x60;DISABLED&#x60;) — required to turn calling on/off - &#x60;call_icon_visibility&#x60; (&#x60;DEFAULT&#x60; | &#x60;DISABLE_ALL&#x60;) — optional - &#x60;callback_permission_status&#x60; (&#x60;ENABLED&#x60; | &#x60;DISABLED&#x60;) — optional;   when enabled, inbound user calls grant callback permission - &#x60;call_hours&#x60; — optional hours / timezone object - &#x60;sip&#x60; — optional SIP trunk; when SIP is ENABLED, Graph call actions and   calling webhooks are not used - &#x60;srtp_key_exchange_protocol&#x60; (&#x60;DTLS&#x60; | &#x60;SDES&#x60;) — SDES only with SIP - &#x60;video.status&#x60; — optional  Meta may accept only one feature group per request — prefer focused updates (e.g. enable status first, then SIP).  Trial / &#x60;subscriptionBlocked&#x60; → **403** plain text. 
         /// </summary>
         /// <exception cref="OneMsg.Sdk.Client.ApiException">Thrown when fails to make API call</exception>
         /// <param name="token">JWT token or API key for authorization</param>
-        /// <param name="requestBody"> (optional)</param>
+        /// <param name="callingSettings"></param>
         /// <param name="cancellationToken">Cancellation Token to cancel the request.</param>
-        /// <returns>Task of Dictionary&lt;string, Object&gt;</returns>
-        public async System.Threading.Tasks.Task<Dictionary<string, Object>> UpdateCallingSettingsAsync(string token, Dictionary<string, Object> requestBody = default, System.Threading.CancellationToken cancellationToken = default)
+        /// <returns>Task of UpdateCallingSettings200Response</returns>
+        public async System.Threading.Tasks.Task<UpdateCallingSettings200Response> UpdateCallingSettingsAsync(string token, CallingSettings callingSettings, System.Threading.CancellationToken cancellationToken = default)
         {
-            OneMsg.Sdk.Client.ApiResponse<Dictionary<string, Object>> localVarResponse = await UpdateCallingSettingsWithHttpInfoAsync(token, requestBody, cancellationToken).ConfigureAwait(false);
+            OneMsg.Sdk.Client.ApiResponse<UpdateCallingSettings200Response> localVarResponse = await UpdateCallingSettingsWithHttpInfoAsync(token, callingSettings, cancellationToken).ConfigureAwait(false);
             return localVarResponse.Data;
         }
 
         /// <summary>
-        /// Update calling settings Update WhatsApp Calling API settings (beta). Requires Meta Calling enablement. Trial/subscription-limited channels are blocked. 
+        /// Update calling settings Enable, disable, or update WhatsApp Calling settings (beta).  Proxies upstream &#x60;POST /calling/settings&#x60;. Body is forwarded as-is (1msg does not validate fields).  **Common fields under &#x60;calling&#x60;** - &#x60;status&#x60; (&#x60;ENABLED&#x60; | &#x60;DISABLED&#x60;) — required to turn calling on/off - &#x60;call_icon_visibility&#x60; (&#x60;DEFAULT&#x60; | &#x60;DISABLE_ALL&#x60;) — optional - &#x60;callback_permission_status&#x60; (&#x60;ENABLED&#x60; | &#x60;DISABLED&#x60;) — optional;   when enabled, inbound user calls grant callback permission - &#x60;call_hours&#x60; — optional hours / timezone object - &#x60;sip&#x60; — optional SIP trunk; when SIP is ENABLED, Graph call actions and   calling webhooks are not used - &#x60;srtp_key_exchange_protocol&#x60; (&#x60;DTLS&#x60; | &#x60;SDES&#x60;) — SDES only with SIP - &#x60;video.status&#x60; — optional  Meta may accept only one feature group per request — prefer focused updates (e.g. enable status first, then SIP).  Trial / &#x60;subscriptionBlocked&#x60; → **403** plain text. 
         /// </summary>
         /// <exception cref="OneMsg.Sdk.Client.ApiException">Thrown when fails to make API call</exception>
         /// <param name="token">JWT token or API key for authorization</param>
-        /// <param name="requestBody"> (optional)</param>
+        /// <param name="callingSettings"></param>
         /// <param name="cancellationToken">Cancellation Token to cancel the request.</param>
-        /// <returns>Task of ApiResponse (Dictionary&lt;string, Object&gt;)</returns>
-        public async System.Threading.Tasks.Task<OneMsg.Sdk.Client.ApiResponse<Dictionary<string, Object>>> UpdateCallingSettingsWithHttpInfoAsync(string token, Dictionary<string, Object> requestBody = default, System.Threading.CancellationToken cancellationToken = default)
+        /// <returns>Task of ApiResponse (UpdateCallingSettings200Response)</returns>
+        public async System.Threading.Tasks.Task<OneMsg.Sdk.Client.ApiResponse<UpdateCallingSettings200Response>> UpdateCallingSettingsWithHttpInfoAsync(string token, CallingSettings callingSettings, System.Threading.CancellationToken cancellationToken = default)
         {
             // verify the required parameter 'token' is set
             if (token == null)
                 throw new OneMsg.Sdk.Client.ApiException(400, "Missing required parameter 'token' when calling CallingApi->UpdateCallingSettings");
+
+            // verify the required parameter 'callingSettings' is set
+            if (callingSettings == null)
+                throw new OneMsg.Sdk.Client.ApiException(400, "Missing required parameter 'callingSettings' when calling CallingApi->UpdateCallingSettings");
 
 
             OneMsg.Sdk.Client.RequestOptions localVarRequestOptions = new OneMsg.Sdk.Client.RequestOptions();
@@ -760,7 +776,7 @@ namespace OneMsg.Sdk.Api
             if (localVarAccept != null) localVarRequestOptions.HeaderParameters.Add("Accept", localVarAccept);
 
             localVarRequestOptions.QueryParameters.Add(OneMsg.Sdk.Client.ClientUtils.ParameterToMultiMap("", "token", token));
-            localVarRequestOptions.Data = requestBody;
+            localVarRequestOptions.Data = callingSettings;
 
             // authentication (tokenAuth) required
             if (!string.IsNullOrEmpty(this.Configuration.GetApiKeyWithPrefix("token")))
@@ -770,7 +786,7 @@ namespace OneMsg.Sdk.Api
 
             // make the HTTP request
 
-            var localVarResponse = await this.AsynchronousClient.PostAsync<Dictionary<string, Object>>("/callingSettings", localVarRequestOptions, this.Configuration, cancellationToken).ConfigureAwait(false);
+            var localVarResponse = await this.AsynchronousClient.PostAsync<UpdateCallingSettings200Response>("/callingSettings", localVarRequestOptions, this.Configuration, cancellationToken).ConfigureAwait(false);
 
             if (this.ExceptionFactory != null)
             {

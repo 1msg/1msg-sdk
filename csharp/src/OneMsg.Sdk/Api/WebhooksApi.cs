@@ -53,7 +53,7 @@ namespace OneMsg.Sdk.Api
         /// Set webhook URL
         /// </summary>
         /// <remarks>
-        /// Configure the client webhook URL for inbound events.
+        /// Configure the client webhook URL for inbound events.  WhatsApp **Calling** events (&#x60;field&#x3D;calls&#x60;) are forwarded as passthrough payloads with &#x60;type: \&quot;calls\&quot;&#x60; and &#x60;instanceId&#x60; (connect / status / terminate). Call permission replies arrive on the normal messages path (&#x60;call_permission_reply&#x60;). Details: **Calling** tag. 
         /// </remarks>
         /// <exception cref="OneMsg.Sdk.Client.ApiException">Thrown when fails to make API call</exception>
         /// <param name="token">JWT token or API key for authorization</param>
@@ -65,7 +65,7 @@ namespace OneMsg.Sdk.Api
         /// Set webhook URL
         /// </summary>
         /// <remarks>
-        /// Configure the client webhook URL for inbound events.
+        /// Configure the client webhook URL for inbound events.  WhatsApp **Calling** events (&#x60;field&#x3D;calls&#x60;) are forwarded as passthrough payloads with &#x60;type: \&quot;calls\&quot;&#x60; and &#x60;instanceId&#x60; (connect / status / terminate). Call permission replies arrive on the normal messages path (&#x60;call_permission_reply&#x60;). Details: **Calling** tag. 
         /// </remarks>
         /// <exception cref="OneMsg.Sdk.Client.ApiException">Thrown when fails to make API call</exception>
         /// <param name="token">JWT token or API key for authorization</param>
@@ -108,7 +108,7 @@ namespace OneMsg.Sdk.Api
         /// Set webhook URL
         /// </summary>
         /// <remarks>
-        /// Configure the client webhook URL for inbound events.
+        /// Configure the client webhook URL for inbound events.  WhatsApp **Calling** events (&#x60;field&#x3D;calls&#x60;) are forwarded as passthrough payloads with &#x60;type: \&quot;calls\&quot;&#x60; and &#x60;instanceId&#x60; (connect / status / terminate). Call permission replies arrive on the normal messages path (&#x60;call_permission_reply&#x60;). Details: **Calling** tag. 
         /// </remarks>
         /// <exception cref="OneMsg.Sdk.Client.ApiException">Thrown when fails to make API call</exception>
         /// <param name="token">JWT token or API key for authorization</param>
@@ -121,7 +121,7 @@ namespace OneMsg.Sdk.Api
         /// Set webhook URL
         /// </summary>
         /// <remarks>
-        /// Configure the client webhook URL for inbound events.
+        /// Configure the client webhook URL for inbound events.  WhatsApp **Calling** events (&#x60;field&#x3D;calls&#x60;) are forwarded as passthrough payloads with &#x60;type: \&quot;calls\&quot;&#x60; and &#x60;instanceId&#x60; (connect / status / terminate). Call permission replies arrive on the normal messages path (&#x60;call_permission_reply&#x60;). Details: **Calling** tag. 
         /// </remarks>
         /// <exception cref="OneMsg.Sdk.Client.ApiException">Thrown when fails to make API call</exception>
         /// <param name="token">JWT token or API key for authorization</param>
@@ -468,7 +468,7 @@ namespace OneMsg.Sdk.Api
         }
 
         /// <summary>
-        /// Set webhook URL Configure the client webhook URL for inbound events.
+        /// Set webhook URL Configure the client webhook URL for inbound events.  WhatsApp **Calling** events (&#x60;field&#x3D;calls&#x60;) are forwarded as passthrough payloads with &#x60;type: \&quot;calls\&quot;&#x60; and &#x60;instanceId&#x60; (connect / status / terminate). Call permission replies arrive on the normal messages path (&#x60;call_permission_reply&#x60;). Details: **Calling** tag. 
         /// </summary>
         /// <exception cref="OneMsg.Sdk.Client.ApiException">Thrown when fails to make API call</exception>
         /// <param name="token">JWT token or API key for authorization</param>
@@ -481,7 +481,7 @@ namespace OneMsg.Sdk.Api
         }
 
         /// <summary>
-        /// Set webhook URL Configure the client webhook URL for inbound events.
+        /// Set webhook URL Configure the client webhook URL for inbound events.  WhatsApp **Calling** events (&#x60;field&#x3D;calls&#x60;) are forwarded as passthrough payloads with &#x60;type: \&quot;calls\&quot;&#x60; and &#x60;instanceId&#x60; (connect / status / terminate). Call permission replies arrive on the normal messages path (&#x60;call_permission_reply&#x60;). Details: **Calling** tag. 
         /// </summary>
         /// <exception cref="OneMsg.Sdk.Client.ApiException">Thrown when fails to make API call</exception>
         /// <param name="token">JWT token or API key for authorization</param>
@@ -532,7 +532,7 @@ namespace OneMsg.Sdk.Api
         }
 
         /// <summary>
-        /// Set webhook URL Configure the client webhook URL for inbound events.
+        /// Set webhook URL Configure the client webhook URL for inbound events.  WhatsApp **Calling** events (&#x60;field&#x3D;calls&#x60;) are forwarded as passthrough payloads with &#x60;type: \&quot;calls\&quot;&#x60; and &#x60;instanceId&#x60; (connect / status / terminate). Call permission replies arrive on the normal messages path (&#x60;call_permission_reply&#x60;). Details: **Calling** tag. 
         /// </summary>
         /// <exception cref="OneMsg.Sdk.Client.ApiException">Thrown when fails to make API call</exception>
         /// <param name="token">JWT token or API key for authorization</param>
@@ -546,7 +546,7 @@ namespace OneMsg.Sdk.Api
         }
 
         /// <summary>
-        /// Set webhook URL Configure the client webhook URL for inbound events.
+        /// Set webhook URL Configure the client webhook URL for inbound events.  WhatsApp **Calling** events (&#x60;field&#x3D;calls&#x60;) are forwarded as passthrough payloads with &#x60;type: \&quot;calls\&quot;&#x60; and &#x60;instanceId&#x60; (connect / status / terminate). Call permission replies arrive on the normal messages path (&#x60;call_permission_reply&#x60;). Details: **Calling** tag. 
         /// </summary>
         /// <exception cref="OneMsg.Sdk.Client.ApiException">Thrown when fails to make API call</exception>
         /// <param name="token">JWT token or API key for authorization</param>
