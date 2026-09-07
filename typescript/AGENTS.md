@@ -181,9 +181,10 @@ operationId: createFlows
 http: POST /flows
 client: client.flows.createFlows
 summary: Create Flow
-typescript: createFlows(token: string, wabaAccountId?: string, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<CreateGroups200Response>
-requestBody: none
-responses: 200
+description: Create a WhatsApp Flow (`name` + `categories` required). Currently returns HTTP 501 until the Meta Graph Flows rewrite is available.
+typescript: createFlows(token: string, createFlowsRequest: CreateFlowsRequest, wabaAccountId?: string, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<CreateGroups200Response>
+requestBody: inline object
+responses: 200, 501
 ```
 
 ### createFlowsFlowIdDeprecate
@@ -266,9 +267,10 @@ operationId: listFlows
 http: GET /flows
 client: client.flows.listFlows
 summary: List Flows
-typescript: listFlows(token: string, wabaAccountId?: string, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<ListFlows200Response>
+description: List WhatsApp Flows for the WABA. Currently returns HTTP 501 until the Meta Graph Flows rewrite is available.
+typescript: listFlows(token: string, wabaAccountId?: string, fields?: string, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<ListFlows200Response>
 requestBody: none
-responses: 200
+responses: 200, 501
 ```
 
 ### patchFlowsFlowIdAssets
@@ -278,9 +280,10 @@ operationId: patchFlowsFlowIdAssets
 http: PATCH /flows/{flowId}/assets
 client: client.flows.patchFlowsFlowIdAssets
 summary: Update Flow Structure
-typescript: patchFlowsFlowIdAssets(flowId: string, token: string, wabaAccountId?: string, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<PatchFlowsFlowIdAssets200Response>
-requestBody: none
-responses: 200
+description: Replace the Flow JSON document (`flowJson`). Currently returns HTTP 501 until the Meta Graph Flows rewrite is available.
+typescript: patchFlowsFlowIdAssets(flowId: string, token: string, patchFlowsFlowIdAssetsRequest: PatchFlowsFlowIdAssetsRequest, wabaAccountId?: string, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<PatchFlowsFlowIdAssets200Response>
+requestBody: inline object
+responses: 200, 501
 ```
 
 ### patchFlowsFlowIdMetadata
@@ -290,9 +293,10 @@ operationId: patchFlowsFlowIdMetadata
 http: PATCH /flows/{flowId}/metadata
 client: client.flows.patchFlowsFlowIdMetadata
 summary: Update Flow Metadata
-typescript: patchFlowsFlowIdMetadata(flowId: string, token: string, wabaAccountId?: string, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<{ [key: string]: any; }>
-requestBody: none
-responses: 200
+description: Update Flow `name`, `categories`, and/or `endpointUri`. Currently returns HTTP 501 until the Meta Graph Flows rewrite is available.
+typescript: patchFlowsFlowIdMetadata(flowId: string, token: string, patchFlowsFlowIdMetadataRequest: PatchFlowsFlowIdMetadataRequest, wabaAccountId?: string, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<{ [key: string]: any; }>
+requestBody: inline object
+responses: 200, 501
 ```
 
 ### setWhatsappBusinessEncryption
@@ -315,8 +319,8 @@ operationId: createGroups
 http: POST /groups
 client: client.groups.createGroups
 summary: Create Group
-typescript: createGroups(token: string, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<CreateGroups200Response>
-requestBody: none
+typescript: createGroups(token: string, createGroupsRequest: CreateGroupsRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<CreateGroups200Response>
+requestBody: inline object
 responses: 200
 ```
 
@@ -334,8 +338,9 @@ operationId: createGroupsGroupId
 http: POST /groups/{groupId}
 client: client.groups.createGroupsGroupId
 summary: Update Group Info
-typescript: createGroupsGroupId(groupId: string, token: string, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<{ [key: string]: any; }>
-requestBody: none
+description: Update group subject, description, and/or profile picture. Path `groupId` is the WABA group id (without `@g.us`).
+typescript: createGroupsGroupId(groupId: string, token: string, createGroupsGroupIdRequest: CreateGroupsGroupIdRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<{ [key: string]: any; }>
+requestBody: inline object
 responses: 200
 ```
 
@@ -370,7 +375,7 @@ operationId: getGroupsGroupId
 http: GET /groups/{groupId}
 client: client.groups.getGroupsGroupId
 summary: Get Group Info
-typescript: getGroupsGroupId(groupId: string, token: string, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<{ [key: string]: any; }>
+typescript: getGroupsGroupId(groupId: string, token: string, fields?: string, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<{ [key: string]: any; }>
 requestBody: none
 responses: 200
 ```
@@ -394,7 +399,8 @@ operationId: listGroups
 http: GET /groups
 client: client.groups.listGroups
 summary: Get Groups List
-typescript: listGroups(token: string, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<{ [key: string]: any; }>
+description: List WhatsApp groups for this channel. Paginate with `limit`, `before`, and `after`.
+typescript: listGroups(token: string, limit?: number, before?: string, after?: string, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<{ [key: string]: any; }>
 requestBody: none
 responses: 200
 ```
@@ -429,8 +435,9 @@ operationId: createUploadMedia
 http: POST /uploadMedia
 client: client.messaging.createUploadMedia
 summary: Upload media
-typescript: createUploadMedia(token: string, requestBody?: { [key: string]: any; }, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<void>
-requestBody: none
+description: Upload a file to WhatsApp media storage and get a numeric `mediaId` for later use with `send_file` / `send_sticker`. `body` is an HTTP(S) URL or a base64 data URI.
+typescript: createUploadMedia(token: string, createUploadMediaRequest: CreateUploadMediaRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<CreateUploadMedia200Response>
+requestBody: inline object
 responses: 200
 ```
 
@@ -485,7 +492,8 @@ operationId: listMessages
 http: GET /messages
 client: client.messaging.listMessages
 summary: Get messages list
-typescript: listMessages(token: string, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<ListMessages200Response>
+description: List stored chat history for this channel (requires history storage). Filter with `chatId`, `limit`, `last`, message numbers, or time bounds.
+typescript: listMessages(token: string, chatId?: string, limit?: number, last?: boolean, lastMessageNumber?: number, firstMessageNumber?: number, minTime?: number, maxTime?: number, msgId?: string, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<ListMessages200Response>
 requestBody: none
 responses: 200
 ```
@@ -785,8 +793,9 @@ operationId: sendProduct
 http: POST /sendProduct
 client: client.messaging.sendProduct
 summary: Send a Product
-typescript: sendProduct(token: string, requestBody?: { [key: string]: any; }, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<MessageSentResponse>
-requestBody: none
+description: Send a single catalog product or a product list. Destination is `chatId` or `phone`. `action` is required: - single product: `{ "catalog_id": "...", "product_retailer_id": "..." }` - product list: `{ "catalog_id": "...", "sections": [{ "title": "...", "product_items": [{ "product_retailer_id": "..." }] }] }`
+typescript: sendProduct(token: string, sendProductRequest: SendProductRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<MessageSentResponse>
+requestBody: inline object
 responses: 200, 400, 401, 429, 500
 ```
 
@@ -881,7 +890,8 @@ operationId: listTemplates
 http: GET /templates
 client: client.templates.listTemplates
 summary: Get templates list
-typescript: listTemplates(token: string, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<ListTemplates200Response>
+description: List message templates. Paginate with `limit` / `offset`; sort by `id`, `name`, or `status`.
+typescript: listTemplates(token: string, limit?: number, offset?: number, sort?: ListTemplatesSortEnum, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<ListTemplates200Response>
 requestBody: none
 responses: 200
 ```
@@ -897,8 +907,9 @@ operationId: removeTemplate
 http: POST /removeTemplate
 client: client.templates.removeTemplate
 summary: Remove message template
-typescript: removeTemplate(token: string, requestBody?: { [key: string]: any; }, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<{ [key: string]: any; }>
-requestBody: none
+description: Delete a message template by `name` (all language versions of that name).
+typescript: removeTemplate(token: string, removeTemplateRequest: RemoveTemplateRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<{ [key: string]: any; }>
+requestBody: inline object
 responses: 200, 401, 500
 ```
 
@@ -909,7 +920,7 @@ operationId: sendTemplate
 http: POST /sendTemplate
 client: client.templates.sendTemplate
 summary: Send Template Message
-description: Send a WhatsApp template message (works outside the 24-hour session window). Supported `params` button `sub_type` values include: `url`, `quick_reply`, `copy_code` / `coupon_code`, `catalog`, `flow`, `limited_time_offer`, and **`order_details`** (WhatsApp Payments **India only** — requires an approved Utility template with an ORDER_DETAILS button). For India order/invoice payments outside 24h, include a button component: ```json { "type": "button", "sub_type": "order_details", "index": 0, "parameters": [{ "type": "action", "action": { "order_details": { "reference_id": "...", "currency": "INR", "order": {} } } }] } ``` Convenience wrapper with structured fields: `POST /sendOrderDetails`.
+description: Send a WhatsApp **template** message (works outside the 24-hour session window). Use this tool — not `send_message` — when the 24h session is closed. `params` MUST be Cloud API **component objects**, never a flat list of strings and never the old On-Prem `hsm` / `localizable_params` format. Example body variable `{{1}}`: ```json { "type": "body", "parameters": [{ "type": "text", "text": "Ivan" }] } ``` Do not send `"type": "hsm"` and do not send `params: ["Ivan", "123"]`. Supported `params` button `sub_type` values include: `url`, `quick_reply`, `copy_code` / `coupon_code`, `catalog`, `flow`, `limited_time_offer`, and **`order_details`** (WhatsApp Payments **India only** — requires an approved Utility template with an ORDER_DETAILS button). Convenience wrapper with structured fields: `POST /sendOrderDetails`.
 typescript: sendTemplate(token: string, sendTemplateRequest?: SendTemplateRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<{ [key: string]: any; }>
 requestBody: inline object
 responses: 200
@@ -1013,10 +1024,15 @@ import type { SendMessageRequest, MessageSentResponse, ProfileInfo } from '@1msg
 - `CreateCommerce200Response` (1 fields)
 - `CreateCommerceRequest` (1 fields)
 - `CreateCommerceRequestParams` (2 fields)
+- `CreateFlowsRequest` (5 fields)
 - `CreateGroups200Response` (1 fields)
+- `CreateGroupsGroupIdRequest` (3 fields)
+- `CreateGroupsRequest` (2 fields)
 - `CreateReadMessage200Response` (1 fields)
 - `CreateReadMessage401Response` (1 fields)
 - `CreateReadMessageRequest` (3 fields)
+- `CreateUploadMedia200Response` (1 fields)
+- `CreateUploadMediaRequest` (1 fields)
 - `DeleteFlowsFlowId200Response` (2 fields)
 - `DeleteGroupsGroupId200Response` (2 fields)
 - `DeleteMediaLegacyRequest` (1 fields)
@@ -1036,14 +1052,17 @@ import type { SendMessageRequest, MessageSentResponse, ProfileInfo } from '@1msg
 - `ListTemplates200Response` (3 fields)
 - `MessageSentResponse` (4 fields)
 - `PatchFlowsFlowIdAssets200Response` (3 fields)
+- `PatchFlowsFlowIdAssetsRequest` (1 fields)
+- `PatchFlowsFlowIdMetadataRequest` (3 fields)
 - `ProfileInfo` (8 fields)
+- `RemoveTemplateRequest` (1 fields)
 - `RetrieveMedia200Response` (5 fields)
 - `SendAddressMessageRequest` (8 fields)
-- `SendButtonRequest` (4 fields)
+- `SendButtonRequest` (8 fields)
 - `SendButtonRequestSectionsInner` (2 fields)
 - `SendButtonRequestSectionsInnerReply` (2 fields)
 - `SendCarouselRequest1` (5 fields)
-- `SendContactRequest` (2 fields)
+- `SendContactRequest` (4 fields)
 - `SendContactRequestContactsInner` (7 fields)
 - `SendContactRequestContactsInnerName` (6 fields)
 - `SendContactRequestContactsInnerOrg` (3 fields)
@@ -1053,11 +1072,11 @@ import type { SendMessageRequest, MessageSentResponse, ProfileInfo } from '@1msg
 - `SendFlowRequest1` (15 fields)
 - `SendFlowRequest1Header`
 - `SendFlowRequestHeader`
-- `SendListRequest` (5 fields)
+- `SendListRequest` (7 fields)
 - `SendListRequestSectionsInner` (2 fields)
 - `SendListRequestSectionsInnerRowsInner` (3 fields)
 - `SendLocationRequest1` (7 fields)
-- `SendLocationRequestRequest` (2 fields)
+- `SendLocationRequestRequest` (4 fields)
 - `SendMessageRequest` (4 fields)
 - `SendOrderDetailsRequest` (10 fields)
 - `SendOrderDetailsRequestLanguage` (2 fields)
@@ -1065,9 +1084,10 @@ import type { SendMessageRequest, MessageSentResponse, ProfileInfo } from '@1msg
 - `SendOrderDetailsRequestOrderItemsInner` (4 fields)
 - `SendOrderDetailsRequestOrderItemsInnerAmount` (2 fields)
 - `SendPaymentRequestRequest` (5 fields)
-- `SendReactionRequest` (3 fields)
+- `SendProductRequest` (7 fields)
+- `SendReactionRequest` (4 fields)
 - `SendStickerRequest` (5 fields)
-- `SendTemplateRequest` (8 fields)
+- `SendTemplateRequest` (10 fields)
 - `SendTemplateRequestLanguage` (2 fields)
 - `SetWhatsappBusinessEncryptionRequest` (1 fields)
 - `SuccessResponse` (1 fields)
@@ -1087,5 +1107,5 @@ import { ResponseError } from "@1msg/sdk";
 openapi_title: 1MSG WhatsApp Business API (Public)
 openapi_version: 1.0.0
 operations: 60
-models: 75
+models: 84
 

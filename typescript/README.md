@@ -15,7 +15,7 @@ parameter, response code, type export, and common integration pattern is documen
 | **Support** | support@1msg.io |
 | **OpenAPI version** | 1.0.0 |
 | **Operations** | 60 |
-| **Exported models** | 75 |
+| **Exported models** | 84 |
 | **AI agent guide** | [AGENTS.md](./AGENTS.md) |
 
 ---
@@ -226,13 +226,15 @@ curl -X POST 'https://api.1msg.io/{instanceId}/readMessage?token={token}' \
 
 #### Upload media
 
+Upload a file to WhatsApp media storage and get a numeric `mediaId` for later use with `send_file` / `send_sticker`. `body` is an HTTP(S) URL or a base64 data URI.
+
 | | |
 |---|---|
 | HTTP | `POST /uploadMedia` |
 | SDK group | `client.messaging` |
 | API class | `MessagingApi` |
 | operationId | `createUploadMedia` |
-| Signature | `createUploadMedia(token: string, requestBody?: { [key: string]: any; }, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<void>` |
+| Signature | `createUploadMedia(token: string, createUploadMediaRequest: CreateUploadMediaRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<CreateUploadMedia200Response>` |
 
 #### Authentication
 
@@ -242,6 +244,21 @@ curl -X POST 'https://api.1msg.io/{instanceId}/readMessage?token={token}' \
 #### Request
 
 - `token` (string, required) — channel API token
+
+**Request body schema**
+
+| Field | Type | Required | Description |
+|-------|------|----------|-------------|
+| `body` | string | **required** | File HTTP(S) URL or base64 data URI (`data:<mime>;base64,...`) |
+
+**OpenAPI example body**
+
+```json
+{
+  "body": "https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.pdf"
+}
+```
+
 
 **Responses**
 
@@ -262,7 +279,9 @@ await client.messaging.createUploadMedia(client.config.token, {
 ```bash
 curl -X POST 'https://api.1msg.io/{instanceId}/uploadMedia?token={token}' \
   -H 'Content-Type: application/json' \
-  -d '{}'
+  -d '{
+    "body": "https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.pdf"
+  }'
 ```
 
 ### `deleteMedia`
@@ -411,18 +430,31 @@ curl -X GET 'https://api.1msg.io/{instanceId}/mmLiteStatus?token={token}'
 
 #### Get messages list
 
+List stored chat history for this channel (requires history storage). Filter with `chatId`, `limit`, `last`, message numbers, or time bounds.
+
 | | |
 |---|---|
 | HTTP | `GET /messages` |
 | SDK group | `client.messaging` |
 | API class | `MessagingApi` |
 | operationId | `listMessages` |
-| Signature | `listMessages(token: string, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<ListMessages200Response>` |
+| Signature | `listMessages(token: string, chatId?: string, limit?: number, last?: boolean, lastMessageNumber?: number, firstMessageNumber?: number, minTime?: number, maxTime?: number, msgId?: string, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<ListMessages200Response>` |
 
 #### Authentication
 
 - Query parameter `token` (required on every call)
 - SDK: pass `client.config.token` as the first method argument
+
+#### Path / query parameters
+
+- `chatId` (query, string, optional) — Filter messages for one chat (`phone@c.us`, group `@g.us`, or BSUID `@lid`)
+- `limit` (query, integer, optional) — Max rows to return (default 100)
+- `last` (query, boolean, optional) — If true, return the latest messages (DESC). Default false.
+- `lastMessageNumber` (query, integer, optional) — lastMessageNumber
+- `firstMessageNumber` (query, integer, optional) — firstMessageNumber
+- `min_time` (query, integer, optional) — Unix timestamp lower bound
+- `max_time` (query, integer, optional) — Unix timestamp upper bound
+- `msgId` (query, string, optional) — Filter by stored message id
 
 #### Request
 
@@ -585,9 +617,13 @@ curl -X POST 'https://api.1msg.io/{instanceId}/sendAddressMessage?token={token}'
 
 | Field | Type | Required | Description |
 |-------|------|----------|-------------|
-| `phone` | string | optional |  |
+| `phone` | string | optional | Recipient phone with country code. Use phone or chatId. |
+| `chatId` | string | optional | Recipient chat ID (`phone@c.us`, group `@g.us`, or BSUID `@lid`). Use phone or chatId. |
+| `quotedMsgId` | string | optional | Optional Cloud API wamid to quote |
 | `body` | string | optional |  |
 | `footer` | string | optional |  |
+| `header` | object | optional | Optional interactive header (text/image/video/document) |
+| `buttons` | array<object> | optional | Legacy alias for sections (`[{id,title}]`) |
 | `sections` | array<object> | optional |  |
 
 **OpenAPI example body**
@@ -739,7 +775,9 @@ curl -X POST 'https://api.1msg.io/{instanceId}/sendCarousel?token={token}' \
 
 | Field | Type | Required | Description |
 |-------|------|----------|-------------|
-| `phone` | string | optional |  |
+| `phone` | string | optional | Recipient phone with country code. Use phone or chatId. |
+| `chatId` | string | optional | Recipient chat ID (`phone@c.us`, group `@g.us`, or BSUID `@lid`). Use phone or chatId. |
+| `quotedMsgId` | string | optional |  |
 | `contacts` | array<object> | optional |  |
 
 **OpenAPI example body**
@@ -1098,7 +1136,9 @@ curl -X POST 'https://api.1msg.io/{instanceId}/sendFlow?token={token}' \
 
 | Field | Type | Required | Description |
 |-------|------|----------|-------------|
-| `phone` | string | optional |  |
+| `phone` | string | optional | Recipient phone with country code. Use phone or chatId. |
+| `chatId` | string | optional | Recipient chat ID (`phone@c.us`, group `@g.us`, or BSUID `@lid`). Use phone or chatId. |
+| `quotedMsgId` | string | optional |  |
 | `body` | string | optional |  |
 | `buttonText` | string | optional |  |
 | `action` | string | optional |  |
@@ -1289,7 +1329,9 @@ curl -X POST 'https://api.1msg.io/{instanceId}/sendLocation?token={token}' \
 
 | Field | Type | Required | Description |
 |-------|------|----------|-------------|
-| `phone` | string | optional |  |
+| `phone` | string | optional | Recipient phone with country code. Use phone or chatId. |
+| `chatId` | string | optional | Recipient chat ID (`phone@c.us`, group `@g.us`, or BSUID `@lid`). Use phone or chatId. |
+| `quotedMsgId` | string | optional |  |
 | `body` | string | optional |  |
 
 **OpenAPI example body**
@@ -1361,7 +1403,7 @@ Send a message to an existing chat. (Only if the dialogue has an Open Session). 
 |-------|------|----------|-------------|
 | `body` | string | **required** | Message text, UTF-8 or UTF-16 string with emoji (minLength=1, maxLength=4096, example="Hello World 🌍") |
 | `quotedMsgId` | string | optional | Message ID to quote/reply to (Cloud API wamid) (pattern=`^wamid\..+$`, example="wamid.HBgNMTIwMjA3MjEzNjkVAgARGBI5RTBCNUY0QUE2RjZBQzhGNDkA") |
-| `chatId` | string | optional | Chat ID in format: phone@c.us (individual) or phone@g.us (group) (pattern=`^[0-9]+@[cg]\.us$`, example="12020721369@c.us") |
+| `chatId` | string | optional | Recipient chat ID: phone@c.us, group@g.us, or BSUID@lid (example="12020721369@c.us") |
 | `phone` | integer | optional | Phone number starting with country code (alternative to chatId) (example=12020721369) |
 
 **OpenAPI example body**
@@ -1597,13 +1639,15 @@ curl -X POST 'https://api.1msg.io/{instanceId}/sendPaymentRequest?token={token}'
 
 #### Send a Product
 
+Send a single catalog product or a product list. Destination is `chatId` or `phone`. `action` is required: - single product: `{ "catalog_id": "...", "product_retailer_id": "..." }` - product list: `{ "catalog_id": "...", "sections": [{ "title": "...", "product_items": [{ "product_retailer_id": "..." }] }] }`
+
 | | |
 |---|---|
 | HTTP | `POST /sendProduct` |
 | SDK group | `client.messaging` |
 | API class | `MessagingApi` |
 | operationId | `sendProduct` |
-| Signature | `sendProduct(token: string, requestBody?: { [key: string]: any; }, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<MessageSentResponse>` |
+| Signature | `sendProduct(token: string, sendProductRequest: SendProductRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<MessageSentResponse>` |
 
 #### Authentication
 
@@ -1613,6 +1657,32 @@ curl -X POST 'https://api.1msg.io/{instanceId}/sendPaymentRequest?token={token}'
 #### Request
 
 - `token` (string, required) — channel API token
+
+**Request body schema**
+
+| Field | Type | Required | Description |
+|-------|------|----------|-------------|
+| `phone` | string | optional | Recipient phone with country code. Use phone or chatId. |
+| `chatId` | string | optional | Recipient chat ID (`phone@c.us`, group `@g.us`, or BSUID `@lid`). Use phone or chatId. |
+| `quotedMsgId` | string | optional |  |
+| `body` | string | optional | Optional message text shown with the product |
+| `footer` | string | optional |  |
+| `header` | string | optional | Text header (product list only) |
+| `action` | object | **required** | Catalog action (`catalog_id` + `product_retailer_id`, or `sections` for a list) |
+
+**OpenAPI example body**
+
+```json
+{
+  "chatId": "12020721369@c.us",
+  "body": "Have a look",
+  "action": {
+    "catalog_id": "448008021021719",
+    "product_retailer_id": "0001"
+  }
+}
+```
+
 
 **Responses**
 
@@ -1639,7 +1709,14 @@ await client.messaging.sendProduct(client.config.token, {
 ```bash
 curl -X POST 'https://api.1msg.io/{instanceId}/sendProduct?token={token}' \
   -H 'Content-Type: application/json' \
-  -d '{}'
+  -d '{
+    "chatId": "12020721369@c.us",
+    "body": "Have a look",
+    "action": {
+      "catalog_id": "448008021021719",
+      "product_retailer_id": "0001"
+    }
+  }'
 ```
 
 ### `sendReaction`
@@ -1667,7 +1744,8 @@ curl -X POST 'https://api.1msg.io/{instanceId}/sendProduct?token={token}' \
 
 | Field | Type | Required | Description |
 |-------|------|----------|-------------|
-| `phone` | string | optional |  |
+| `phone` | string | optional | Recipient phone with country code. Use phone or chatId. |
+| `chatId` | string | optional | Recipient chat ID (`phone@c.us`, group `@g.us`, or BSUID `@lid`). Use phone or chatId. |
 | `body` | string | optional |  |
 | `quotedMsgId` | string | optional |  |
 
@@ -1893,7 +1971,7 @@ Namespace: `client.groups` → `GroupsApi` (7 operations)
 | SDK group | `client.groups` |
 | API class | `GroupsApi` |
 | operationId | `createGroups` |
-| Signature | `createGroups(token: string, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<CreateGroups200Response>` |
+| Signature | `createGroups(token: string, createGroupsRequest: CreateGroupsRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<CreateGroups200Response>` |
 
 #### Authentication
 
@@ -1903,6 +1981,14 @@ Namespace: `client.groups` → `GroupsApi` (7 operations)
 #### Request
 
 - `token` (string, required) — channel API token
+
+**Request body schema**
+
+| Field | Type | Required | Description |
+|-------|------|----------|-------------|
+| `groupName` | string | **required** | Group subject / name |
+| `description` | string | optional | Optional group description |
+
 
 **Responses**
 
@@ -1922,12 +2008,16 @@ await client.groups.createGroups(client.config.token, {
 #### cURL equivalent
 
 ```bash
-curl -X POST 'https://api.1msg.io/{instanceId}/groups?token={token}'
+curl -X POST 'https://api.1msg.io/{instanceId}/groups?token={token}' \
+  -H 'Content-Type: application/json' \
+  -d '{}'
 ```
 
 ### `createGroupsGroupId`
 
 #### Update Group Info
+
+Update group subject, description, and/or profile picture. Path `groupId` is the WABA group id (without `@g.us`).
 
 | | |
 |---|---|
@@ -1935,7 +2025,7 @@ curl -X POST 'https://api.1msg.io/{instanceId}/groups?token={token}'
 | SDK group | `client.groups` |
 | API class | `GroupsApi` |
 | operationId | `createGroupsGroupId` |
-| Signature | `createGroupsGroupId(groupId: string, token: string, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<{ [key: string]: any; }>` |
+| Signature | `createGroupsGroupId(groupId: string, token: string, createGroupsGroupIdRequest: CreateGroupsGroupIdRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<{ [key: string]: any; }>` |
 
 #### Authentication
 
@@ -1946,6 +2036,24 @@ curl -X POST 'https://api.1msg.io/{instanceId}/groups?token={token}'
 
 - `token` (string, required) — channel API token
 
+**Request body schema**
+
+| Field | Type | Required | Description |
+|-------|------|----------|-------------|
+| `subject` | string | optional | New group subject / name |
+| `description` | string | optional | New group description |
+| `profile_picture_file` | string | optional | Image URL or base64 data URI for the group profile picture |
+
+**OpenAPI example body**
+
+```json
+{
+  "subject": "Support team",
+  "description": "Customer support"
+}
+```
+
+
 **Responses**
 
 | Status | Description | Schema |
@@ -1955,13 +2063,18 @@ curl -X POST 'https://api.1msg.io/{instanceId}/groups?token={token}'
 #### SDK example
 
 ```typescript
-await client.groups.createGroupsGroupId('GROUPID', client.config.token);
+await client.groups.createGroupsGroupId('GROUPID', client.config.token, {});
 ```
 
 #### cURL equivalent
 
 ```bash
-curl -X POST 'https://api.1msg.io/{instanceId}/groups/{groupId}?token={token}'
+curl -X POST 'https://api.1msg.io/{instanceId}/groups/{groupId}?token={token}' \
+  -H 'Content-Type: application/json' \
+  -d '{
+    "subject": "Support team",
+    "description": "Customer support"
+  }'
 ```
 
 ### `createGroupsGroupIdInvitelink`
@@ -2052,12 +2165,16 @@ curl -X DELETE 'https://api.1msg.io/{instanceId}/groups/{groupId}?token={token}'
 | SDK group | `client.groups` |
 | API class | `GroupsApi` |
 | operationId | `getGroupsGroupId` |
-| Signature | `getGroupsGroupId(groupId: string, token: string, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<{ [key: string]: any; }>` |
+| Signature | `getGroupsGroupId(groupId: string, token: string, fields?: string, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<{ [key: string]: any; }>` |
 
 #### Authentication
 
 - Query parameter `token` (required on every call)
 - SDK: pass `client.config.token` as the first method argument
+
+#### Path / query parameters
+
+- `fields` (query, string, optional) — Comma-separated group fields to return
 
 #### Request
 
@@ -2072,7 +2189,7 @@ curl -X DELETE 'https://api.1msg.io/{instanceId}/groups/{groupId}?token={token}'
 #### SDK example
 
 ```typescript
-await client.groups.getGroupsGroupId('GROUPID', client.config.token);
+await client.groups.getGroupsGroupId('GROUPID', client.config.token, undefined);
 ```
 
 #### cURL equivalent
@@ -2124,18 +2241,26 @@ curl -X GET 'https://api.1msg.io/{instanceId}/groups/{groupId}/inviteLink?token=
 
 #### Get Groups List
 
+List WhatsApp groups for this channel. Paginate with `limit`, `before`, and `after`.
+
 | | |
 |---|---|
 | HTTP | `GET /groups` |
 | SDK group | `client.groups` |
 | API class | `GroupsApi` |
 | operationId | `listGroups` |
-| Signature | `listGroups(token: string, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<{ [key: string]: any; }>` |
+| Signature | `listGroups(token: string, limit?: number, before?: string, after?: string, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<{ [key: string]: any; }>` |
 
 #### Authentication
 
 - Query parameter `token` (required on every call)
 - SDK: pass `client.config.token` as the first method argument
+
+#### Path / query parameters
+
+- `limit` (query, integer, optional) — Max groups to return
+- `before` (query, string, optional) — Cursor for the previous page
+- `after` (query, string, optional) — Cursor for the next page
 
 #### Request
 
@@ -2167,13 +2292,15 @@ Namespace: `client.flows` → `FlowsApi` (11 operations)
 
 #### Create Flow
 
+Create a WhatsApp Flow (`name` + `categories` required). Currently returns HTTP 501 until the Meta Graph Flows rewrite is available.
+
 | | |
 |---|---|
 | HTTP | `POST /flows` |
 | SDK group | `client.flows` |
 | API class | `FlowsApi` |
 | operationId | `createFlows` |
-| Signature | `createFlows(token: string, wabaAccountId?: string, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<CreateGroups200Response>` |
+| Signature | `createFlows(token: string, createFlowsRequest: CreateFlowsRequest, wabaAccountId?: string, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<CreateGroups200Response>` |
 
 #### Authentication
 
@@ -2188,22 +2315,54 @@ Namespace: `client.flows` → `FlowsApi` (11 operations)
 
 - `token` (string, required) — channel API token
 
+**Request body schema**
+
+| Field | Type | Required | Description |
+|-------|------|----------|-------------|
+| `name` | string | **required** | Flow name |
+| `categories` | array<enum("SIGN_UP" | "SIGN_IN" | "APPOINTMENT_BOOKING" | "LEAD_GENERATION" | "CONTACT_US" | "CUSTOMER_SUPPORT" | "SURVEY" | "OTHER")> | **required** | One or more Flow categories |
+| `endpointUri` | string | optional | HTTPS endpoint for the Flow data channel |
+| `publish` | boolean | optional | Publish immediately after create |
+| `flowJson` | object | optional | Optional Flow JSON document |
+
+**OpenAPI example body**
+
+```json
+{
+  "name": "lead_form",
+  "categories": [
+    "LEAD_GENERATION"
+  ],
+  "publish": false
+}
+```
+
+
 **Responses**
 
 | Status | Description | Schema |
 |--------|-------------|--------|
 | `200` | OK | `—` |
+| `501` | WhatsApp Flows are not available on this channel yet | `—` |
 
 #### SDK example
 
 ```typescript
-await client.flows.createFlows(client.config.token, undefined);
+await client.flows.createFlows(client.config.token, {}, undefined);
 ```
 
 #### cURL equivalent
 
 ```bash
-curl -X POST 'https://api.1msg.io/{instanceId}/flows?token={token}'
+curl -X POST 'https://api.1msg.io/{instanceId}/flows?token={token}' \
+  -H 'Content-Type: application/json' \
+  -d '{
+    "name": "lead_form",
+    "categories": [
+      "LEAD_GENERATION"
+    ],
+    "publish": false
+  }'
 ```
 
 ### `createFlowsFlowIdDeprecate`
@@ -2468,13 +2627,15 @@ curl -X GET 'https://api.1msg.io/{instanceId}/whatsapp_business_encryption?token
 
 #### List Flows
 
+List WhatsApp Flows for the WABA. Currently returns HTTP 501 until the Meta Graph Flows rewrite is available.
+
 | | |
 |---|---|
 | HTTP | `GET /flows` |
 | SDK group | `client.flows` |
 | API class | `FlowsApi` |
 | operationId | `listFlows` |
-| Signature | `listFlows(token: string, wabaAccountId?: string, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<ListFlows200Response>` |
+| Signature | `listFlows(token: string, wabaAccountId?: string, fields?: string, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<ListFlows200Response>` |
 
 #### Authentication
 
@@ -2484,6 +2645,7 @@ curl -X GET 'https://api.1msg.io/{instanceId}/whatsapp_business_encryption?token
 #### Path / query parameters
 
 - `wabaAccountId` (query, string, optional) — wabaAccountId
+- `fields` (query, string, optional) — Comma-separated Flow fields to return
 
 #### Request
 
@@ -2494,11 +2656,12 @@ curl -X GET 'https://api.1msg.io/{instanceId}/whatsapp_business_encryption?token
 | Status | Description | Schema |
 |--------|-------------|--------|
 | `200` | OK | `—` |
+| `501` | WhatsApp Flows are not available on this channel yet | `—` |
 
 #### SDK example
 
 ```typescript
-await client.flows.listFlows(client.config.token, undefined);
+await client.flows.listFlows(client.config.token, undefined, undefined);
 ```
 
 #### cURL equivalent
@@ -2511,13 +2674,15 @@ curl -X GET 'https://api.1msg.io/{instanceId}/flows?token={token}'
 
 #### Update Flow Structure
 
+Replace the Flow JSON document (`flowJson`). Currently returns HTTP 501 until the Meta Graph Flows rewrite is available.
+
 | | |
 |---|---|
 | HTTP | `PATCH /flows/{flowId}/assets` |
 | SDK group | `client.flows` |
 | API class | `FlowsApi` |
 | operationId | `patchFlowsFlowIdAssets` |
-| Signature | `patchFlowsFlowIdAssets(flowId: string, token: string, wabaAccountId?: string, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<PatchFlowsFlowIdAssets200Response>` |
+| Signature | `patchFlowsFlowIdAssets(flowId: string, token: string, patchFlowsFlowIdAssetsRequest: PatchFlowsFlowIdAssetsRequest, wabaAccountId?: string, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<PatchFlowsFlowIdAssets200Response>` |
 
 #### Authentication
 
@@ -2532,27 +2697,39 @@ curl -X GET 'https://api.1msg.io/{instanceId}/flows?token={token}'
 
 - `token` (string, required) — channel API token
 
+**Request body schema**
+
+| Field | Type | Required | Description |
+|-------|------|----------|-------------|
+| `flowJson` | object | **required** | WhatsApp Flow JSON document |
+
+
 **Responses**
 
 | Status | Description | Schema |
 |--------|-------------|--------|
 | `200` | OK | `—` |
+| `501` | WhatsApp Flows are not available on this channel yet | `—` |
 
 #### SDK example
 
 ```typescript
-await client.flows.patchFlowsFlowIdAssets('FLOWID', client.config.token, undefined);
+await client.flows.patchFlowsFlowIdAssets('FLOWID', client.config.token, {}, undefined);
 ```
 
 #### cURL equivalent
 
 ```bash
-curl -X PATCH 'https://api.1msg.io/{instanceId}/flows/{flowId}/assets?token={token}'
+curl -X PATCH 'https://api.1msg.io/{instanceId}/flows/{flowId}/assets?token={token}' \
+  -H 'Content-Type: application/json' \
+  -d '{}'
 ```
 
 ### `patchFlowsFlowIdMetadata`
 
 #### Update Flow Metadata
+
+Update Flow `name`, `categories`, and/or `endpointUri`. Currently returns HTTP 501 until the Meta Graph Flows rewrite is available.
 
 | | |
 |---|---|
@@ -2560,7 +2737,7 @@ curl -X PATCH 'https://api.1msg.io/{instanceId}/flows/{flowId}/assets?token={tok
 | SDK group | `client.flows` |
 | API class | `FlowsApi` |
 | operationId | `patchFlowsFlowIdMetadata` |
-| Signature | `patchFlowsFlowIdMetadata(flowId: string, token: string, wabaAccountId?: string, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<{ [key: string]: any; }>` |
+| Signature | `patchFlowsFlowIdMetadata(flowId: string, token: string, patchFlowsFlowIdMetadataRequest: PatchFlowsFlowIdMetadataRequest, wabaAccountId?: string, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<{ [key: string]: any; }>` |
 
 #### Authentication
 
@@ -2575,22 +2752,34 @@ curl -X PATCH 'https://api.1msg.io/{instanceId}/flows/{flowId}/assets?token={tok
 
 - `token` (string, required) — channel API token
 
+**Request body schema**
+
+| Field | Type | Required | Description |
+|-------|------|----------|-------------|
+| `name` | string | optional |  |
+| `categories` | array<enum("SIGN_UP" | "SIGN_IN" | "APPOINTMENT_BOOKING" | "LEAD_GENERATION" | "CONTACT_US" | "CUSTOMER_SUPPORT" | "SURVEY" | "OTHER")> | optional |  |
+| `endpointUri` | string | optional | HTTPS endpoint for the Flow data channel |
+
+
 **Responses**
 
 | Status | Description | Schema |
 |--------|-------------|--------|
 | `200` | OK | `—` |
+| `501` | WhatsApp Flows are not available on this channel yet | `—` |
 
 #### SDK example
 
 ```typescript
-await client.flows.patchFlowsFlowIdMetadata('FLOWID', client.config.token, undefined);
+await client.flows.patchFlowsFlowIdMetadata('FLOWID', client.config.token, {}, undefined);
 ```
 
 #### cURL equivalent
 
 ```bash
-curl -X PATCH 'https://api.1msg.io/{instanceId}/flows/{flowId}/metadata?token={token}'
+curl -X PATCH 'https://api.1msg.io/{instanceId}/flows/{flowId}/metadata?token={token}' \
+  -H 'Content-Type: application/json' \
+  -d '{}'
 ```
 
 ### `setWhatsappBusinessEncryption`
@@ -2707,18 +2896,26 @@ curl -X POST 'https://api.1msg.io/{instanceId}/addTemplate?token={token}' \
 
 #### Get templates list
 
+List message templates. Paginate with `limit` / `offset`; sort by `id`, `name`, or `status`.
+
 | | |
 |---|---|
 | HTTP | `GET /templates` |
 | SDK group | `client.templates` |
 | API class | `TemplatesApi` |
 | operationId | `listTemplates` |
-| Signature | `listTemplates(token: string, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<ListTemplates200Response>` |
+| Signature | `listTemplates(token: string, limit?: number, offset?: number, sort?: ListTemplatesSortEnum, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<ListTemplates200Response>` |
 
 #### Authentication
 
 - Query parameter `token` (required on every call)
 - SDK: pass `client.config.token` as the first method argument
+
+#### Path / query parameters
+
+- `limit` (query, integer, optional) — limit
+- `offset` (query, integer, optional) — offset
+- `sort` (query, string, optional) — Sort field (`id`, `name`, or `status`)
 
 #### Request
 
@@ -2746,13 +2943,15 @@ curl -X GET 'https://api.1msg.io/{instanceId}/templates?token={token}'
 
 #### Remove message template
 
+Delete a message template by `name` (all language versions of that name).
+
 | | |
 |---|---|
 | HTTP | `POST /removeTemplate` |
 | SDK group | `client.templates` |
 | API class | `TemplatesApi` |
 | operationId | `removeTemplate` |
-| Signature | `removeTemplate(token: string, requestBody?: { [key: string]: any; }, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<{ [key: string]: any; }>` |
+| Signature | `removeTemplate(token: string, removeTemplateRequest: RemoveTemplateRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<{ [key: string]: any; }>` |
 
 #### Authentication
 
@@ -2762,6 +2961,21 @@ curl -X GET 'https://api.1msg.io/{instanceId}/templates?token={token}'
 #### Request
 
 - `token` (string, required) — channel API token
+
+**Request body schema**
+
+| Field | Type | Required | Description |
+|-------|------|----------|-------------|
+| `name` | string | **required** | Template name to delete |
+
+**OpenAPI example body**
+
+```json
+{
+  "name": "hello_world"
+}
+```
+
 
 **Responses**
 
@@ -2782,14 +2996,16 @@ await client.templates.removeTemplate(client.config.token, {});
 ```bash
 curl -X POST 'https://api.1msg.io/{instanceId}/removeTemplate?token={token}' \
   -H 'Content-Type: application/json' \
-  -d '{}'
+  -d '{
+    "name": "hello_world"
+  }'
 ```
 
 ### `sendTemplate`
 
 #### Send Template Message
 
-Send a WhatsApp template message (works outside the 24-hour session window). Supported `params` button `sub_type` values include: `url`, `quick_reply`, `copy_code` / `coupon_code`, `catalog`, `flow`, `limited_time_offer`, and **`order_details`** (WhatsApp Payments **India only** — requires an approved Utility template with an ORDER_DETAILS button). For India order/invoice payments outside 24h, include a button component: ```json { "type": "button", "sub_type": "order_details", "index": 0, "parameters": [{ "type": "action", "action": { "order_details": { "reference_id": "...", "currency": "INR", "order": {} } } }] } ``` Convenience wrapper with structured fields: `POST /sendOrderDetails`.
+Send a WhatsApp **template** message (works outside the 24-hour session window). Use this tool — not `send_message` — when the 24h session is closed. `params` MUST be Cloud API **component objects**, never a flat list of strings and never the old On-Prem `hsm` / `localizable_params` format. Example body variable `{{1}}`: ```json { "type": "body", "parameters": [{ "type": "text", "text": "Ivan" }] } ``` Do not send `"type": "hsm"` and do not send `params: ["Ivan", "123"]`. Supported `params` button `sub_type` values include: `url`, `quick_reply`, `copy_code` / `coupon_code`, `catalog`, `flow`, `limited_time_offer`, and **`order_details`** (WhatsApp Payments **India only** — requires an approved Utility template with an ORDER_DETAILS button). Convenience wrapper with structured fields: `POST /sendOrderDetails`.
 
 | | |
 |---|---|
@@ -2812,13 +3028,15 @@ Send a WhatsApp template message (works outside the 24-hour session window). Sup
 
 | Field | Type | Required | Description |
 |-------|------|----------|-------------|
-| `template` | string | optional |  |
-| `language` | object | optional |  |
-  | `policy` | string | optional |  |
-  | `code` | string | optional |  |
-| `namespace` | string | optional |  |
-| `params` | array<object> | optional |  |
-| `phone` | string | optional |  |
+| `template` | string | optional | Approved template name (template `name`, not the old HSM `element_name`) |
+| `language` | object | optional | Template language. `policy` is usually `deterministic`. |
+  | `policy` | string | optional |  (example="deterministic") |
+  | `code` | string | optional |  (example="en") |
+| `namespace` | string | optional | Template namespace from `list_templates` |
+| `params` | array<object> | optional | Template components in WhatsApp Cloud API format. Each item is an object with `type` (`body`, `header`, `button`) and `parameters` (objects with `type` + `text` / media / action). Never a list of strings. Never HSM `localizable_params`. |
+| `phone` | string | optional | Recipient phone with country code (use phone or chatId) |
+| `chatId` | string | optional | Recipient chat ID (`phone@c.us`, group `@g.us`, or BSUID `@lid`). Use phone or chatId. |
+| `quotedMsgId` | string | optional | Optional Cloud API wamid to quote |
 | `useMMlite` | boolean | optional | Force Marketing Messages API (POST marketing_messages). If omitted: auto for MARKETING category when channel has mm_lite_enabled and mm_lite_available service settings. |
 | `messageActivitySharing` | boolean | optional | Sets message_activity_sharing on WABA payload. Enables click tracking webhooks. Requires MM Lite path. Ignored on Cloud API fallback. |
 | `messageSendTtlSeconds` | integer | optional | Template message TTL in seconds (message_send_ttl_seconds). MARKETING via MM Lite: 43200–2592000. AUTHENTICATION: 30–900. UTILITY: 30–43200. AUTH/UTILITY also accept -1 (30-day custom TTL). |
@@ -2833,8 +3051,18 @@ Send a WhatsApp template message (works outside the 24-hour session window). Sup
     "code": "ru"
   },
   "namespace": "41123797_e45e_4f06_a2fa_443b27c6f5ec",
-  "params": [],
-  "phone": "{{testPhone}}"
+  "phone": "{{testPhone}}",
+  "params": [
+    {
+      "type": "body",
+      "parameters": [
+        {
+          "type": "text",
+          "text": "Ivan"
+        }
+      ]
+    }
+  ]
 }
 ```
 
@@ -2870,8 +3098,18 @@ curl -X POST 'https://api.1msg.io/{instanceId}/sendTemplate?token={token}' \
       "code": "ru"
     },
     "namespace": "41123797_e45e_4f06_a2fa_443b27c6f5ec",
-    "params": [],
-    "phone": "{{testPhone}}"
+    "phone": "{{testPhone}}",
+    "params": [
+      {
+        "type": "body",
+        "parameters": [
+          {
+            "type": "text",
+            "text": "Ivan"
+          }
+        ]
+      }
+    ]
   }'
 ```
 
@@ -3751,6 +3989,18 @@ Check if a given object implements the CreateCommerceRequestParams interface.
 | `isCartEnabled` | `boolean` | **required** | — |
 | `isCatalogVisible` | `boolean` | **required** | — |
 
+### `CreateFlowsRequest`
+
+@export
+
+| Field | Type | Required | Description |
+|-------|------|----------|-------------|
+| `name` | `string` | **required** | — |
+| `categories` | `Array<CreateFlowsRequestCategoriesEnum>` | **required** | — |
+| `endpointUri` | `string` | optional | — |
+| `publish` | `boolean` | optional | — |
+| `flowJson` | `{ [key: string]: any` | optional | — |
+
 ### `CreateGroups200Response`
 
 Check if a given object implements the CreateGroups200Response interface.
@@ -3758,6 +4008,25 @@ Check if a given object implements the CreateGroups200Response interface.
 | Field | Type | Required | Description |
 |-------|------|----------|-------------|
 | `error` | `any | null` | optional | — |
+
+### `CreateGroupsGroupIdRequest`
+
+Check if a given object implements the CreateGroupsGroupIdRequest interface.
+
+| Field | Type | Required | Description |
+|-------|------|----------|-------------|
+| `subject` | `string` | optional | — |
+| `description` | `string` | optional | — |
+| `profilePictureFile` | `string` | optional | — |
+
+### `CreateGroupsRequest`
+
+Check if a given object implements the CreateGroupsRequest interface.
+
+| Field | Type | Required | Description |
+|-------|------|----------|-------------|
+| `groupName` | `string` | **required** | — |
+| `description` | `string` | optional | — |
 
 ### `CreateReadMessage200Response`
 
@@ -3784,6 +4053,22 @@ Check if a given object implements the CreateReadMessageRequest interface.
 | `messageId` | `string` | optional | — |
 | `msgId` | `string` | optional | — |
 | `typingIndicator` | `boolean` | optional | — |
+
+### `CreateUploadMedia200Response`
+
+Check if a given object implements the CreateUploadMedia200Response interface.
+
+| Field | Type | Required | Description |
+|-------|------|----------|-------------|
+| `mediaId` | `string` | optional | — |
+
+### `CreateUploadMediaRequest`
+
+Check if a given object implements the CreateUploadMediaRequest interface.
+
+| Field | Type | Required | Description |
+|-------|------|----------|-------------|
+| `body` | `string` | **required** | — |
 
 ### `DeleteFlowsFlowId200Response`
 
@@ -3970,6 +4255,24 @@ Check if a given object implements the PatchFlowsFlowIdAssets200Response interfa
 | `validationErrors` | `Array<{ [key: string]: any` | optional | — |
 | `error` | `any | null` | optional | — |
 
+### `PatchFlowsFlowIdAssetsRequest`
+
+Check if a given object implements the PatchFlowsFlowIdAssetsRequest interface.
+
+| Field | Type | Required | Description |
+|-------|------|----------|-------------|
+| `flowJson` | `{ [key: string]: any` | **required** | — |
+
+### `PatchFlowsFlowIdMetadataRequest`
+
+@export
+
+| Field | Type | Required | Description |
+|-------|------|----------|-------------|
+| `name` | `string` | optional | — |
+| `categories` | `Array<PatchFlowsFlowIdMetadataRequestCategoriesEnum>` | optional | — |
+| `endpointUri` | `string` | optional | — |
+
 ### `ProfileInfo`
 
 @export
@@ -3984,6 +4287,14 @@ Check if a given object implements the PatchFlowsFlowIdAssets200Response interfa
 | `vertical` | enum("Automotive" | "Beauty, Spa and Salon" | "Clothing and Apparel" | "Education" | "Entertainment" | "Event Planning and Service" | "Finance and Banking" | "Food and Grocery" | "Public Service" | "Hotel and Lodging" | "Medical and Health" | "Non-profit" | "Professional Services" | "Shopping and Retail" | "Travel and Transportation" | "Restaurant" | "Other") | optional | Industry of the business |
 | `photo` | string | optional | Profile photo URL |
 | `websites` | array<string> | optional |  |
+
+### `RemoveTemplateRequest`
+
+Check if a given object implements the RemoveTemplateRequest interface.
+
+| Field | Type | Required | Description |
+|-------|------|----------|-------------|
+| `name` | `string` | **required** | — |
 
 ### `RetrieveMedia200Response`
 
@@ -4019,8 +4330,12 @@ Check if a given object implements the SendButtonRequest interface.
 | Field | Type | Required | Description |
 |-------|------|----------|-------------|
 | `phone` | `string` | optional | — |
+| `chatId` | `string` | optional | — |
+| `quotedMsgId` | `string` | optional | — |
 | `body` | `string` | optional | — |
 | `footer` | `string` | optional | — |
+| `header` | `{ [key: string]: any` | optional | — |
+| `buttons` | `Array<object>` | optional | — |
 | `sections` | `Array<SendButtonRequestSectionsInner>` | optional | — |
 
 ### `SendButtonRequestSectionsInner`
@@ -4060,6 +4375,8 @@ Check if a given object implements the SendContactRequest interface.
 | Field | Type | Required | Description |
 |-------|------|----------|-------------|
 | `phone` | `string` | optional | — |
+| `chatId` | `string` | optional | — |
+| `quotedMsgId` | `string` | optional | — |
 | `contacts` | `Array<SendContactRequestContactsInner>` | optional | — |
 
 ### `SendContactRequestContactsInner`
@@ -4070,11 +4387,11 @@ Check if a given object implements the SendContactRequestContactsInner interface
 |-------|------|----------|-------------|
 | `name` | `SendContactRequestContactsInnerName` | optional | — |
 | `birthday` | `string` | optional | — |
-| `addresses` | `Array<any>` | optional | — |
-| `emails` | `Array<any>` | optional | — |
+| `addresses` | `Array<{ [key: string]: any` | optional | — |
+| `emails` | `Array<{ [key: string]: any` | optional | — |
 | `org` | `SendContactRequestContactsInnerOrg` | optional | — |
 | `phones` | `Array<SendContactRequestContactsInnerPhonesInner>` | optional | — |
-| `urls` | `Array<any>` | optional | — |
+| `urls` | `Array<{ [key: string]: any` | optional | — |
 
 ### `SendContactRequestContactsInnerName`
 
@@ -4177,6 +4494,8 @@ Check if a given object implements the SendListRequest interface.
 | Field | Type | Required | Description |
 |-------|------|----------|-------------|
 | `phone` | `string` | optional | — |
+| `chatId` | `string` | optional | — |
+| `quotedMsgId` | `string` | optional | — |
 | `body` | `string` | optional | — |
 | `buttonText` | `string` | optional | — |
 | `action` | `string` | optional | — |
@@ -4222,6 +4541,8 @@ Check if a given object implements the SendLocationRequestRequest interface.
 | Field | Type | Required | Description |
 |-------|------|----------|-------------|
 | `phone` | `string` | optional | — |
+| `chatId` | `string` | optional | — |
+| `quotedMsgId` | `string` | optional | — |
 | `body` | `string` | optional | — |
 
 ### `SendMessageRequest`
@@ -4232,7 +4553,7 @@ Check if a given object implements the SendMessageRequest interface.
 |-------|------|----------|-------------|
 | `body` | string | **required** | Message text, UTF-8 or UTF-16 string with emoji (minLength=1, maxLength=4096, example="Hello World 🌍") |
 | `quotedMsgId` | string | optional | Message ID to quote/reply to (Cloud API wamid) (pattern=`^wamid\..+$`, example="wamid.HBgNMTIwMjA3MjEzNjkVAgARGBI5RTBCNUY0QUE2RjZBQzhGNDkA") |
-| `chatId` | string | optional | Chat ID in format: phone@c.us (individual) or phone@g.us (group) (pattern=`^[0-9]+@[cg]\.us$`, example="12020721369@c.us") |
+| `chatId` | string | optional | Recipient chat ID: phone@c.us, group@g.us, or BSUID@lid (example="12020721369@c.us") |
 | `phone` | integer | optional | Phone number starting with country code (alternative to chatId) (example=12020721369) |
 
 ### `SendOrderDetailsRequest`
@@ -4306,6 +4627,20 @@ Check if a given object implements the SendOrderDetailsRequestOrderItemsInnerAmo
 | `interactive` | `{ [key: string]: any` | optional | — |
 | `action` | `{ [key: string]: any` | optional | — |
 
+### `SendProductRequest`
+
+Check if a given object implements the SendProductRequest interface.
+
+| Field | Type | Required | Description |
+|-------|------|----------|-------------|
+| `phone` | `string` | optional | — |
+| `chatId` | `string` | optional | — |
+| `quotedMsgId` | `string` | optional | — |
+| `body` | `string` | optional | — |
+| `footer` | `string` | optional | — |
+| `header` | `string` | optional | — |
+| `action` | `{ [key: string]: any` | **required** | — |
+
 ### `SendReactionRequest`
 
 Check if a given object implements the SendReactionRequest interface.
@@ -4313,6 +4648,7 @@ Check if a given object implements the SendReactionRequest interface.
 | Field | Type | Required | Description |
 |-------|------|----------|-------------|
 | `phone` | `string` | optional | — |
+| `chatId` | `string` | optional | — |
 | `body` | `string` | optional | — |
 | `quotedMsgId` | `string` | optional | — |
 
@@ -4337,8 +4673,10 @@ Check if a given object implements the SendTemplateRequest interface.
 | `template` | `string` | optional | — |
 | `language` | `SendTemplateRequestLanguage` | optional | — |
 | `namespace` | `string` | optional | — |
-| `params` | `Array<any>` | optional | — |
+| `params` | `Array<{ [key: string]: any` | optional | — |
 | `phone` | `string` | optional | — |
+| `chatId` | `string` | optional | — |
+| `quotedMsgId` | `string` | optional | — |
 | `useMMlite` | `boolean` | optional | — |
 | `messageActivitySharing` | `boolean` | optional | — |
 | `messageSendTtlSeconds` | `number` | optional | — |
