@@ -823,3 +823,83 @@ test('actual raw complexity CLI distinguishes lexical loops and rejects depth tr
     f.close();
   }
 });
+
+/** Raw historical replay resolves Core-shaped duplicate try blocks while rejecting swaps, added scopes and increased nesting. */
+test('actual complexity CLI validates structural context without transferring debt', () => {
+  const f = fixture();
+  try {
+    f.write(
+      'eslint.config.mjs',
+      "export default [{rules:{'max-depth':['error',3]}}];",
+    );
+    const text =
+      'if (match) { if (template.rejected) { try { send(template); } catch (error) { record(error); } } else { saveText(template); } }';
+    const document = text.replace('saveText', 'saveDocument');
+    /** Retain branch code while varying only a surrounding while depth or branch sequence. */
+    const source = (loops, branches) =>
+      `function collect(root) { ${'while (root.ready) {'.repeat(loops)} if (root.templates) { for (const template of root.templates) { ${branches.join('\n')} } } ${'}'.repeat(loops)} }`;
+    f.write('src/index.js', source(2, [text, document]));
+    const base = f.commit();
+    const args = [
+      'report',
+      '--kind',
+      'eslint',
+      '--base',
+      base,
+      '--bootstrap',
+      '--owner',
+      'quality-fixture',
+      '--expires',
+      '2099-12-31',
+      '--reason',
+      'Historical structural branch depth',
+      '--issue',
+      'TEST-1',
+      '--',
+      process.execPath,
+      fileURLToPath(
+        new URL('../node_modules/eslint/bin/eslint.js', import.meta.url),
+      ),
+      '--config',
+      'eslint.config.mjs',
+      '--no-inline-config',
+      '--format',
+      'json',
+      'src/index.js',
+    ];
+    const original = f.run(...args);
+    assert.equal(original.status, 0, original.stderr);
+    const old = JSON.parse(
+      readFileSync(join(f.cwd, 'quality/baselines/complexity.json'), 'utf8'),
+    );
+    assert.ok(old.entries.some(({ key }) => key.includes('context-group:')));
+    f.write('src/index.js', source(1, [text, document]));
+    const reduced = f.run(...args);
+    assert.equal(reduced.status, 0, reduced.stderr);
+    const retained = JSON.parse(
+      readFileSync(join(f.cwd, 'quality/baselines/complexity.json'), 'utf8'),
+    );
+    assert.ok(
+      retained.entries.every((entry) =>
+        old.entries.some(
+          (prior) => prior.key === entry.key && prior.value >= entry.value,
+        ),
+      ),
+    );
+    for (const current of [
+      source(2, [document, text]),
+      source(2, [text, document, text.replace('saveText', 'saveImage')]),
+      source(3, [text, document]),
+    ]) {
+      f.write('src/index.js', current);
+      const violation = f.run(...args);
+      assert.equal(violation.status, 1, violation.stderr);
+      assert.match(
+        violation.stderr,
+        /Cannot baseline a new\/increased finding/,
+      );
+    }
+  } finally {
+    f.close();
+  }
+});

@@ -329,6 +329,92 @@ function isDepthScope(node) {
   ].includes(node.kind);
 }
 
+/** Identify a control-flow child by its semantic role, never its position among statements. */
+function branchRole(parent, child) {
+  if (ts.isIfStatement(parent) || ts.isConditionalExpression(parent)) {
+    if (child === (parent.thenStatement ?? parent.whenTrue)) return 'then';
+    if (child === (parent.elseStatement ?? parent.whenFalse)) return 'else';
+    return 'condition';
+  }
+  if (ts.isTryStatement(parent)) {
+    if (child === parent.tryBlock) return 'try';
+    if (child === parent.catchClause) return 'catch';
+    return 'finally';
+  }
+  if (ts.isCatchClause(parent))
+    return child === parent.block ? 'body' : 'binding';
+  if (ts.isCaseClause(parent))
+    return child === parent.expression ? 'case-value' : 'case-body';
+  if (ts.isDefaultClause(parent)) return 'default-body';
+  if (ts.isSwitchStatement(parent))
+    return child === parent.caseBlock ? 'cases' : 'expression';
+  if (isDepthScope(parent))
+    return child === parent.statement ? 'body' : 'header';
+  return 'block';
+}
+
+/** Collect parsed enclosing branches only for otherwise indistinguishable peers; literal values and then/else roles remain evidence. */
+function structuralContext(node, source) {
+  const contexts = [];
+  let child = node;
+  for (
+    let parent = node.parent;
+    parent && !ts.isSourceFile(parent);
+    parent = parent.parent
+  ) {
+    if (
+      ts.isBlock(parent) ||
+      isDepthScope(parent) ||
+      ts.isConditionalExpression(parent) ||
+      ts.isCatchClause(parent) ||
+      ts.isCaseClause(parent) ||
+      ts.isDefaultClause(parent)
+    ) {
+      contexts.push([
+        ts.SyntaxKind[parent.kind],
+        branchRole(parent, child),
+        syntaxFingerprint(parent, source),
+      ]);
+    }
+    child = parent;
+  }
+  return contexts;
+}
+
+/** Find the shortest unique ancestor prefix among equal bodies; completely equal ancestry still has no safe correspondence. */
+function distinctContexts(nodes, fingerprints, source) {
+  const contexts = nodes.map(
+    /** Avoid introducing contextual identities for a body already distinguished by its own syntax. */
+    (node, index) =>
+      fingerprints.indexOf(fingerprints[index]) ===
+      fingerprints.lastIndexOf(fingerprints[index])
+        ? []
+        : structuralContext(node, source),
+  );
+  return contexts.map(
+    /** Select the shortest semantic ancestor evidence that separates this body from its equal peers. */ (
+      context,
+      index,
+    ) => {
+      const peers = fingerprints.flatMap((fingerprint, peer) =>
+        fingerprint === fingerprints[index] && peer !== index ? [peer] : [],
+      );
+      if (!peers.length) return null;
+      for (let length = 1; length <= context.length; length++) {
+        const candidate = JSON.stringify(context.slice(0, length));
+        if (
+          peers.every(
+            (peer) =>
+              JSON.stringify(contexts[peer].slice(0, length)) !== candidate,
+          )
+        )
+          return candidate;
+      }
+      return null;
+    },
+  );
+}
+
 /** Index all lexical scopes, including functions below lint thresholds, so disappearing diagnostics cannot renumber another allowance. */
 function scopeIdentities(source, depth = false) {
   const groups = new Map();
@@ -360,6 +446,15 @@ function scopeIdentities(source, depth = false) {
     const fingerprints = nodes.map((node) => syntaxFingerprint(node, source));
     // Preserve source order in ambiguous groups: swapping a large and small body must not transfer the large allowance.
     const group = digest(JSON.stringify(fingerprints));
+    const contexts = distinctContexts(nodes, fingerprints, source);
+    const contextualGroup = digest(
+      JSON.stringify(
+        fingerprints.map((fingerprint, index) => [
+          fingerprint,
+          contexts[index],
+        ]),
+      ),
+    );
     for (const [index, node] of nodes.entries()) {
       const fingerprint = fingerprints[index];
       // A changed ambiguous group loses every old allowance; even matching another old body cannot borrow its budget.
@@ -368,7 +463,9 @@ function scopeIdentities(source, depth = false) {
         fingerprints.indexOf(fingerprint) ===
           fingerprints.lastIndexOf(fingerprint)
           ? `${owner}|group:${group}|member:${fingerprint}`
-          : null,
+          : contexts[index] === null
+            ? null
+            : `${owner}|context-group:${contextualGroup}|member:${fingerprint}|context:${digest(contexts[index])}`,
       );
     }
   }
@@ -386,6 +483,17 @@ function scopeAt(source, identities, line, column) {
   function visit(node) {
     if (node.getStart(source) <= offset && node.end > offset) {
       if (identities.has(node)) matched = node;
+      // ESLint complexity locates a named object property before its arrow/function initializer.
+      // Resolve only that direct callable initializer, never an unrelated neighboring function.
+      if (
+        ts.isPropertyAssignment(node) &&
+        ts.isFunctionLike(node.initializer) &&
+        identities.has(node.initializer) &&
+        offset >= node.name.getStart(source) &&
+        offset < node.name.end
+      ) {
+        matched = node.initializer;
+      }
       ts.forEachChild(node, visit);
     }
   }

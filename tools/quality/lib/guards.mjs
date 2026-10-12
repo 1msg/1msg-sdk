@@ -211,12 +211,15 @@ function callbackComments(node, ast) {
   return comments;
 }
 
+/** Identify source syntax failures without conflating analyzer, configuration or I/O errors. */
+class SourceParseError extends SyntaxError {}
+
 /** Extract all implemented functions, including private methods, factories and substantive callbacks. */
 export function functionsIn(path, text) {
   const functions = [];
   for (const { suffix, ast } of parseUnits(path, text)) {
     if (ast.parseDiagnostics.length)
-      throw new Error(
+      throw new SourceParseError(
         `Cannot parse ${path}: ${ast.parseDiagnostics[0].messageText}`,
       );
     const visit = (node) => {
@@ -264,6 +267,17 @@ export function functionsIn(path, text) {
     visit(ast);
   }
   return functions;
+}
+
+/** Invalid historical syntax earns no unchanged-function allowance; every current function must satisfy the documentation contract. */
+function historicalFunctions(path, text) {
+  if (text === null) return [];
+  try {
+    return functionsIn(path, text);
+  } catch (error) {
+    if (error instanceof SourceParseError) return [];
+    throw error;
+  }
 }
 
 /** Identify suppression directives in comments only, never in strings or generated documentation examples. */
@@ -358,7 +372,7 @@ export function runGuards(config, base) {
       continue;
     const before = baseFile(base, path);
     const previous = new Map();
-    for (const fn of before === null ? [] : functionsIn(path, before)) {
+    for (const fn of historicalFunctions(path, before)) {
       const identity = `${fn.key}:${fn.signature}`;
       previous.set(identity, (previous.get(identity) ?? 0) + 1);
     }

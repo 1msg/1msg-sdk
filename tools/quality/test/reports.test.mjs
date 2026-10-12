@@ -236,3 +236,109 @@ test('identical loop bindings do not disambiguate indistinguishable callbacks', 
   const loop = `for (const item of root.items) { run(${callback(2)}); }`;
   await assert.rejects(() => findings(loop + loop), /Ambiguous lexical scope/);
 });
+
+/** Equal try blocks in text/document template branches need their differing surrounding branch bodies as evidence. */
+test('identical scopes use the nearest distinguishing structural branch context', async () => {
+  const source = `function templates(root) {
+    while (root.ready) { if (root.templates) { for (const template of root.templates) {
+      if (match) { if (template.rejected) { try { send(template); } catch (error) { record(error); } } else { saveText(template); } }
+      if (match) { if (template.rejected) { try { send(template); } catch (error) { record(error); } } else { saveDocument(template); } }
+    } } }
+  }`;
+  const records = await findings(source, 'max-depth', 3);
+  assert.ok(records.some(({ key }) => key.includes('context-group:')));
+  assert.equal(new Set(records.map(({ key }) => key)).size, records.length);
+  const callbacks = `if (ready) { run(${callback(2)}); } else { run(${callback(2)}); }
+    try { run(${callback(2)}); } catch (error) { run(${callback(2)}); } finally { run(${callback(2)}); }
+    switch (kind) { case 'first': run(${callback(2)}); break; case 'second': run(${callback(2)}); break; default: run(${callback(2)}); }
+    while (active) { run(${callback(2)}); }
+    do { run(${callback(2)}); } while (active);`;
+  const owned = await findings(callbacks);
+  assert.equal(owned.length, 10);
+  assert.equal(new Set(owned.map(({ key }) => key)).size, 10);
+  assert.deepEqual(
+    await findings(
+      callbacks.replaceAll('run(', '/* Branch documentation */ run('),
+    ),
+    owned,
+  );
+});
+
+/** Identical branches and predicates provide no trustworthy address merely because they appear at different source offsets. */
+test('identical structural ancestry still fails closed', async () => {
+  const branch = `if (ready) { run(${callback(2)}); }`;
+  await assert.rejects(
+    () => findings(branch + branch),
+    /Ambiguous lexical scope/,
+  );
+});
+
+/** ESLint names object-property callbacks at the property token, which precedes the actual function start. */
+test('object property diagnostics resolve only their direct callable initializer', async () => {
+  for (const fn of [
+    `async ${callback(2)}`,
+    'async function(value) { if (value.p0) return 1; if (value.p1) return 2; return 0; }',
+  ]) {
+    const source = `const endpoints = { handler: ${fn}, unrelated: 1 };`;
+    const report = await analyze(source);
+    assert.equal(report[0].messages[0].column, source.indexOf('handler') + 1);
+    const records = eslintRecords(report);
+    assert.equal(records.length, 1);
+    assert.match(records[0].key, /handler/);
+    assert.deepEqual(
+      await findings(source.replace('handler:', 'handler: /* Contract */')),
+      records,
+    );
+    for (const column of [
+      source.indexOf('handler:') + 'handler'.length + 1,
+      source.indexOf('unrelated') + 1,
+    ]) {
+      assert.throws(
+        () =>
+          eslintRecords([
+            {
+              filePath: 'invalid-location.js',
+              source,
+              messages: [
+                {
+                  ruleId: 'complexity',
+                  line: 1,
+                  column,
+                  message: 'Function has a complexity of 4.',
+                },
+              ],
+            },
+          ]),
+        /No lexical scope/,
+      );
+    }
+  }
+  assert.throws(
+    () =>
+      eslintRecords([
+        {
+          filePath: 'invalid-location.js',
+          source: 'const settings = { threshold: 5 };',
+          messages: [
+            {
+              ruleId: 'complexity',
+              line: 1,
+              column: 20,
+              message: 'Function has a complexity of 4.',
+            },
+          ],
+        },
+      ]),
+    /No lexical scope/,
+  );
+});
+
+/** An object callback diagnostic inside another function must not consume that enclosing function's complexity allowance. */
+test('object callbacks retain their own budget inside enclosing functions', async () => {
+  const source = `function useCheckout() { return useMutation({ onError: ${callback(2)} }); }`;
+  const report = await analyze(source);
+  assert.equal(report[0].messages.length, 1);
+  const record = eslintRecords(report)[0];
+  assert.match(record.scope, /PropertyAssignment.*onError.*ArrowFunction/);
+  assert.equal(record.value, 3);
+});

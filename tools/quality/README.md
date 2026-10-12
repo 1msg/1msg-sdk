@@ -1,4 +1,4 @@
-# 1MSG quality template 1.0.9
+# 1MSG quality template 1.0.10
 
 Vendored, private template for 1MSG-156. Install its exact tools with
 `npm --prefix tools/quality ci` on Node 24.19.0. The lockfile and
@@ -118,3 +118,22 @@ ordinals do not identify allowances; indistinguishable sibling loops still fail
 closed. Consumers must replay their original trusted adoption base with the
 updated analyzer, preserving debt owners, deadlines and reasons. Do not translate
 baseline keys manually or renew historical debt as part of the version update.
+
+## 1.0.10 migration
+
+Otherwise identical sibling scopes use the nearest distinguishing parsed branch or
+block context, including then/else, loop, switch and try/catch/finally roles. This
+fallback leaves already unambiguous identities unchanged. The complete ordered
+peer evidence remains part of an ambiguous group's identity; swaps, new peers,
+growth and fully indistinguishable ancestry cannot borrow another allowance.
+ESLint object-property diagnostics resolve the exact property name to its direct
+callable initializer. Previously misattributed nested callback metrics now belong
+to that callback, rather than its enclosing function. Consumers must replay their
+original trusted adoption base; preserve owners, expiry and reasons and never
+translate baseline keys manually.
+
+For function documentation only, a syntax error in trusted historical source
+removes all inherited function signatures: every current function in that file
+must have documentation. Current syntax errors and historical/current I/O,
+configuration or Git failures remain fatal. This conservative documentation
+fallback does not alter metric analysis, source coverage or debt baselines.
