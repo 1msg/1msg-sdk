@@ -30,6 +30,11 @@ export function validateConfig(
       'sourceRoots must inventory the authored source and tooling',
     );
   }
+  if (
+    config.duplicateCanonicalFormat !== undefined &&
+    typeof config.duplicateCanonicalFormat !== 'boolean'
+  )
+    throw new Error('duplicateCanonicalFormat must be an explicit boolean');
   for (const root of config.sourceRoots) {
     if (!existsSync(root)) throw new Error(`Missing source root: ${root}`);
   }
@@ -93,28 +98,32 @@ export function parseUnits(path, text) {
   ];
 }
 
-/** Compare semantic tokens so formatting/quote changes do not create a false method edit. */
-function functionFingerprint(fragment) {
-  const scanner = ts.createScanner(
-    ts.ScriptTarget.Latest,
-    true,
-    ts.LanguageVariant.JSX,
-    fragment,
-  );
+/** Compare parsed semantic tokens, including template segments, without treating comments or optional trailing commas as method edits. */
+function functionFingerprint(node, ast) {
   const tokens = [];
-  for (
-    let token = scanner.scan();
-    token !== ts.SyntaxKind.EndOfFileToken;
-    token = scanner.scan()
-  ) {
-    const value = [
-      ts.SyntaxKind.StringLiteral,
-      ts.SyntaxKind.NoSubstitutionTemplateLiteral,
-    ].includes(token)
-      ? scanner.getTokenValue()
-      : scanner.getTokenText();
-    tokens.push([token, value]);
+  /** Traverse lexical tokens rather than rescanning text, so template-expression context remains accurate. */
+  function visit(current) {
+    if (
+      current.kind >= ts.SyntaxKind.FirstJSDocNode &&
+      current.kind <= ts.SyntaxKind.LastJSDocNode
+    )
+      return;
+    const children = current.getChildren(ast);
+    if (children.length) {
+      for (const child of children) visit(child);
+      return;
+    }
+    if (current.kind === ts.SyntaxKind.SyntaxList) return;
+    const value =
+      ts.isStringLiteralLike(current) ||
+      ts.isTemplateHead(current) ||
+      ts.isTemplateMiddle(current) ||
+      ts.isTemplateTail(current)
+        ? current.text
+        : current.getText(ast);
+    tokens.push([current.kind, value]);
   }
+  visit(node);
   const meaningful = tokens.filter(([kind], index) => {
     if (kind !== ts.SyntaxKind.CommaToken) return true;
     const next = tokens[index + 1]?.[0];
@@ -134,6 +143,27 @@ function functionFingerprint(fragment) {
   return digest(JSON.stringify(meaningful));
 }
 
+/** Identify a call chain without embedding mutable arguments or comments into callback ownership. */
+function lexicalCall(node, ast) {
+  if (
+    ts.isParenthesizedExpression(node) ||
+    ts.isAsExpression(node) ||
+    ts.isNonNullExpression(node)
+  )
+    return lexicalCall(node.expression, ast);
+  if (ts.isCallExpression(node) || ts.isNewExpression(node))
+    return `${lexicalCall(node.expression, ast)}()`;
+  if (ts.isPropertyAccessExpression(node))
+    return `${lexicalCall(node.expression, ast)}.${node.name.text}`;
+  if (ts.isElementAccessExpression(node)) {
+    const key = ts.isStringLiteralLike(node.argumentExpression)
+      ? node.argumentExpression.text
+      : '<computed>';
+    return `${lexicalCall(node.expression, ast)}[${key}]`;
+  }
+  return ts.isIdentifier(node) ? node.text : '<callable>';
+}
+
 /** Identify callbacks by their lexical owner, not their position among unrelated functions. */
 function lexicalScope(node, ast) {
   const owners = [];
@@ -142,7 +172,7 @@ function lexicalScope(node, ast) {
       const name = current.name ?? current.parent?.name;
       if (name) owners.push(name.getText(ast));
     } else if (ts.isCallExpression(current)) {
-      owners.push(current.expression.getText(ast));
+      owners.push(lexicalCall(current.expression, ast));
     }
   }
   return owners.reverse().join('/');
@@ -212,7 +242,7 @@ export function functionsIn(path, text) {
             : [];
         functions.push({
           key: `${suffix}:${lexicalScope(node, ast)}:${name}`,
-          signature: functionFingerprint(node.getText(ast)),
+          signature: functionFingerprint(node, ast),
           name,
           comments: [
             ...comments,

@@ -184,25 +184,200 @@ export function duplicateRecords(report) {
     .sort((a, b) => a.key.localeCompare(b.key));
 }
 
-/** Locate the enclosing declaration for an ESLint diagnostic without using unstable line numbers as identity. */
-function scopeAt(source, line, column) {
+/** Fingerprint parsed syntax without comments, retaining literal and template text that can change callback behavior. */
+function syntaxFingerprint(node, source) {
+  const tokens = [];
+  /** Preserve parser token boundaries, including template substitutions, instead of rescanning a context-free fragment. */
+  function visit(current) {
+    if (
+      current.kind >= ts.SyntaxKind.FirstJSDocNode &&
+      current.kind <= ts.SyntaxKind.LastJSDocNode
+    )
+      return;
+    const children = current.getChildren(source);
+    if (children.length) {
+      for (const child of children) visit(child);
+    } else if (current.kind !== ts.SyntaxKind.SyntaxList) {
+      tokens.push([current.kind, current.getText(source)]);
+    }
+  }
+  visit(node);
+  return digest(JSON.stringify(tokens));
+}
+
+/** Identify a callable expression without incorporating the bodies or mutable arguments of other callbacks in its chain. */
+function callTarget(node, source) {
+  if (
+    ts.isParenthesizedExpression(node) ||
+    ts.isAsExpression(node) ||
+    ts.isTypeAssertionExpression(node) ||
+    ts.isNonNullExpression(node) ||
+    ts.isSatisfiesExpression(node)
+  )
+    return callTarget(node.expression, source);
+  if (ts.isIdentifier(node)) return ['identifier', node.text];
+  if (node.kind === ts.SyntaxKind.ThisKeyword) return ['this'];
+  if (node.kind === ts.SyntaxKind.SuperKeyword) return ['super'];
+  if (ts.isPropertyAccessExpression(node))
+    return ['member', callTarget(node.expression, source), node.name.text];
+  if (ts.isElementAccessExpression(node))
+    return [
+      'element',
+      callTarget(node.expression, source),
+      syntaxFingerprint(node.argumentExpression, source),
+    ];
+  if (ts.isCallExpression(node) || ts.isNewExpression(node))
+    return [ts.SyntaxKind[node.kind], callTarget(node.expression, source)];
+  if (ts.isFunctionLike(node))
+    return [
+      ts.SyntaxKind[node.kind],
+      node.name?.getText(source) ?? '<anonymous>',
+    ];
+  return ['expression', syntaxFingerprint(node, source)];
+}
+
+/** Keep ordinary binding names readable while preserving computed and destructured names without formatting-sensitive text. */
+function ownerName(node, source) {
+  if (ts.isIdentifier(node) || ts.isPrivateIdentifier(node)) return node.text;
+  if (ts.isStringLiteralLike(node) || ts.isNumericLiteral(node))
+    return ['literal', node.text];
+  return ['computed', syntaxFingerprint(node, source)];
+}
+
+/** Include every named lexical owner and each enclosing call's argument position, without using source lines or diagnostic order. */
+function lexicalOwners(node, source) {
+  const owners = [];
+  let child;
+  for (
+    let current = node;
+    current && !ts.isSourceFile(current);
+    current = current.parent
+  ) {
+    if (ts.isCallExpression(current) || ts.isNewExpression(current)) {
+      const argument = current.arguments?.indexOf(child) ?? -1;
+      owners.push([
+        ts.SyntaxKind[current.kind],
+        callTarget(current.expression, source),
+        argument < 0 ? 'callee' : argument,
+      ]);
+    } else if (
+      ts.isBinaryExpression(current) &&
+      current.operatorToken.kind >= ts.SyntaxKind.FirstAssignment &&
+      current.operatorToken.kind <= ts.SyntaxKind.LastAssignment
+    ) {
+      owners.push(['assignment', callTarget(current.left, source)]);
+    } else if (ts.isFunctionLike(current) || ts.isClassLike(current)) {
+      owners.push([
+        ts.SyntaxKind[current.kind],
+        current.name ? ownerName(current.name, source) : '<anonymous>',
+        current.modifiers?.some(
+          (modifier) => modifier.kind === ts.SyntaxKind.StaticKeyword,
+        )
+          ? 'static'
+          : 'instance',
+      ]);
+    } else if (current.name) {
+      owners.push([
+        ts.SyntaxKind[current.kind],
+        ownerName(current.name, source),
+      ]);
+    } else if (
+      ts.isJsxOpeningElement(current) ||
+      ts.isJsxSelfClosingElement(current)
+    ) {
+      owners.push(['jsx', current.tagName.getText(source)]);
+    }
+    child = current;
+  }
+  return owners.reverse();
+}
+
+/** Recognize independently reported nesting nodes; sibling blocks must not share a function's depth allowance. */
+function isDepthScope(node) {
+  return [
+    ts.SyntaxKind.IfStatement,
+    ts.SyntaxKind.ForStatement,
+    ts.SyntaxKind.ForInStatement,
+    ts.SyntaxKind.ForOfStatement,
+    ts.SyntaxKind.WhileStatement,
+    ts.SyntaxKind.DoStatement,
+    ts.SyntaxKind.SwitchStatement,
+    ts.SyntaxKind.TryStatement,
+    ts.SyntaxKind.WithStatement,
+  ].includes(node.kind);
+}
+
+/** Index all lexical scopes, including functions below lint thresholds, so disappearing diagnostics cannot renumber another allowance. */
+function scopeIdentities(source, depth = false) {
+  const groups = new Map();
+  /** Inventory complete syntax before resolving any diagnostic, keeping below-threshold siblings in ambiguity decisions. */
+  function visit(node) {
+    const included = depth
+      ? isDepthScope(node)
+      : (ts.isFunctionLike(node) && node.body) ||
+        ts.isClassStaticBlockDeclaration(node) ||
+        (ts.isPropertyDeclaration(node) && node.initializer);
+    if (included) {
+      const owners = lexicalOwners(node, source);
+      if (depth) owners.push(['nesting', ts.SyntaxKind[node.kind]]);
+      if (ts.isClassStaticBlockDeclaration(node)) owners.push(['static-block']);
+      const owner = JSON.stringify(owners);
+      const group = groups.get(owner) ?? [];
+      group.push(node);
+      groups.set(owner, group);
+    }
+    ts.forEachChild(node, visit);
+  }
+  visit(source);
+  const identities = new Map();
+  for (const [owner, nodes] of groups) {
+    if (nodes.length === 1) {
+      identities.set(nodes[0], owner);
+      continue;
+    }
+    const fingerprints = nodes.map((node) => syntaxFingerprint(node, source));
+    // Preserve source order in ambiguous groups: swapping a large and small body must not transfer the large allowance.
+    const group = digest(JSON.stringify(fingerprints));
+    for (const [index, node] of nodes.entries()) {
+      const fingerprint = fingerprints[index];
+      // A changed ambiguous group loses every old allowance; even matching another old body cannot borrow its budget.
+      identities.set(
+        node,
+        fingerprints.indexOf(fingerprint) ===
+          fingerprints.lastIndexOf(fingerprint)
+          ? `${owner}|group:${group}|member:${fingerprint}`
+          : null,
+      );
+    }
+  }
+  return identities;
+}
+
+/** Resolve a diagnostic to its innermost inventoried owner; indistinguishable siblings and missing locations fail closed. */
+function scopeAt(source, identities, line, column) {
   const offset = source.getPositionOfLineAndCharacter(
     Math.max(0, line - 1),
     Math.max(0, column - 1),
   );
-  let scope = '<file>';
-  const visit = (node) => {
-    if (node.pos <= offset && node.end >= offset) {
-      if (ts.isFunctionLike(node))
-        scope =
-          node.name?.getText(source) ??
-          node.parent.name?.getText(source) ??
-          '<callback>';
+  let matched;
+  /** Select the innermost scope containing the reported token, never an unrelated neighboring declaration. */
+  function visit(node) {
+    if (node.getStart(source) <= offset && node.end > offset) {
+      if (identities.has(node)) matched = node;
       ts.forEachChild(node, visit);
     }
-  };
+  }
   visit(source);
-  return scope;
+  if (!matched)
+    throw new Error(
+      `No lexical scope for ESLint diagnostic: ${source.fileName}:${line}:${column}`,
+    );
+  const identity = identities.get(matched);
+  if (identity === null)
+    throw new Error(
+      `Ambiguous lexical scope for ESLint diagnostic: ${source.fileName}:${line}:${column}`,
+    );
+  return identity;
 }
 
 /** Only complexity diagnostics may use a debt baseline; parser, typed and correctness errors remain fatal. */
@@ -221,13 +396,18 @@ export function eslintRecords(report) {
   for (const file of report) {
     const path = repoPath(file.filePath);
     if (!Array.isArray(file.messages)) throw new Error('Invalid ESLint report');
+    if (file.messages.length === 0) continue;
     const source = ts.createSourceFile(
       path,
-      currentFile(path) ?? '',
+      file.source ?? currentFile(path) ?? '',
       ts.ScriptTarget.Latest,
       true,
     );
-    const occurrences = new Map();
+    if (source.parseDiagnostics.length)
+      throw new Error(`Invalid syntax in ESLint scope evidence: ${path}`);
+    const functions = scopeIdentities(source);
+    const depths = scopeIdentities(source, true);
+    const identities = new Set();
     for (const message of file.messages) {
       if (message.fatal || !allowed.has(message.ruleId)) {
         throw new Error(
@@ -248,12 +428,18 @@ export function eslintRecords(report) {
       const scope =
         message.ruleId === 'max-lines'
           ? '<file>'
-          : scopeAt(source, message.line ?? 1, message.column ?? 1);
+          : scopeAt(
+              source,
+              message.ruleId === 'max-depth' ? depths : functions,
+              message.line ?? 1,
+              message.column ?? 1,
+            );
       const identity = `${path}|${message.ruleId}|${scope}`;
-      const occurrence = occurrences.get(identity) ?? 0;
-      occurrences.set(identity, occurrence + 1);
+      if (identities.has(identity))
+        throw new Error(`Duplicate ESLint diagnostic identity: ${identity}`);
+      identities.add(identity);
       results.push(
-        record(`${identity}|${occurrence}`, Number(values[1]), {
+        record(identity, Number(values[1]), {
           path,
           rule: message.ruleId,
           scope,

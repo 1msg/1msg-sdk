@@ -508,3 +508,244 @@ test('historical Knip removes a current-only exact vendor ignore without relaxin
     f.close();
   }
 });
+
+/** Pinned formatting defines identical clone units for old and current source, while a new participant still fails the real gate. */
+test('canonical jscpd CLI preserves formatting-only debt and rejects a new clone', () => {
+  const f = fixture();
+  try {
+    f.write(
+      'quality.config.mjs',
+      `export default { schemaVersion: 1, profile: 'A', defaultBranch: 'main', sourceRoots: ['src'], duplicatePaths: ['src'], duplicateCanonicalFormat: true, duplicateFormats: ['javascript', 'typescript', 'jsx', 'tsx'], duplicateIgnore: [], duplicateMaxPercentage: 100 };\n`,
+    );
+    const source =
+      'export function calculate() { const label = "ready"; let value = 0; ' +
+      Array.from({ length: 20 }, (_, i) => `value += ${i};`).join('') +
+      'return { label, value }; }';
+    f.write('src/a.js', source);
+    f.write('src/b.js', source);
+    const base = f.commit();
+    const initial = f.run(
+      'duplicates',
+      '--base',
+      base,
+      '--bootstrap',
+      '--owner',
+      'quality-fixture',
+      '--expires',
+      '2099-12-31',
+      '--reason',
+      'Historical clone fixture',
+      '--issue',
+      'https://example.invalid/quality',
+    );
+    assert.equal(initial.status, 0, initial.stderr);
+    const baseline = JSON.parse(
+      readFileSync(join(f.cwd, 'quality/baselines/duplicates.json'), 'utf8'),
+    );
+    assert.ok(baseline.entries.length > 0);
+    f.write(
+      'src/a.js',
+      source.replaceAll(';', ';\n').replaceAll('"ready"', "'ready'"),
+    );
+    const formatted = f.run('duplicates', '--base', base);
+    assert.equal(formatted.status, 0, formatted.stderr);
+    f.write('src/c.js', source);
+    const growth = f.run('duplicates', '--base', base);
+    assert.notEqual(growth.status, 0);
+    assert.match(growth.stderr, /New or increased|new\/increased/);
+  } finally {
+    f.close();
+  }
+});
+
+/** Invalid syntax or a framework file without its formatter must fail canonical analysis instead of disappearing from coverage. */
+test('canonical jscpd fails closed for unsupported or malformed source', () => {
+  const f = fixture();
+  try {
+    f.write(
+      'quality.config.mjs',
+      `export default { schemaVersion: 1, profile: 'A', defaultBranch: 'main', sourceRoots: ['src'], duplicatePaths: ['src'], duplicateCanonicalFormat: true, duplicateIgnore: [], duplicateMaxPercentage: 100 };\n`,
+    );
+    f.write('src/index.js', 'export const value = 1;');
+    const base = f.commit();
+    f.write('src/index.js', 'export const value = ;');
+    assert.notEqual(f.run('duplicates', '--base', base).status, 0);
+    f.write('src/index.js', 'export const value = 1;');
+    f.write(
+      'src/Widget.svelte',
+      '<script>export let value;</script><p>{value}</p>',
+    );
+    const unsupported = f.run('duplicates', '--base', base);
+    assert.notEqual(unsupported.status, 0);
+    assert.match(unsupported.stderr, /framework formatter/);
+  } finally {
+    f.close();
+  }
+});
+
+/** Current test-runner config is an analyzer input; historical application and test source must still come only from Git. */
+test('historical replay uses current Jest config without replacing trusted source', () => {
+  const f = fixture();
+  try {
+    f.write('src/index.js', 'export const value = "historical";\n');
+    f.write('jest.config.cjs', 'module.exports = { rootDir: "old" };\n');
+    const base = f.commit();
+    f.write('src/index.js', 'export const value = "current-only";\n');
+    f.write('jest.config.cjs', 'module.exports = { rootDir: __dirname };\n');
+    const historical = new URL('../lib/historical.mjs', import.meta.url).href;
+    const template = fileURLToPath(new URL('../', import.meta.url));
+    const script = `import { historicalAnalysis } from ${JSON.stringify(historical)};
+      import { readFileSync, existsSync } from 'node:fs';
+      const value = historicalAnalysis(${JSON.stringify(base)}, {knipConfig:'knip.json'}, ${JSON.stringify(template)}, () => ({
+        config: readFileSync('jest.config.cjs','utf8'),
+        source: readFileSync('src/index.js','utf8'),
+        newSource: existsSync('src/current-only.js')
+      })); process.stdout.write(JSON.stringify(value));`;
+    f.write(
+      'src/current-only.js',
+      'throw new Error("must not enter historical source");\n',
+    );
+    const result = spawnSync(
+      process.execPath,
+      ['--input-type=module', '-e', script],
+      { cwd: f.cwd, encoding: 'utf8', timeout: 15000 },
+    );
+    assert.equal(result.status, 0, result.stderr);
+    const replay = JSON.parse(result.stdout);
+    assert.match(replay.config, /__dirname/);
+    assert.match(replay.source, /historical/);
+    assert.equal(replay.newSource, false);
+  } finally {
+    f.close();
+  }
+});
+
+/** A fixed early callback cannot renumber later debt or lend its larger allowance to a different growing callback. */
+test('actual complexity CLI binds callback allowances to lexical owners', () => {
+  const f = fixture();
+  try {
+    const preset = new URL('../eslint.mjs', import.meta.url).href;
+    f.write(
+      'eslint.config.mjs',
+      `import { maintainabilityConfig, tseslint } from '${preset}'; export default [{languageOptions:{parser:tseslint.parser}}, ...maintainabilityConfig(), {rules:{complexity:['error',2]}}];`,
+    );
+    const earlier =
+      'const earlier = wrap((value) => { if (value.a) return 1; if (value.b) return 2; if (value.c) return 3; if (value.d) return 4; if (value.e) return 5; return 0; });';
+    const later =
+      'const later = wrap((value) => { if (value.a) return 1; if (value.b) return 2; return 0; });';
+    f.write('src/index.js', `${earlier}\n${later}`);
+    const base = f.commit();
+    const args = [
+      'report',
+      '--kind',
+      'eslint',
+      '--base',
+      base,
+      '--bootstrap',
+      '--owner',
+      'quality-fixture',
+      '--expires',
+      '2099-12-31',
+      '--reason',
+      'Historical callback debt',
+      '--issue',
+      'TEST-1',
+      '--',
+      process.execPath,
+      fileURLToPath(new URL('../complexity.mjs', import.meta.url)),
+      '--config',
+      'eslint.config.mjs',
+      'src/index.js',
+    ];
+    const original = f.run(...args);
+    assert.equal(original.status, 0, original.stderr);
+    const originalBaseline = JSON.parse(
+      readFileSync(join(f.cwd, 'quality/baselines/complexity.json'), 'utf8'),
+    );
+    assert.deepEqual(
+      originalBaseline.entries.map(({ value }) => value).sort(),
+      [3, 6],
+    );
+    f.write(
+      'src/index.js',
+      `const earlier = wrap((value) => value);\n${later}`,
+    );
+    const fixed = f.run(...args);
+    assert.equal(fixed.status, 0, fixed.stderr);
+    const reducedBaseline = JSON.parse(
+      readFileSync(join(f.cwd, 'quality/baselines/complexity.json'), 'utf8'),
+    );
+    assert.equal(reducedBaseline.entries.length, 1);
+    assert.equal(
+      reducedBaseline.entries[0].key,
+      originalBaseline.entries.find(({ value }) => value === 3).key,
+    );
+    f.write(
+      'src/index.js',
+      `const earlier = wrap((value) => value);\n${later.replace('return 0;', 'if (value.c) return 3; return 0;')}`,
+    );
+    const growth = f.run(...args);
+    assert.equal(growth.status, 1, growth.stderr);
+    assert.match(
+      growth.stderr,
+      /Cannot baseline a new\/increased finding.*later/,
+    );
+  } finally {
+    f.close();
+  }
+});
+
+/** Class field initializers and static blocks are independent ESLint code paths and must keep their class ownership. */
+test('actual complexity CLI resolves class field and static block scopes', () => {
+  const f = fixture();
+  try {
+    const preset = new URL('../eslint.mjs', import.meta.url).href;
+    f.write(
+      'eslint.config.mjs',
+      `import { maintainabilityConfig, tseslint } from '${preset}'; export default [{languageOptions:{parser:tseslint.parser}}, ...maintainabilityConfig(), {rules:{complexity:['error',2]}}];`,
+    );
+    f.write(
+      'src/index.js',
+      `class First {
+      value = ready ? (active ? 1 : 2) : 3;
+      static { if (ready) start(); if (active) finish(); }
+    }
+    class Second {
+      value = ready ? (active ? 1 : 2) : 3;
+      static { if (ready) start(); if (active) finish(); }
+    }`,
+    );
+    const base = f.commit();
+    const result = f.run(
+      'report',
+      '--kind',
+      'eslint',
+      '--base',
+      base,
+      '--bootstrap',
+      '--owner',
+      'quality-fixture',
+      '--expires',
+      '2099-12-31',
+      '--reason',
+      'Historical class initializer debt',
+      '--issue',
+      'TEST-1',
+      '--',
+      process.execPath,
+      fileURLToPath(new URL('../complexity.mjs', import.meta.url)),
+      '--config',
+      'eslint.config.mjs',
+      'src/index.js',
+    );
+    assert.equal(result.status, 0, result.stderr);
+    const baseline = JSON.parse(
+      readFileSync(join(f.cwd, 'quality/baselines/complexity.json'), 'utf8'),
+    );
+    assert.equal(baseline.entries.length, 4);
+    assert.equal(new Set(baseline.entries.map(({ key }) => key)).size, 4);
+    assert.ok(baseline.entries.every(({ value }) => value === 3));
+  } finally {
+    f.close();
+  }
+});

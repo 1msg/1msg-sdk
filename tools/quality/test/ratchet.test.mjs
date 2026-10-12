@@ -193,7 +193,7 @@ test('whole-file line limits keep their identity when the diagnostic moves betwe
         ],
       },
     ])[0];
-  assert.equal(finding(20).key, 'lib/guards.mjs|max-lines|<file>|0');
+  assert.equal(finding(20).key, 'lib/guards.mjs|max-lines|<file>');
   assert.equal(finding(120).key, finding(20).key);
 });
 
@@ -234,5 +234,31 @@ test('suppression gates do not mistake strings for directives', () => {
       { negativeTypeTests: ['*.test.ts'] },
     ).length,
     0,
+  );
+});
+
+/** Formatting within template expressions and a chained call must not invent a new function or callback. */
+test('documentation identities preserve template-expression context and stable call chains', () => {
+  const before =
+    'describe("groupIntoBlocks",()=>{it("splits a parent",()=>{const value=Array.from({length:3},(_,i)=>({key:`p.k${i}`,text:`Text ${i}`}));return value;});});';
+  const after =
+    "describe('groupIntoBlocks', () => {\n it('splits a parent', () => {\n const value = Array.from({length:3}, (_, i) => ({\n key: `p.k${i}`,\n text: `Text ${i}`,\n })); return value;\n });\n});";
+  const identity = (source) =>
+    functionsIn('src/a.ts', source).map(({ key, signature }) => ({
+      key,
+      signature,
+    }));
+  assert.deepEqual(identity(before), identity(after));
+  assert.notDeepEqual(
+    identity(before),
+    identity(before.replace('Text ${i}', 'Different ${i}')),
+  );
+  const chained = 'prefetch({ value: 1 }).catch(() => { recover(); });';
+  const documented =
+    'prefetch({ /** Explain the input. */ value: 1, }).catch(() => { recover(); });';
+  assert.deepEqual(identity(chained), identity(documented));
+  assert.notDeepEqual(
+    identity(chained),
+    identity(chained.replace('prefetch', 'send')),
   );
 });

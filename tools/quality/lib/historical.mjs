@@ -94,7 +94,7 @@ export function historicalAnalysis(base, config, templateDirectory, analyze) {
       cpSync('package.json', join(snapshot, 'package.json'));
     }
     const configuration = paths.filter((path) =>
-      /(?:^|\/)(?:eslint(?:\.[\w-]+)?\.config\.[cm]?js|dependency-cruiser(?:\.[\w-]+)?\.config\.[cm]?js|tsconfig(?:\.[\w-]+)?\.json|quality\.config\.mjs)$/.test(
+      /(?:^|\/)(?:eslint(?:\.[\w-]+)?\.config\.[cm]?js|dependency-cruiser(?:\.[\w-]+)?\.config\.[cm]?js|jest(?:\.[\w-]+)?\.config\.[cm]?[jt]s|tsconfig(?:\.[\w-]+)?\.json|quality\.config\.mjs)$/.test(
         path,
       ),
     );

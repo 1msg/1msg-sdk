@@ -69,6 +69,14 @@ function unused(config, production) {
 function duplicates(config) {
   if (!config.duplicatePaths?.length)
     throw new Error('duplicatePaths must list authored runtime/tooling roots');
+  if (config.duplicateCanonicalFormat) {
+    const { report } = analyze(
+      process.execPath,
+      [join(directory, 'canonical-duplicates.mjs'), JSON.stringify(config)],
+      'Canonical jscpd',
+    );
+    return { findings: duplicateRecords(report), report };
+  }
   const output = mkdtempSync(join(tmpdir(), '1msg-jscpd-'));
   try {
     const argv = [

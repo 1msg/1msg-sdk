@@ -1,4 +1,4 @@
-# 1MSG quality template 1.0.2
+# 1MSG quality template 1.0.8
 
 Vendored, private template for 1MSG-156. Install its exact tools with
 `npm --prefix tools/quality ci` on Node 24.19.0. The lockfile and
@@ -83,3 +83,28 @@ Integrity verification prevents hiding authored code under the vendor exemption.
 No analyzer flag may depend on CI or a skip-type-aware environment variable.
 
 Version 1.0.2 resolves Svelte embedded clone paths to their physical source while retaining fragment identity. Initial Knip replay omits only the exact current-only sealed vendor ignore; authored stale ignores remain errors.
+
+## Canonical maintainability measurement (1.0.3)
+
+For adoption that includes formatting, run `node tools/quality/complexity.mjs --config eslint.complexity.config.mjs` as the analyzer inside the existing `report --kind eslint --name complexity` gate. Both trusted historical source and current source are independently formatted in memory with the pinned Prettier version and sealed policy before the same ESLint rules execute. Files on disk are never rewritten. This gives line metrics the same unit of measurement; AST complexity and the per-finding ratchet remain enforced. The original Git source hash remains adoption evidence. The JSON report includes canonical source so diagnostic locations identify the correct function after formatting. Formatter/parse failures are fatal. This does not replace `Prettier --check` on the actual checkout.
+
+Existing consumers pinned to 1.0.2 do not need a policy change; 1.0.3 adds the explicit canonical measurement command.
+
+For JS/TS formatting migrations, `duplicateCanonicalFormat: true` measures both trusted base and current source after the same pinned formatter in disposable copies. Declare the supported `duplicateFormats` (`javascript`, `typescript`, `jsx`, `tsx`) and exact ignored dependency/generated paths. Source files stay unchanged. New/grown clone groups still fail even if the aggregate percentage falls. Unsupported framework source, unexpected symlinks, empty coverage or failed formatting are analyzer failures. Report line numbers refer to canonical source fragments.
+
+Version 1.0.6 runs canonical complexity with inline ESLint configuration disabled on both sides. Legacy directives for unrelated framework plugins cannot corrupt metric coverage, and a source comment cannot suppress complexity debt. The separate source suppression guard still enforces the current-code policy. Trusted replay also copies exact Jest config filenames as analyzer inputs, allowing Knip to load current test-runner configuration against historical application and test source. Ordinary source files continue to come exclusively from the trusted Git archive.
+
+Version 1.0.7 parses JS/TS/JSX/TSX with the pinned TypeScript compiler and prints an in-memory, comment-free metric input before pinned Prettier formatting. Comments inside JSX callbacks otherwise change indentation and wrap executable lines, inflating line debt despite `skipComments`. Both current and trusted historical sources use the same normalization; recompute both sides when adopting this version. No rule limits or baseline allowances change. The original files are not rewritten, and strings, regular expressions, template literals and rendered JSX content remain data rather than comment matches. Unsupported source extensions and syntax errors fail closed before recovered syntax can become a metric report.
+
+The 31-test suite includes actual CLI fixtures proving that JSX documentation leaves file/function line metrics unchanged, an added statement still increases those metrics, malformed JS/TSX fails, and canonical string/tagged-template/regular-expression, JSX rendering and automatic-semicolon behavior is preserved. JSX assertions compare rendered text and element order because formatting may split adjacent text nodes. Formatting and documentation guards still inspect the actual checkout. Consumers remaining on sealed 1.0.2 are unchanged by this release.
+
+## Version 1.0.8
+
+Complexity findings use complete lexical ownership (class, function, binding,
+property and call argument), independent of emitted diagnostic order. Fixing an
+older callback therefore cannot renumber a different callback's allowance.
+Ambiguous sibling scopes are tied to ordered, comment-free AST evidence; changed
+or indistinguishable groups fail closed. The real CLI fixtures verify both
+legitimate debt reduction and rejection of transferred/increased allowances.
+Existing consumers must replay historical source with this version when adopting
+the new key schema; old diagnostic ordinals are never silently migrated.
