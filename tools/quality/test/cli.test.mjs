@@ -749,3 +749,77 @@ test('actual complexity CLI resolves class field and static block scopes', () =>
     f.close();
   }
 });
+
+/** A Make-shaped source has equal if statements in separate loops; trusted replay retains only the precise old depth allowance. */
+test('actual raw complexity CLI distinguishes lexical loops and rejects depth transfer', () => {
+  const f = fixture();
+  try {
+    f.write(
+      'eslint.config.mjs',
+      "export default [{rules:{'max-depth':['error',3]}}];",
+    );
+    const shallow =
+      'for (const ack of root.ack) { const item = record(ack); if (item) found.push(statusEvent(item)); }';
+    const deep =
+      'for (const entry of root.entry) { for (const change of entry.changes) { for (const status of change.statuses) { const item = record(status); if (item) found.push(statusEvent(item)); } } }';
+    f.write('src/index.js', `function collect(root) { ${shallow} ${deep} }`);
+    const base = f.commit();
+    const args = [
+      'report',
+      '--kind',
+      'eslint',
+      '--base',
+      base,
+      '--bootstrap',
+      '--owner',
+      'quality-fixture',
+      '--expires',
+      '2099-12-31',
+      '--reason',
+      'Historical lexical loop depth',
+      '--issue',
+      'TEST-1',
+      '--',
+      process.execPath,
+      fileURLToPath(
+        new URL('../node_modules/eslint/bin/eslint.js', import.meta.url),
+      ),
+      '--config',
+      'eslint.config.mjs',
+      '--no-inline-config',
+      '--format',
+      'json',
+      'src/index.js',
+    ];
+    const original = f.run(...args);
+    assert.equal(original.status, 0, original.stderr);
+    const old = JSON.parse(
+      readFileSync(join(f.cwd, 'quality/baselines/complexity.json'), 'utf8'),
+    );
+    assert.equal(old.entries.length, 1);
+    assert.equal(old.entries[0].value, 4);
+    f.write('src/index.js', `function collect(root) { ${deep} }`);
+    const reduced = f.run(...args);
+    assert.equal(reduced.status, 0, reduced.stderr);
+    const retained = JSON.parse(
+      readFileSync(join(f.cwd, 'quality/baselines/complexity.json'), 'utf8'),
+    );
+    assert.equal(retained.entries[0].key, old.entries[0].key);
+    f.write(
+      'src/index.js',
+      `function collect(root) { if (root.ready) { if (root.active) { ${shallow} } } }`,
+    );
+    const transfer = f.run(...args);
+    assert.equal(transfer.status, 1, transfer.stderr);
+    assert.match(transfer.stderr, /Cannot baseline a new\/increased finding/);
+    f.write(
+      'src/index.js',
+      `function collect(root) { if (root.ready) { ${deep} } }`,
+    );
+    const growth = f.run(...args);
+    assert.equal(growth.status, 1, growth.stderr);
+    assert.match(growth.stderr, /Cannot baseline a new\/increased finding/);
+  } finally {
+    f.close();
+  }
+});

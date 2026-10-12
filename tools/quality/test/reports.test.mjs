@@ -190,3 +190,49 @@ test('invalid or missing scope evidence fails closed', () => {
     /Invalid syntax/,
   );
 });
+
+/** Equal statements under distinct lexical loop bindings are independently addressable even when only one is over threshold. */
+test('loop headers distinguish nesting and callback owners without body ordinals', async () => {
+  const source = `function collect(root) {
+    for (const ack of root.ack) { const item = record(ack); if (item) found.push(statusEvent(item)); }
+    for (const entry of root.entry) { for (const change of entry.changes) {
+      for (const status of change.statuses) { const item = record(status); if (item) found.push(statusEvent(item)); }
+    } }
+  }`;
+  const original = await findings(source, 'max-depth', 3);
+  assert.equal(original.length, 1);
+  assert.equal(original[0].value, 4);
+  assert.deepEqual(
+    await findings(
+      source.replace('const ack', '/* Header documentation */ const ack'),
+      'max-depth',
+      3,
+    ),
+    original,
+  );
+  const callbacks = `for (const ack of root.ack) { run(${callback(2)}); }
+    for (const status of root.statuses) { run(${callback(2)}); }
+    for (const key in root.properties) { run(${callback(2)}); }
+    for (let index = 0; index < root.length; index++) { run(${callback(2)}); }`;
+  const owned = await findings(callbacks);
+  assert.equal(owned.length, 4);
+  assert.equal(new Set(owned.map(({ key }) => key)).size, 4);
+  const asynchronous = await findings(
+    `for await (const ack of root.ack) { run(${callback(2)}); }`,
+  );
+  assert.equal(asynchronous.length, 1);
+  assert.ok(!owned.some(({ key }) => key === asynchronous[0].key));
+  const shifted = await findings(
+    callbacks.replace('const ack of root.ack', 'const other of root.ack'),
+  );
+  assert.equal(
+    shifted.filter(({ key }) => !owned.some((old) => old.key === key)).length,
+    1,
+  );
+});
+
+/** Repeated loops with identical headers remain ambiguous; distinct bindings must never enable ordinal-based allowance borrowing. */
+test('identical loop bindings do not disambiguate indistinguishable callbacks', async () => {
+  const loop = `for (const item of root.items) { run(${callback(2)}); }`;
+  await assert.rejects(() => findings(loop + loop), /Ambiguous lexical scope/);
+});

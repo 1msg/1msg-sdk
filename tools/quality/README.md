@@ -1,4 +1,4 @@
-# 1MSG quality template 1.0.8
+# 1MSG quality template 1.0.9
 
 Vendored, private template for 1MSG-156. Install its exact tools with
 `npm --prefix tools/quality ci` on Node 24.19.0. The lockfile and
@@ -108,3 +108,13 @@ or indistinguishable groups fail closed. The real CLI fixtures verify both
 legitimate debt reduction and rejection of transferred/increased allowances.
 Existing consumers must replay historical source with this version when adopting
 the new key schema; old diagnostic ordinals are never silently migrated.
+
+## 1.0.9 migration
+
+Complexity identities now retain lexical `for`, `for-in` and `for-of` headers
+(binding, source/condition/increment and `await` mode). Identical statements in
+different loops no longer collide. Loop bodies, source lines and diagnostic
+ordinals do not identify allowances; indistinguishable sibling loops still fail
+closed. Consumers must replay their original trusted adoption base with the
+updated analyzer, preserving debt owners, deadlines and reasons. Do not translate
+baseline keys manually or renew historical debt as part of the version update.

@@ -244,7 +244,7 @@ function ownerName(node, source) {
   return ['computed', syntaxFingerprint(node, source)];
 }
 
-/** Include every named lexical owner and each enclosing call's argument position, without using source lines or diagnostic order. */
+/** Include named owners, lexical loop bindings and call argument positions without source lines or diagnostic order. */
 function lexicalOwners(node, source) {
   const owners = [];
   let child;
@@ -253,7 +253,29 @@ function lexicalOwners(node, source) {
     current && !ts.isSourceFile(current);
     current = current.parent
   ) {
-    if (ts.isCallExpression(current) || ts.isNewExpression(current)) {
+    if (ts.isForOfStatement(current) || ts.isForInStatement(current)) {
+      owners.push([
+        ts.SyntaxKind[current.kind],
+        syntaxFingerprint(current.initializer, source),
+        syntaxFingerprint(current.expression, source),
+        ts.isForOfStatement(current) && current.awaitModifier
+          ? 'await'
+          : 'sync',
+        child === current.statement ? 'body' : 'header',
+      ]);
+    } else if (ts.isForStatement(current)) {
+      owners.push([
+        ts.SyntaxKind[current.kind],
+        current.initializer
+          ? syntaxFingerprint(current.initializer, source)
+          : null,
+        current.condition ? syntaxFingerprint(current.condition, source) : null,
+        current.incrementor
+          ? syntaxFingerprint(current.incrementor, source)
+          : null,
+        child === current.statement ? 'body' : 'header',
+      ]);
+    } else if (ts.isCallExpression(current) || ts.isNewExpression(current)) {
       const argument = current.arguments?.indexOf(child) ?? -1;
       owners.push([
         ts.SyntaxKind[current.kind],
