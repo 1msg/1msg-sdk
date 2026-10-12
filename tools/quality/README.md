@@ -1,4 +1,4 @@
-# 1MSG quality template 1.0.10
+# 1MSG quality template 1.0.11
 
 Vendored, private template for 1MSG-156. Install its exact tools with
 `npm --prefix tools/quality ci` on Node 24.19.0. The lockfile and
@@ -137,3 +137,16 @@ removes all inherited function signatures: every current function in that file
 must have documentation. Current syntax errors and historical/current I/O,
 configuration or Git failures remain fatal. This conservative documentation
 fallback does not alter metric analysis, source coverage or debt baselines.
+
+## 1.0.11 migration
+
+Test repositories now initialize their default branch with `git init` followed by
+`git symbolic-ref HEAD refs/heads/main`. This works on the older Git installation
+used by the self-hosted runner, which does not support `git init -b`. A regression
+fixture rejects that unsupported option and replays both actual Git-backed test
+families through a subprocess-only Node preload shim; all other Git operations
+remain real. The fixture uses no Unix executable or shebang assumptions and does
+not modify the runtime Git driver or skip checks on Windows.
+Only fixture setup changes: analysis rules, historical identities and baseline
+records are unchanged. Copy the complete sealed version without changing debt
+owners, reasons, issue links, expiry dates or baseline entries.

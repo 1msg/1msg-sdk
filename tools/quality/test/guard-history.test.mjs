@@ -27,7 +27,8 @@ function fixture() {
     assert.equal(result.status, 0, result.stderr);
     return result.stdout.trim();
   };
-  git('init', '-b', 'main');
+  git('init');
+  git('symbolic-ref', 'HEAD', 'refs/heads/main');
   git('config', 'user.name', 'Quality fixture');
   git('config', 'user.email', 'quality@example.invalid');
   return {
