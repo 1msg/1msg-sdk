@@ -4,11 +4,11 @@
 
 `1msg-api` has three numbers that look like versions:
 
-| Number | Where | What it is |
-|--------|-------|------------|
-| `v3.3.0` | git tags + `CHANGELOG.md` | Service / deploy version of 1msg-api |
-| `1.0.0` | `public/openapi.bundled.yaml` `info.version` | Public API **contract** customers integrate against |
-| `1.0.1` | root / Nest `package.json` | Stale npm workspace field; not the release number |
+| Number   | Where                                        | What it is                                          |
+| -------- | -------------------------------------------- | --------------------------------------------------- |
+| `v3.3.0` | git tags + `CHANGELOG.md`                    | Service / deploy version of 1msg-api                |
+| `1.0.0`  | `public/openapi.bundled.yaml` `info.version` | Public API **contract** customers integrate against |
+| `1.0.1`  | root / Nest `package.json`                   | Stale npm workspace field; not the release number   |
 
 SDK packages track the **public contract** (`1.0.x`), not the service tag
 (`v3.3.0`). Jumping every SDK to `3.3.0` would be a fake major and would not

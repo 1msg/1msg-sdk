@@ -1,0 +1,85 @@
+# 1MSG quality template 1.0.2
+
+Vendored, private template for 1MSG-156. Install its exact tools with
+`npm --prefix tools/quality ci` on Node 24.19.0. The lockfile and
+`template-manifest.json` identify the reviewed version. This package is not
+published to npm. Each consumer commits a full copy, its manifest, and its own
+`quality.config.mjs` inventory. A version update requires policy review and
+real negative fixtures; do not edit/reseal one consumer to hide a violation.
+
+## Profiles and commands
+
+A (Node runtime) and B (UI) require full static and typed ESLint, strict production,
+test and tooling typechecks, architecture, debt gates, tests, and production build.
+D applies these to authored TypeScript/tooling while each generated language uses
+reproducible generation and native build/offline contract tests. C runs formatting
+and static lint on every changed/new authored file and ratchets existing debt.
+Compiler presets are provided for NodeNext, Next bundler and Svelte bundler;
+consumers must include real sources/tests/tooling and the framework's generated types.
+
+Exported `staticConfig`, `typedConfig`, `maintainabilityConfig` compose with the
+actual framework preset. Next uses its compatible core-web-vitals + TypeScript
+presets and React Hooks; Svelte uses its parser/plugin and `svelte-check` on real
+components. Browser globals and Node runtime checks have separate scopes.
+
+`node tools/quality/run.mjs guards` checks source inventory, suppressions, vendored
+integrity and documentation for changed functions/private methods/substantive
+callbacks plus full pilot roots. Comments explain purpose, effects and constraints;
+AST coverage is mechanical, usefulness and accuracy require review. Formatting-only
+changes do not create a method change. Meaningless boilerplate does not satisfy review.
+
+Mandatory graph/debt commands: `unused-production`, `unused-full`, `duplicates`.
+`duplicates-full` saves the extended tests/fixtures report and fails analyzer errors;
+it is a report, not the runtime clone gate. Configure `duplicatePaths`,
+`duplicateFullPaths`, exact generated ignores, explicit formats, and an inventoried
+numeric `duplicateMaxPercentage`. Detection uses minLines=5, minTokens=50, mild mode.
+Clone groups cannot grow even if the overall duplicate percentage falls.
+
+Wrap actual JSON analyzer output with:
+
+- `report --kind eslint --name complexity -- node tools/quality/node_modules/eslint/bin/eslint.js . -c eslint.complexity.config.mjs -f json`
+- `report --kind depcruiser --name architecture -- node tools/quality/node_modules/dependency-cruiser/bin/dependency-cruiser.mjs src --config dependency-cruiser.config.cjs --output-type json`
+
+Only maintainability metrics and existing runtime cycles are baselinable through
+those report commands. Other static/typed/architecture diagnostics remain fatal.
+Knip keeps separate production and full graphs; missing resolvers, empty graphs,
+stale exclusions and malformed output are failures. Configure public exports and
+dynamic entrypoints explicitly, never declare all source as entrypoints.
+
+## Historical debt
+
+Initial bootstrap is local only and requires owner, expiry, reason and issue:
+`--bootstrap --owner TEAM --expires YYYY-MM-DD --reason TEXT --issue URL`.
+It reruns the actual analyzer against the trusted Git base using the adopted
+configuration. New files, disconnected imports and increased findings cannot be
+blessed as historical debt. Replay removes only newly added entry/project patterns
+that have no historical source; existing source always comes from Git archive.
+Dependencies are shared read-only with the current installation for resolution.
+
+CI supplies the trusted PR base SHA through `QUALITY_BASE` and fetches full history.
+After adoption, allowances cannot grow or renew their expiry; reductions and removed
+findings must retire allowances. Reports include head/base SHAs and gate outcome.
+Never describe a nonempty baseline as a clean codebase.
+
+## CI and local hooks
+
+Run `npm --prefix tools/quality test` as a mandatory independent check. Fixtures
+execute actual Knip, jscpd and dependency-cruiser CLIs and verify ratchet growth,
+coverage, documentation and malformed reports. Consumers add real typed/framework,
+public API, native I/O, SQL, compatibility and generated-drift fixtures as applicable.
+`Quality` / `quality-required` must aggregate all applicable checks and fail on any
+missing, failed or cancelled required job. Configure this actual job context in
+branch protection without removing existing requirements. CI never runs `--fix`.
+
+The pinned Husky/lint-staged dependencies support committed `.husky/pre-commit` and
+an explicit repository `hooks:install` command. Keep hooks quick; CI is authoritative.
+Do not change shared Git hook configuration of another worktree during verification.
+
+## Updating this template
+
+Change the template at its source, update its version, test actual consumers,
+run `node seal.mjs`, copy the complete template, and commit lockfiles and inventory.
+Integrity verification prevents hiding authored code under the vendor exemption.
+No analyzer flag may depend on CI or a skip-type-aware environment variable.
+
+Version 1.0.2 resolves Svelte embedded clone paths to their physical source while retaining fragment identity. Initial Knip replay omits only the exact current-only sealed vendor ignore; authored stale ignores remain errors.

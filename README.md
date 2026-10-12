@@ -2,14 +2,14 @@
 
 Official client SDKs for the [1MSG](https://1msg.io) WhatsApp Business API.
 
-| | |
-|---|---|
-| **API docs** | [docs.1msg.io](https://docs.1msg.io/) |
-| **Platform** | [platform.1msg.io](https://platform.1msg.io/) |
+|                 |                                                                              |
+| --------------- | ---------------------------------------------------------------------------- |
+| **API docs**    | [docs.1msg.io](https://docs.1msg.io/)                                        |
+| **Platform**    | [platform.1msg.io](https://platform.1msg.io/)                                |
 | **Quick start** | [help.1msg.io](https://help.1msg.io/platform-1msg/getting-start/quick-start) |
-| **Changelog** | [CHANGELOG.md](./CHANGELOG.md) |
-| **Versioning** | [docs/VERSIONING.md](./docs/VERSIONING.md) |
-| **Support** | support@1msg.io |
+| **Changelog**   | [CHANGELOG.md](./CHANGELOG.md)                                               |
+| **Versioning**  | [docs/VERSIONING.md](./docs/VERSIONING.md)                                   |
+| **Support**     | support@1msg.io                                                              |
 
 Public OpenAPI contract: `1.0.0`. 1MSG API service (git tags): `v3.3.0`.
 SDK packages track the public contract (`1.0.x`). Where a registry already
@@ -163,17 +163,17 @@ Source: [github.com/1msg/1msg-sdk-cpp](https://github.com/1msg/1msg-sdk-cpp)
 
 ## Published versions
 
-| Language | Registry name | Version |
-|----------|---------------|---------|
-| TypeScript | `@1msg/sdk` | 1.0.3 |
-| Python | `one-msg-sdk` | 1.0.2 |
-| Java | `io.1msg:sdk` | 1.0.2 |
-| Kotlin | `io.1msg:sdk-kotlin` | 1.0.3 |
-| Scala | `io.1msg:sdk-scala` | 1.0.3 |
-| C# | `OneMsg.Sdk` | 2.0.1 |
-| Rust | `one-msg-sdk` | 2.0.2 |
-| Ruby | `one_msg_sdk` | 2.0.2 |
-| Go | `github.com/1msg/1msg-sdk-go` | v1.1.1 |
-| Swift | `1msg/1msg-sdk-swift` | 1.1.1 |
-| PHP | `1msg/sdk` | 1.1.1 (repo) |
-| C++ | `one-msg-sdk` | 1.0.1 (repo) |
+| Language   | Registry name                 | Version      |
+| ---------- | ----------------------------- | ------------ |
+| TypeScript | `@1msg/sdk`                   | 1.0.3        |
+| Python     | `one-msg-sdk`                 | 1.0.2        |
+| Java       | `io.1msg:sdk`                 | 1.0.2        |
+| Kotlin     | `io.1msg:sdk-kotlin`          | 1.0.3        |
+| Scala      | `io.1msg:sdk-scala`           | 1.0.3        |
+| C#         | `OneMsg.Sdk`                  | 2.0.1        |
+| Rust       | `one-msg-sdk`                 | 2.0.2        |
+| Ruby       | `one_msg_sdk`                 | 2.0.2        |
+| Go         | `github.com/1msg/1msg-sdk-go` | v1.1.1       |
+| Swift      | `1msg/1msg-sdk-swift`         | 1.1.1        |
+| PHP        | `1msg/sdk`                    | 1.1.1 (repo) |
+| C++        | `one-msg-sdk`                 | 1.0.1 (repo) |

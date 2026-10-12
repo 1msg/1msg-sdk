@@ -1,5 +1,6 @@
-import { createClient } from '../client';
 import type { MessageSentResponse } from '../generated/src/models/MessageSentResponse';
+
+import { createClient } from '../client';
 
 describe('Client', () => {
   const options = {
@@ -16,9 +17,7 @@ describe('Client', () => {
       id: 'msg-id',
     };
 
-    const spy = jest
-      .spyOn(client.messaging, 'sendMessage')
-      .mockResolvedValue(response);
+    const spy = jest.spyOn(client.messaging, 'sendMessage').mockResolvedValue(response);
 
     const result = await client.sendMessage({
       body: 'Hello from SDK',
@@ -60,8 +59,6 @@ describe('Client', () => {
 
   it('uses instance-scoped basePath from config', () => {
     const client = createClient(options);
-    expect(client.config.basePath).toBe(
-      'https://api.stage.1msg.io/ODI371267300',
-    );
+    expect(client.config.basePath).toBe('https://api.stage.1msg.io/ODI371267300');
   });
 });

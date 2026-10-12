@@ -6,7 +6,7 @@
 ## Identity
 
 ```yaml
-package: "@1msg/sdk"
+package: '@1msg/sdk'
 registry: https://www.npmjs.com/package/@1msg/sdk
 repository: https://github.com/1msg/1msg-sdk/tree/main/typescript
 runtime: node>=18
@@ -45,13 +45,13 @@ Need WhatsApp messaging from Node/TS?
 ## Client map
 
 ```typescript
-client.config      // ClientConfig
-client.messaging   // MessagingApi — send/list messages, media, interactive
-client.profile     // ProfileApi — getMe
-client.groups      // GroupsApi — create/list/manage groups
-client.flows       // FlowsApi — WhatsApp Flows lifecycle
-client.templates   // TemplatesApi — listTemplates
-client.sendMessage // convenience for sendMessage
+client.config; // ClientConfig
+client.messaging; // MessagingApi — send/list messages, media, interactive
+client.profile; // ProfileApi — getMe
+client.groups; // GroupsApi — create/list/manage groups
+client.flows; // FlowsApi — WhatsApp Flows lifecycle
+client.templates; // TemplatesApi — listTemplates
+client.sendMessage; // convenience for sendMessage
 ```
 
 ## Recipient rules
@@ -590,14 +590,16 @@ responses: 200, 400, 401, 429, 500
 ```typescript
 await client.messaging.sendContact(client.config.token, {
   phone: '12020721369',
-  contacts: [{
-    name: {
-      formatted_name: 'John Doe',
-      first_name: 'John',
-      last_name: 'Doe',
+  contacts: [
+    {
+      name: {
+        formatted_name: 'John Doe',
+        first_name: 'John',
+        last_name: 'Doe',
+      },
+      phones: [{ phone: '+1234567890', type: 'HOME', wa_id: '' }],
     },
-    phones: [{ phone: '+1234567890', type: 'HOME', wa_id: '' }],
-  }],
+  ],
 });
 ```
 
@@ -689,10 +691,12 @@ await client.messaging.sendList(client.config.token, {
   body: 'This is a list message',
   buttonText: 'Click me',
   action: 'Action',
-  sections: [{
-    title: 'Section 1',
-    rows: [{ id: '1', title: 'Row 1', description: 'Description for Row 1' }],
-  }],
+  sections: [
+    {
+      title: 'Section 1',
+      rows: [{ id: '1', title: 'Row 1', description: 'Description for Row 1' }],
+    },
+  ],
 });
 ```
 
@@ -762,7 +766,7 @@ await client.sendMessage({
 
 ### sendOrderDetails
 
-```yaml
+````yaml
 operationId: sendOrderDetails
 http: POST /sendOrderDetails
 client: client.messaging.sendOrderDetails
@@ -771,7 +775,7 @@ description: Send a WhatsApp **order details** payment / invoice message using a
 typescript: sendOrderDetails(token: string, sendOrderDetailsRequest: SendOrderDetailsRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<MessageSentResponse>
 requestBody: inline object
 responses: 200, 400, 401, 500
-```
+````
 
 ### sendPaymentRequest
 
@@ -915,7 +919,7 @@ responses: 200, 401, 500
 
 ### sendTemplate
 
-```yaml
+````yaml
 operationId: sendTemplate
 http: POST /sendTemplate
 client: client.templates.sendTemplate
@@ -924,7 +928,7 @@ description: Send a WhatsApp **template** message (works outside the 24-hour ses
 typescript: sendTemplate(token: string, sendTemplateRequest?: SendTemplateRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<{ [key: string]: any; }>
 requestBody: inline object
 responses: 200
-```
+````
 
 ```typescript
 await client.messaging.sendTemplate(
@@ -1098,7 +1102,7 @@ import type { SendMessageRequest, MessageSentResponse, ProfileInfo } from '@1msg
 ## Error handling
 
 ```typescript
-import { ResponseError } from "@1msg/sdk";
+import { ResponseError } from '@1msg/sdk';
 // 400 validation, 401 auth, 429 rate limit, 500 server
 ```
 
@@ -1108,4 +1112,3 @@ openapi_title: 1MSG WhatsApp Business API (Public)
 openapi_version: 1.0.0
 operations: 60
 models: 84
-

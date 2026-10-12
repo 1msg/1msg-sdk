@@ -1,5 +1,7 @@
+import type { MessageSentResponse } from './generated/src/models/MessageSentResponse';
+import type { SendMessageRequest } from './generated/src/models/SendMessageRequest';
+
 import { ClientConfig, type ClientConfigOptions } from './client-config';
-import { Configuration } from './generated/src/runtime';
 import {
   CallingApi,
   CatalogApi,
@@ -12,8 +14,7 @@ import {
   UsersApi,
   WebhooksApi,
 } from './generated/src/apis';
-import type { SendMessageRequest } from './generated/src/models/SendMessageRequest';
-import type { MessageSentResponse } from './generated/src/models/MessageSentResponse';
+import { Configuration } from './generated/src/runtime';
 
 export type { ClientConfigOptions } from './client-config';
 export { ClientConfig } from './client-config';
@@ -35,6 +36,7 @@ export class Client {
   readonly webhooks: WebhooksApi;
   readonly calling: CallingApi;
 
+  /** Share one instance-qualified base path across the generated API groups. */
   constructor(config: ClientConfig) {
     this.config = config;
     const configuration = new Configuration({
