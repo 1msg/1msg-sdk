@@ -280,29 +280,56 @@ function historicalFunctions(path, text) {
   }
 }
 
-/** Identify suppression directives in comments only, never in strings or generated documentation examples. */
-export function suppressionErrors(path, text, config) {
-  const errors = [];
-  for (const { ast } of parseUnits(path, text)) {
+/** Yield parsed lexical leaves without descending into documentation or splitting literal/JSX content. */
+function* syntaxTokens(node, ast) {
+  if (
+    (node.kind >= ts.SyntaxKind.FirstJSDocNode &&
+      node.kind <= ts.SyntaxKind.LastJSDocNode) ||
+    node.kind === ts.SyntaxKind.JSDocComment
+  )
+    return;
+  const children = node.getChildren(ast);
+  if (children.length) {
+    for (const child of children) yield* syntaxTokens(child, ast);
+  } else if (node.kind !== ts.SyntaxKind.SyntaxList) {
+    yield node;
+  }
+}
+
+/** Scan only trivia between parsed tokens; interpolation expressions retain comments while template/regex/JSX bodies stay opaque. */
+function* sourceComments(ast) {
+  let end = 0;
+  for (const token of syntaxTokens(ast, ast)) {
+    const start = token.getStart(ast);
     const scanner = ts.createScanner(
       ts.ScriptTarget.Latest,
       false,
       ts.LanguageVariant.Standard,
-      ast.text,
+      ast.text.slice(end, start),
     );
     for (
-      let token = scanner.scan();
-      token !== ts.SyntaxKind.EndOfFileToken;
-      token = scanner.scan()
+      let trivia = scanner.scan();
+      trivia !== ts.SyntaxKind.EndOfFileToken;
+      trivia = scanner.scan()
     ) {
       if (
         ![
           ts.SyntaxKind.SingleLineCommentTrivia,
           ts.SyntaxKind.MultiLineCommentTrivia,
-        ].includes(token)
+        ].includes(trivia)
       )
         continue;
-      const comment = scanner.getTokenText();
+      yield scanner.getTokenText();
+    }
+    end = token.end;
+  }
+}
+
+/** Identify suppression directives in comments only, never in strings or generated documentation examples. */
+export function suppressionErrors(path, text, config) {
+  const errors = [];
+  for (const { ast } of parseUnits(path, text)) {
+    for (const comment of sourceComments(ast)) {
       if (
         /@ts-(?:ignore|nocheck)\b/.test(comment) ||
         /eslint-disable(?!-next-line|-line)\b/.test(comment)

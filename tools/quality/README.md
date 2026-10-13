@@ -150,3 +150,23 @@ not modify the runtime Git driver or skip checks on Windows.
 Only fixture setup changes: analysis rules, historical identities and baseline
 records are unchanged. Copy the complete sealed version without changing debt
 owners, reasons, issue links, expiry dates or baseline entries.
+
+## 1.0.12 migration
+
+Suppression detection now scans trivia between parsed TypeScript tokens. A plain
+scanner loses context after a template interpolation: it can mistake generated
+directive text for a source comment and overlook a real directive after the
+template. Parsed template segments, regex bodies and JSX text remain data;
+comments inside interpolations/JSX expressions and at EOF remain enforceable.
+Positive and negative syntax fixtures and the real guard CLI cover both failure
+modes, including scoped exception requirements and Svelte script blocks.
+Copy the complete sealed version. Metric identities, source coverage and debt
+allowances do not change; rerun guards to detect any previously missed comments.
+
+The staged-file coverage preflight (`staged.mjs --config <eslint-config> --
+<files...>`) permits ignored files only when the repository inventory explicitly
+declares them or they belong to the verified sealed preset. Run it before ESLint
+with `--no-warn-ignored`: this supports preset updates and generated files while
+still rejecting an accidentally ignored authored file. An added or altered
+unsealed vendor file fails integrity validation; an arbitrary ESLint ignore alone
+never grants an exemption.

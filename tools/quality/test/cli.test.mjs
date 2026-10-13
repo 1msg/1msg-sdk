@@ -99,6 +99,80 @@ test('real CLI blocks undocumented new functions, broad suppression and uncovere
   }
 });
 
+/** The real guard CLI distinguishes generated directive text from actual suppressions in and after interpolations. */
+test('actual guards CLI enforces comments around interpolated template data', () => {
+  const f = fixture();
+  try {
+    f.write('src/index.js', 'console.log("app");\n');
+    const base = f.commit();
+    f.write(
+      'src/index.js',
+      'const generated = `a ${name} /* eslint-disable */`;\nconsole.log(generated);\n',
+    );
+    const valid = f.run('guards', '--base', base);
+    assert.equal(valid.status, 0, valid.stderr);
+    for (const source of [
+      'const generated = `a ${ /* eslint-disable */ name } z`;\n',
+      'const generated = `a ${name} z`; // @ts-nocheck\n',
+    ]) {
+      f.write('src/index.js', source);
+      const invalid = f.run('guards', '--base', base);
+      assert.equal(invalid.status, 1, invalid.stderr);
+      assert.match(invalid.stderr, /broad lint\/type suppression/);
+    }
+  } finally {
+    f.close();
+  }
+});
+
+/** The actual staged preflight permits declared generated sources while rejecting ordinary ESLint ignores. */
+test('staged coverage rejects unowned ignores and validates sealed vendor files', () => {
+  const f = fixture();
+  try {
+    f.write('src/index.js', 'console.log("app");\n');
+    f.commit();
+    f.write(
+      'eslint.config.mjs',
+      'export default [{ignores:["src/ignored.js","src/generated.js","tools/quality/**"]}];\n',
+    );
+    f.write(
+      'quality.config.mjs',
+      'export default {generated:[{pattern:"src/generated.js",producer:"fixture"}]};\n',
+    );
+    f.write('src/ignored.js', 'export const forgotten = 1;\n');
+    f.write('src/generated.js', 'export const generated = 1;\n');
+    const staged = fileURLToPath(new URL('../staged.mjs', import.meta.url));
+    /** Invoke the installed ESLint resolver and real sealed inventory with only disposable files. */
+    const check = (path) =>
+      spawnSync(
+        process.execPath,
+        [staged, '--config', 'eslint.config.mjs', '--', path],
+        { cwd: f.cwd, encoding: 'utf8' },
+      );
+    assert.equal(check('src/index.js').status, 0);
+    assert.equal(check('src/generated.js').status, 0);
+    const ignored = check('src/ignored.js');
+    assert.equal(ignored.status, 1);
+    assert.match(
+      ignored.stderr,
+      /Staged authored files have no ESLint coverage/,
+    );
+    const template = fileURLToPath(new URL('..', import.meta.url));
+    for (const path of [...templateFiles(template), 'template-manifest.json']) {
+      const destination = join(f.cwd, 'tools/quality', path);
+      mkdirSync(dirname(destination), { recursive: true });
+      cpSync(join(template, path), destination);
+    }
+    assert.equal(check('tools/quality/lib/guards.mjs').status, 0);
+    f.write('tools/quality/rogue.js', 'export const bypass = 1;\n');
+    const rogue = check('tools/quality/rogue.js');
+    assert.equal(rogue.status, 1);
+    assert.match(rogue.stderr, /undeclared\/missing files/);
+  } finally {
+    f.close();
+  }
+});
+
 test('actual Knip CLI blocks an unused file and unresolved import', () => {
   const f = fixture();
   try {

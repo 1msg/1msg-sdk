@@ -33,13 +33,15 @@
   },
   "lint-staged": {
     "*.{js,jsx,mjs,cjs}": [
+      "node tools/quality/staged.mjs --config eslint.config.mjs --",
       "node tools/quality/node_modules/prettier/bin/prettier.cjs --write",
-      "node tools/quality/node_modules/eslint/bin/eslint.js --config eslint.config.mjs --max-warnings=0"
+      "node tools/quality/node_modules/eslint/bin/eslint.js --config eslint.config.mjs --max-warnings=0 --no-warn-ignored"
     ],
     "*.{ts,tsx,mts,cts}": [
+      "node tools/quality/staged.mjs --config eslint.config.mjs --",
       "node tools/quality/node_modules/prettier/bin/prettier.cjs --write",
-      "node tools/quality/node_modules/eslint/bin/eslint.js --config eslint.config.mjs --max-warnings=0",
-      "node tools/quality/node_modules/eslint/bin/eslint.js --config eslint.typed.config.mjs --max-warnings=0"
+      "node tools/quality/node_modules/eslint/bin/eslint.js --config eslint.config.mjs --max-warnings=0 --no-warn-ignored",
+      "node tools/quality/node_modules/eslint/bin/eslint.js --config eslint.typed.config.mjs --max-warnings=0 --no-warn-ignored"
     ],
     "*.{json,md,yml,yaml}": "node tools/quality/node_modules/prettier/bin/prettier.cjs --write"
   }
