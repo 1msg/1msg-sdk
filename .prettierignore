@@ -1,0 +1,15 @@
+node_modules
+**/node_modules
+tools/quality
+typescript/dist
+typescript/src/generated
+quality/reports
+quality/generator/openapi.yaml
+quality/generator/postprocess.cjs
+java
+kotlin
+scala
+csharp
+python
+rust
+ruby

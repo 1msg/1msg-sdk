@@ -1,0 +1,48 @@
+{
+  "name": "1msg-sdk-quality",
+  "private": true,
+  "version": "1.0.0",
+  "engines": {
+    "node": "24.x"
+  },
+  "packageManager": "npm@11.17.0",
+  "workspaces": [
+    "typescript"
+  ],
+  "scripts": {
+    "typecheck": "node tools/quality/node_modules/typescript/bin/tsc -p tsconfig.quality.json",
+    "lint:static": "node tools/quality/node_modules/eslint/bin/eslint.js . --max-warnings=0",
+    "lint:typed": "node tools/quality/node_modules/eslint/bin/eslint.js -c eslint.typed.config.mjs . --max-warnings=0",
+    "lint:arch": "node tools/quality/node_modules/dependency-cruiser/bin/dependency-cruiser.mjs --config .dependency-cruiser.cjs typescript/src",
+    "test": "npm --prefix typescript test -- --runInBand",
+    "build": "npm --prefix typescript run build",
+    "test:pack": "node scripts/pack-smoke.mjs",
+    "test:generated": "node --test quality/generator/exact-optional.test.mjs && node quality/generator/generate.mjs && node quality/generator/verify-negative.mjs",
+    "test:exceptions": "node quality/exceptions/verify.mjs && node --test quality/exceptions/verify.test.mjs",
+    "test:quality": "node scripts/quality-negative.mjs typescript/src && node --test --test-concurrency=1 scripts/quality-hook.test.mjs scripts/quality-extensions.test.mjs",
+    "test:preset": "node --test tools/quality/test/*.test.mjs",
+    "quality:guards": "node tools/quality/run.mjs guards",
+    "lint:complexity": "node tools/quality/run.mjs report --kind eslint --name complexity -- node tools/quality/node_modules/eslint/bin/eslint.js -c eslint.complexity.config.mjs . --format json",
+    "format": "node tools/quality/node_modules/prettier/bin/prettier.cjs --write .",
+    "format:check": "node tools/quality/node_modules/prettier/bin/prettier.cjs --check .",
+    "hooks:install": "node tools/quality/node_modules/husky/bin.js",
+    "lint:unused:production": "node tools/quality/run.mjs unused-production",
+    "lint:unused:full": "node tools/quality/run.mjs unused-full",
+    "lint:duplicates": "node tools/quality/run.mjs duplicates",
+    "lint:duplicates:full": "node tools/quality/run.mjs duplicates-full"
+  },
+  "lint-staged": {
+    "*.{js,jsx,mjs,cjs}": [
+      "node tools/quality/staged.mjs --config eslint.config.mjs --",
+      "node tools/quality/node_modules/prettier/bin/prettier.cjs --write",
+      "node tools/quality/node_modules/eslint/bin/eslint.js --config eslint.config.mjs --max-warnings=0 --no-warn-ignored"
+    ],
+    "*.{ts,tsx,mts,cts}": [
+      "node tools/quality/staged.mjs --config eslint.config.mjs --",
+      "node tools/quality/node_modules/prettier/bin/prettier.cjs --write",
+      "node tools/quality/node_modules/eslint/bin/eslint.js --config eslint.config.mjs --max-warnings=0 --no-warn-ignored",
+      "node tools/quality/node_modules/eslint/bin/eslint.js --config eslint.typed.config.mjs --max-warnings=0 --no-warn-ignored"
+    ],
+    "*.{json,md,yml,yaml}": "node tools/quality/node_modules/prettier/bin/prettier.cjs --write"
+  }
+}
