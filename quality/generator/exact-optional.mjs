@@ -4,7 +4,7 @@ import { join } from 'node:path';
 import ts from '../../tools/quality/node_modules/typescript/lib/typescript.js';
 
 /** Match generated serializers that materialize missing values as undefined without weakening authored TypeScript checks. */
-export function normalizeOptionalProperties(text, filename) {
+function normalizeOptionalProperties(text, filename) {
   const source = ts.createSourceFile(filename, text, ts.ScriptTarget.Latest, true);
   const edits = [];
   /** Locate only optional declarations; runtime expressions, required fields and parameter positions stay unchanged. */

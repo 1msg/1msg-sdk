@@ -11,3 +11,5 @@ Seven other language trees currently have addressed temporary exceptions in `qua
 Historical Knip, clone and maintainability debt is finding-specific, owned and dated. CI cannot add baselines; new or larger findings fail. Shared preset 1.0.2 is sealed; update it through the common producer, never by local edits.
 
 The `quality-required` aggregate fails on unsuccessful prerequisites. Repository branch protection must separately require this job; workflow naming alone does not enable protection.
+
+The root quality program resolves ambient types from both root and TypeScript workspace installations so the existing Jest tests retain their real declarations. No test is excluded. `knip.config.mjs` uses the same source inventory for both graphs; the Java binary prerequisite is declared only when its generator exists in the analyzed source, including trusted-base replays. No source files or issue categories are suppressed.

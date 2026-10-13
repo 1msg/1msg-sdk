@@ -1,5 +1,6 @@
 import { maintainabilityConfig, tseslint } from './tools/quality/eslint.mjs';
 export default [
+  { files: ['**/*.jsx'], languageOptions: { parserOptions: { ecmaFeatures: { jsx: true } } } },
   { linterOptions: { reportUnusedDisableDirectives: 'off' } },
   {
     ignores: [

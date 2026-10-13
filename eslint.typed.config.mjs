@@ -18,7 +18,7 @@ export default [
     ],
   },
   ...typedConfig({
-    project: './typescript/tsconfig.quality.json',
+    project: './tsconfig.quality.json',
     tsconfigRootDir: import.meta.dirname,
   }),
 ];

@@ -13,6 +13,7 @@ export default {
     'eslint.complexity.config.mjs',
     '.dependency-cruiser.cjs',
     'quality.config.mjs',
+    'knip.config.mjs',
   ],
   generated: [
     {
@@ -34,7 +35,7 @@ export default {
       'quality/generator/*.mjs',
     ],
   },
-  knipConfig: 'knip.json',
+  knipConfig: 'knip.config.mjs',
   duplicatePaths: [
     'typescript/src',
     'typescript/jest.config.js',
