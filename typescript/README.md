@@ -14,8 +14,8 @@ parameter, response code, type export, and common integration pattern is documen
 | **Platform**        | [platform.1msg.io](https://platform.1msg.io/)                                     |
 | **Support**         | support@1msg.io                                                                   |
 | **OpenAPI version** | 1.0.0                                                                             |
-| **Operations**      | 60                                                                                |
-| **Exported models** | 84                                                                                |
+| **Operations**      | 62                                                                                |
+| **Exported models** | 99                                                                                |
 | **AI agent guide**  | [AGENTS.md](./AGENTS.md)                                                          |
 
 ---
@@ -162,7 +162,7 @@ await client.sendMessage({ body: 'Hi', chatId: '12020721369@c.us' });
 
 ## API reference
 
-**60 operations** documented below with HTTP mapping, schemas, SDK and cURL examples.
+**62 operations** documented below with HTTP mapping, schemas, SDK and cURL examples.
 
 ## messaging
 
@@ -225,7 +225,7 @@ curl -X POST 'https://api.1msg.io/{instanceId}/readMessage?token={token}' \
 
 #### Upload media
 
-Upload a file to WhatsApp media storage and get a numeric `mediaId` for later use with `send_file` / `send_sticker`. `body` is an HTTP(S) URL or a base64 data URI.
+Upload a file to WhatsApp media storage and get a numeric `mediaId` for later use with `send_file` / `send_sticker` (`mediaId` field, not `body`). Pass the file as `body` **or** `url` — an HTTP(S) URL or a base64 data URI. The `mediaId` in the response is a numeric string (keep it as a string).
 
 |             |                                                                                                                   |
 | ----------- | ----------------------------------------------------------------------------------------------------------------- |
@@ -246,9 +246,10 @@ Upload a file to WhatsApp media storage and get a numeric `mediaId` for later us
 
 **Request body schema**
 
-| Field  | Type   | Required     | Description                                                    |
-| ------ | ------ | ------------ | -------------------------------------------------------------- |
-| `body` | string | **required** | File HTTP(S) URL or base64 data URI (`data:<mime>;base64,...`) |
+| Field  | Type   | Required | Description                                                    |
+| ------ | ------ | -------- | -------------------------------------------------------------- |
+| `body` | string | optional | File HTTP(S) URL or base64 data URI (`data:<mime>;base64,...`) |
+| `url`  | string | optional | Alias for `body` — public HTTP(S) URL of the file to upload    |
 
 **OpenAPI example body**
 
@@ -687,15 +688,15 @@ curl -X POST 'https://api.1msg.io/{instanceId}/sendButton?token={token}' \
 
 #### Send Carousel
 
-You can send product cards via Carousel in two ways: Template messages: do not require a 24-hour customer service window between you and the recipient. Use sendTemplate. Free-form messages: can be sent only when a customer service window is open between you and the recipient. Use sendCarousel. The message structure in /sendCarousel is largely similar to sending a template. However, in this case you must explicitly specify all elements that are created in advance when working with templates. This is because the message is sent without using a template. In /sendCarousel, for sending a Catalog Carousel there can be either 1 URL button or one or more quick reply buttons.
+You can send product cards via Carousel in two ways: Template messages: do not require a 24-hour customer service window between you and the recipient. Use sendTemplate. Free-form messages: can be sent only when a customer service window is open between you and the recipient. Use sendCarousel. The message structure in /sendCarousel is largely similar to sending a template. However, in this case you must explicitly specify all elements that are created in advance when working with templates. This is because the message is sent without using a template. In /sendCarousel, for a Catalog Carousel there can be either 1 URL button or one or more quick reply buttons. Prefer the simple `cards` array (2–10 cards). Each card needs a header media/product plus a CTA URL or quick-reply buttons. Example: `json { "phone": "79001234567", "body": "Pick a product", "cards": [ { "header": { "type": "image", "image": { "link": "https://example.com/1.jpg" } }, "body": { "text": "Card one" }, "type": "cta_url", "action": { "name": "cta_url", "parameters": { "url": "https://example.com/p1", "display_text": "Open" } } }, { "header": { "type": "image", "image": { "link": "https://example.com/2.jpg" } }, "body": { "text": "Card two" }, "type": "cta_url", "action": { "name": "cta_url", "parameters": { "url": "https://example.com/p2", "display_text": "Open" } } } ] } ` `params` with a `CAROUSEL` component is the template-like alternative.
 
-|             |                                                                                                                                                       |
-| ----------- | ----------------------------------------------------------------------------------------------------------------------------------------------------- |
-| HTTP        | `POST /sendCarousel`                                                                                                                                  |
-| SDK group   | `client.messaging`                                                                                                                                    |
-| API class   | `MessagingApi`                                                                                                                                        |
-| operationId | `sendCarousel`                                                                                                                                        |
-| Signature   | `sendCarousel(token: string, params: Array<object>, body?: string, quotedMsgId?: string, chatId?: string, phone?: number, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<MessageSentResponse>` |
+|             |                                                                                                                                                                                                |
+| ----------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| HTTP        | `POST /sendCarousel`                                                                                                                                                                           |
+| SDK group   | `client.messaging`                                                                                                                                                                             |
+| API class   | `MessagingApi`                                                                                                                                                                                 |
+| operationId | `sendCarousel`                                                                                                                                                                                 |
+| Signature   | `sendCarousel(token: string, body?: string, cards?: Array<{ [key: string]: any; }>, params?: Array<object>, quotedMsgId?: string, chatId?: string, phone?: number, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<MessageSentResponse>` |
 
 #### Authentication
 
@@ -708,13 +709,14 @@ You can send product cards via Carousel in two ways: Template messages: do not r
 
 **Request body schema**
 
-| Field         | Type          | Required     | Description |
-| ------------- | ------------- | ------------ | ----------- |
-| `body`        | string        | optional     |             |
-| `params`      | array<object> | **required** |             |
-| `quotedMsgId` | string        | optional     |             |
-| `chatId`      | string        | optional     |             |
-| `phone`       | integer       | optional     |             |
+| Field         | Type          | Required | Description                                                         |
+| ------------- | ------------- | -------- | ------------------------------------------------------------------- |
+| `body`        | string        | optional | Text shown above the carousel                                       |
+| `cards`       | array<object> | optional | Preferred. 2–10 carousel cards.                                     |
+| `params`      | array<object> | optional | Template-like alternative — include a CAROUSEL component with cards |
+| `quotedMsgId` | string        | optional |                                                                     |
+| `chatId`      | string        | optional |                                                                     |
+| `phone`       | integer       | optional |                                                                     |
 
 **Responses**
 
@@ -748,6 +750,8 @@ curl -X POST 'https://api.1msg.io/{instanceId}/sendCarousel?token={token}' \
 
 #### Send a Contact
 
+Send a WhatsApp contact card. Preferred simple body (legacy-compatible): `json { "phone": "79001234567", "contact": { "name": "Lida", "phone": "+79181976551" } } ` Cloud API shape also works: `contacts` is an array of objects with `name.formatted_name` and `phones[].phone` (E.164 string, **not** a timestamp).
+
 |             |                                                                                                  |
 | ----------- | ------------------------------------------------------------------------------------------------ |
 | HTTP        | `POST /sendContact`                                                                              |
@@ -767,46 +771,28 @@ curl -X POST 'https://api.1msg.io/{instanceId}/sendCarousel?token={token}' \
 
 **Request body schema**
 
-| Field         | Type          | Required | Description                                                                            |
-| ------------- | ------------- | -------- | -------------------------------------------------------------------------------------- |
-| `phone`       | string        | optional | Recipient phone with country code. Use phone or chatId.                                |
-| `chatId`      | string        | optional | Recipient chat ID (`phone@c.us`, group `@g.us`, or BSUID `@lid`). Use phone or chatId. |
-| `quotedMsgId` | string        | optional |                                                                                        |
-| `contacts`    | array<object> | optional |                                                                                        |
+| Field         | Type          | Required     | Description                                                                            |
+| ------------- | ------------- | ------------ | -------------------------------------------------------------------------------------- |
+| `phone`       | string        | optional     | Recipient phone with country code. Use phone or chatId.                                |
+| `chatId`      | string        | optional     | Recipient chat ID (`phone@c.us`, group `@g.us`, or BSUID `@lid`). Use phone or chatId. |
+| `quotedMsgId` | string        | optional     |                                                                                        |
+| `contact`     | object        | optional     | Simple contact card. Use this or `contacts`.                                           |
+| `name`        | string        | object       | **required**                                                                           | Display name (string) or Cloud API name object |
+| `phone`       | string        | **required** | Contact phone in E.164 (`+79181976551`), not a timestamp                               |
+| `email`       | string        | optional     |                                                                                        |
+| `org`         | object        | optional     |                                                                                        |
+| `url`         | string        | optional     |                                                                                        |
+| `contacts`    | array<object> | optional     |                                                                                        |
 
 **OpenAPI example body**
 
 ```json
 {
   "phone": "{{testPhone}}",
-  "contacts": [
-    {
-      "name": {
-        "formatted_name": "John Doe",
-        "first_name": "John",
-        "last_name": "Doe",
-        "middle_name": "",
-        "suffix": "",
-        "prefix": ""
-      },
-      "birthday": "",
-      "addresses": [],
-      "emails": [],
-      "org": {
-        "company": "",
-        "department": "",
-        "title": ""
-      },
-      "phones": [
-        {
-          "phone": "+1234567890",
-          "type": "HOME",
-          "wa_id": ""
-        }
-      ],
-      "urls": []
-    }
-  ]
+  "contact": {
+    "name": "John Doe",
+    "phone": "+1234567890"
+  }
 }
 ```
 
@@ -845,34 +831,10 @@ curl -X POST 'https://api.1msg.io/{instanceId}/sendContact?token={token}' \
   -H 'Content-Type: application/json' \
   -d '{
     "phone": "{{testPhone}}",
-    "contacts": [
-      {
-        "name": {
-          "formatted_name": "John Doe",
-          "first_name": "John",
-          "last_name": "Doe",
-          "middle_name": "",
-          "suffix": "",
-          "prefix": ""
-        },
-        "birthday": "",
-        "addresses": [],
-        "emails": [],
-        "org": {
-          "company": "",
-          "department": "",
-          "title": ""
-        },
-        "phones": [
-          {
-            "phone": "+1234567890",
-            "type": "HOME",
-            "wa_id": ""
-          }
-        ],
-        "urls": []
-      }
-    ]
+    "contact": {
+      "name": "John Doe",
+      "phone": "+1234567890"
+    }
   }'
 ```
 
@@ -1846,7 +1808,7 @@ Namespace: `client.profile` → `ProfileApi` (2 operations)
 
 #### Get Profile Info
 
-Get WhatsApp Business Account profile information
+Return the WhatsApp Business profile for this channel: About, address, description, email, phone, websites, industry (`vertical`), and profile photo URL.
 
 |             |                                                   |
 | ----------- | ------------------------------------------------- |
@@ -1891,13 +1853,13 @@ curl -X GET 'https://api.1msg.io/{instanceId}/me?token={token}'
 
 Update WhatsApp Business Account profile fields. At least one of about, description, email, photo, address, vertical, websites is required. Blocked when the channel subscription limit is exceeded.
 
-|             |                                                                                         |
-| ----------- | --------------------------------------------------------------------------------------- |
-| HTTP        | `POST /me`                                                                              |
-| SDK group   | `client.profile`                                                                        |
-| API class   | `ProfileApi`                                                                            |
-| operationId | `updateMe`                                                                              |
-| Signature   | `updateMe(token: string, updateMeRequest?: UpdateMeRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<{ [key: string]: any; }>` |
+|             |                                                                                        |
+| ----------- | -------------------------------------------------------------------------------------- |
+| HTTP        | `POST /me`                                                                             |
+| SDK group   | `client.profile`                                                                       |
+| API class   | `ProfileApi`                                                                           |
+| operationId | `updateMe`                                                                             |
+| Signature   | `updateMe(token: string, updateMeRequest: UpdateMeRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<UpdateMe200Response>` |
 
 #### Authentication
 
@@ -1910,15 +1872,24 @@ Update WhatsApp Business Account profile fields. At least one of about, descript
 
 **Request body schema**
 
-| Field         | Type          | Required | Description                                    |
-| ------------- | ------------- | -------- | ---------------------------------------------- |
-| `about`       | string        | optional | Profile About section                          |
-| `address`     | string        | optional |                                                |
-| `description` | string        | optional | Business description (max 256 characters)      |
-| `email`       | string        | optional |                                                |
-| `vertical`    | string        | optional | Industry of the business                       |
-| `photo`       | string        | optional | HTTPS URL or data:image/...;base64,... payload |
-| `websites`    | array<string> | optional |                                                |
+| Field         | Type          | Required | Description                                                             |
+| ------------- | ------------- | -------- | ----------------------------------------------------------------------- |
+| `about`       | string        | optional | Profile About section (WhatsApp status text) (example="Available 9–18") |
+| `address`     | string        | optional | Business address shown on the profile                                   |
+| `description` | string        | optional | Business description (max 256 characters)                               |
+| `email`       | string        | optional | Business email shown on the profile (example="support@example.com")     |
+| `vertical`    | string        | optional | Industry of the business                                                |
+| `photo`       | string        | optional | HTTPS URL or data:image/...;base64,... payload                          |
+| `websites`    | array<string> | optional | Business website URLs                                                   |
+
+**OpenAPI example body**
+
+```json
+{
+  "about": "Available 9–18",
+  "email": "support@example.com"
+}
+```
 
 **Responses**
 
@@ -1940,7 +1911,10 @@ await client.profile.updateMe(client.config.token, {});
 ```bash
 curl -X POST 'https://api.1msg.io/{instanceId}/me?token={token}' \
   -H 'Content-Type: application/json' \
-  -d '{}'
+  -d '{
+    "about": "Available 9–18",
+    "email": "support@example.com"
+  }'
 ```
 
 ## groups
@@ -2821,13 +2795,15 @@ Namespace: `client.templates` → `TemplatesApi` (4 operations)
 
 #### Create message template
 
+Create a WABA message template (`name`, `category`, `language`, `components`). After create, Meta reviews the template; list it with `GET /templates`.
+
 |             |                                                                                                  |
 | ----------- | ------------------------------------------------------------------------------------------------ |
 | HTTP        | `POST /addTemplate`                                                                              |
 | SDK group   | `client.templates`                                                                               |
 | API class   | `TemplatesApi`                                                                                   |
 | operationId | `addTemplate`                                                                                    |
-| Signature   | `addTemplate(token: string, addTemplateRequest?: AddTemplateRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<{ [key: string]: any; }>` |
+| Signature   | `addTemplate(token: string, addTemplateRequest?: AddTemplateRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<AddTemplate200Response>` |
 
 #### Authentication
 
@@ -2840,20 +2816,36 @@ Namespace: `client.templates` → `TemplatesApi` (4 operations)
 
 **Request body schema**
 
-| Field        | Type          | Required | Description |
-| ------------ | ------------- | -------- | ----------- |
-| `name`       | string        | optional |             |
-| `category`   | string        | optional |             |
-| `language`   | string        | optional |             |
-| `components` | array<object> | optional |             |
+| Field        | Type          | Required | Description                                                   |
+| ------------ | ------------- | -------- | ------------------------------------------------------------- |
+| `name`       | string        | optional | Template name (example="hello_world")                         |
+| `category`   | string        | optional | MARKETING, UTILITY, or AUTHENTICATION (example="UTILITY")     |
+| `language`   | string        | optional | Template language code (e.g. en_US) (example="en_US")         |
+| `components` | array<object> | optional | Template components (HEADER, BODY, FOOTER, BUTTONS, CAROUSEL) |
+
+**OpenAPI example body**
+
+```json
+{
+  "name": "hello_world",
+  "category": "UTILITY",
+  "language": "en_US",
+  "components": [
+    {
+      "type": "BODY",
+      "text": "Hello {{1}}"
+    }
+  ]
+}
+```
 
 **Responses**
 
-| Status | Description                             | Schema          |
-| ------ | --------------------------------------- | --------------- |
-| `200`  | Template created                        | `—`             |
-| `401`  | Invalid or missing authentication token | `ErrorResponse` |
-| `500`  | Internal server error                   | `ErrorResponse` |
+| Status | Description                                                  | Schema          |
+| ------ | ------------------------------------------------------------ | --------------- |
+| `200`  | Template created. Provider payload is wrapped in `response`. | `—`             |
+| `401`  | Invalid or missing authentication token                      | `ErrorResponse` |
+| `500`  | Internal server error                                        | `ErrorResponse` |
 
 #### SDK example
 
@@ -2866,7 +2858,17 @@ await client.templates.addTemplate(client.config.token, {});
 ```bash
 curl -X POST 'https://api.1msg.io/{instanceId}/addTemplate?token={token}' \
   -H 'Content-Type: application/json' \
-  -d '{}'
+  -d '{
+    "name": "hello_world",
+    "category": "UTILITY",
+    "language": "en_US",
+    "components": [
+      {
+        "type": "BODY",
+        "text": "Hello {{1}}"
+      }
+    ]
+  }'
 ```
 
 ### `listTemplates`
@@ -3005,8 +3007,8 @@ Send a WhatsApp **template** message (works outside the 24-hour session window).
 | Field                    | Type          | Required | Description                                                                                                                                                                                                                                  |
 | ------------------------ | ------------- | -------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | `template`               | string        | optional | Approved template name (template `name`, not the old HSM `element_name`)                                                                                                                                                                     |
-| `language`               | object        | optional | Template language. `policy` is usually `deterministic`.                                                                                                                                                                                      |
-| `policy`                 | string        | optional | (example="deterministic")                                                                                                                                                                                                                    |
+| `language`               | object        | optional | Template language. Always set `policy` to `deterministic`.                                                                                                                                                                                   |
+| `policy`                 | string        | optional | Must be `deterministic` (example="deterministic")                                                                                                                                                                                            |
 | `code`                   | string        | optional | (example="en")                                                                                                                                                                                                                               |
 | `namespace`              | string        | optional | Template namespace from `list_templates`                                                                                                                                                                                                     |
 | `params`                 | array<object> | optional | Template components in WhatsApp Cloud API format. Each item is an object with `type` (`body`, `header`, `button`) and `parameters` (objects with `type` + `text` / media / action). Never a list of strings. Never HSM `localizable_params`. |
@@ -3139,7 +3141,7 @@ curl -X GET 'https://api.1msg.io/{instanceId}/callingSettings?token={token}'
 
 #### Call action (connect / pre_accept / accept / reject / terminate)
 
-Perform a WhatsApp Calling action (beta). Proxies upstream `POST /calling/calls`. Despite the historical path name `/initiateCall`, this endpoint handles **all** call actions: | action | Use | Required | |--------|-----|----------| | `connect` | Outbound business → user | `to` + `session` (`sdp_type: offer`) | | `pre_accept` | Inbound (optional, reduces audio clipping) | `call_id` + `session` (`sdp_type: answer`) | | `accept` | Inbound answer | `call_id` + `session` (`sdp_type: answer`) | | `reject` | Decline inbound | `call_id` | | `terminate` | Hang up | `call_id` | **SDP / media (critical)** - `accept` / `pre_accept` require a **WebRTC-generated SDP answer**. - Do **not** send Meta's offer SDP back as the answer. - Postman (or curl) alone **cannot** establish real media — you need a WebRTC or SIP stack. 1msg only proxies signaling. Answer within ~**30–60 seconds** of an inbound `connect` webhook or Meta terminates as unanswered. Common Meta errors include Calling not enabled (`138000`), no permission (`138006`), SDP validation failures. **Outbound** requires a prior Call Permission Request (CPR) acceptance. See the **Calling** tag overview for the full outbound flow and CPR limits. Trial / `subscriptionBlocked` → **403** plain text. Upstream failures often return HTTP 200 with `{ "response": { "error": "..." } }`.
+Perform a WhatsApp Calling action (beta). Proxies upstream `POST /calling/calls`. Despite the historical path name `/initiateCall`, this endpoint handles **all** call actions: | action | Use | Required | |--------|-----|----------| | `connect` | Outbound business → user | `to` + `session` (`sdp_type: offer`) | | `pre_accept` | Inbound (optional, reduces audio clipping) | `call_id` + `session` (`sdp_type: answer`) | | `accept` | Inbound answer | `call_id` + `session` (`sdp_type: answer`) | | `reject` | Decline inbound | `call_id` | | `terminate` | Hang up | `call_id` | **SDP / media (critical)** - `accept` / `pre_accept` require a **WebRTC-generated SDP answer**. - Do **not** send Meta's offer SDP back as the answer. - Postman (or curl) alone **cannot** establish real media — you need a WebRTC or SIP stack. 1msg only proxies signaling. Answer within ~**30–60 seconds** of an inbound `connect` webhook or Meta terminates as unanswered. Common Meta errors include Calling not enabled (`138000`), no permission (`138006`), SDP validation failures. **Outbound** requires a prior Call Permission Request (CPR) acceptance. See the **Calling** tag overview for the full outbound flow and CPR limits. Trial / `subscriptionBlocked` → **403** plain text. Upstream failures often return HTTP 200 with `{ "response": { "error": "<upstream message>" } }`. `Invalid API KEY` is used only when Meta/360 body actually indicates an invalid API key or token. Other upstream 401s (notably call permission `138006`) pass through `error.message` / `error_user_msg`.
 
 |             |                                                                                                    |
 | ----------- | -------------------------------------------------------------------------------------------------- |
@@ -3341,7 +3343,7 @@ curl -X POST 'https://api.1msg.io/{instanceId}/commerce?token={token}' \
 
 #### Get Commerce Settings
 
-Returns catalog/cart commerce settings for the channel. - `is_catalog_visible` — show catalog storefront icon (`true`) or hide it (`false`). - `is_cart_enabled` — enable cart (`true`) or disable it (`false`).
+Returns catalog/cart commerce settings for the channel. Fails with a provider error when the WABA has no catalog linked — that is an API/account limitation, not an MCP schema bug. - `is_catalog_visible` — show catalog storefront icon (`true`) or hide it (`false`). - `is_cart_enabled` — enable cart (`true`) or disable it (`false`).
 
 |             |                                                         |
 | ----------- | ------------------------------------------------------- |
@@ -3382,7 +3384,75 @@ curl -X GET 'https://api.1msg.io/{instanceId}/commerce?token={token}'
 
 ## channel
 
-Namespace: `client.channel` → `ChannelApi` (3 operations)
+Namespace: `client.channel` → `ChannelApi` (5 operations)
+
+### `createSettings`
+
+#### Update channel settings
+
+Update channel settings. Only send fields you want to change. `webhookUrl` **replaces** the stored list (one URL string, or up to 5 URLs as an array). Passing an empty value clears webhooks. Repeating the same URL(s) also clears a sticky auto-disable. With several URLs, send the complete array to re-enable one of them — omitting a URL removes it from the channel.
+
+|             |                                                                                                          |
+| ----------- | -------------------------------------------------------------------------------------------------------- |
+| HTTP        | `POST /settings`                                                                                         |
+| SDK group   | `client.channel`                                                                                         |
+| API class   | `ChannelApi`                                                                                             |
+| operationId | `createSettings`                                                                                         |
+| Signature   | `createSettings(token: string, createSettingsRequest: CreateSettingsRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<{ [key: string]: any; }>` |
+
+#### Authentication
+
+- Query parameter `token` (required on every call)
+- SDK: pass `client.config.token` as the first method argument
+
+#### Request
+
+- `token` (string, required) — channel API token
+
+**Request body schema**
+
+| Field                             | Type    | Required      | Description |
+| --------------------------------- | ------- | ------------- | ----------- |
+| `webhookUrl`                      | string  | array<string> | optional    | Replacement webhook URL, or array of URLs (max 5) |
+| `guaranteedHooks`                 | boolean | optional      |             |
+| `ackNotificationsOn`              | boolean | optional      |             |
+| `rawHooks`                        | boolean | optional      |             |
+| `template_analytics_enabled`      | boolean | optional      |             |
+| `cta_url_link_tracking_opted_out` | boolean | optional      |             |
+
+**OpenAPI example body**
+
+```json
+{
+  "webhookUrl": "https://example.com/webhook",
+  "ackNotificationsOn": true
+}
+```
+
+**Responses**
+
+| Status | Description                             | Schema          |
+| ------ | --------------------------------------- | --------------- |
+| `200`  | Updated settings                        | `—`             |
+| `401`  | Invalid or missing authentication token | `ErrorResponse` |
+| `500`  | Internal server error                   | `ErrorResponse` |
+
+#### SDK example
+
+```typescript
+await client.channel.createSettings(client.config.token, {});
+```
+
+#### cURL equivalent
+
+```bash
+curl -X POST 'https://api.1msg.io/{instanceId}/settings?token={token}' \
+  -H 'Content-Type: application/json' \
+  -d '{
+    "webhookUrl": "https://example.com/webhook",
+    "ackNotificationsOn": true
+  }'
+```
 
 ### `getConversationalAutomation`
 
@@ -3431,7 +3501,7 @@ curl -X GET 'https://api.1msg.io/{instanceId}/conversationalAutomation?token={to
 
 #### Get channel status
 
-Returns WhatsApp Business API client connection status.
+Return WhatsApp Cloud API connection status for this channel (`connected` when the number can send). May include `accountStatus`, messaging limit, and MM Lite availability. Optional `health_status_warning` appears only when Meta Graph health could not be loaded and a soft `connected` response is returned. Omitted on the normal path and when health details are not applicable for the channel — never an internal provider/transport name.
 
 |             |                                                       |
 | ----------- | ----------------------------------------------------- |
@@ -3439,7 +3509,7 @@ Returns WhatsApp Business API client connection status.
 | SDK group   | `client.channel`                                      |
 | API class   | `ChannelApi`                                          |
 | operationId | `getStatus`                                           |
-| Signature   | `getStatus(token: string, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<{ [key: string]: any; }>` |
+| Signature   | `getStatus(token: string, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<GetStatus200Response>` |
 
 #### Authentication
 
@@ -3468,6 +3538,49 @@ await client.channel.getStatus(client.config.token);
 
 ```bash
 curl -X GET 'https://api.1msg.io/{instanceId}/status?token={token}'
+```
+
+### `listSettings`
+
+#### Get channel settings
+
+Return channel settings: webhook URL(s), delivery flags, and analytics toggles. Auto-disable / circuit state matches `GET /webhook`. **Prefer `webhookStatuses`** (one row per configured URL). The breaker is per URL, not per channel. Channel-level `haveDisabledWebhooks` is `true` when **at least one** URL in `webhookUrl` is sticky auto-disabled — not "the channel is dead". Live URLs still receive events. Top-level `circuitState` / `reason` / `fails` / `trips` are a compatibility summary of one URL (first sticky-disabled, else first configured). This is the same `GET /settings` endpoint as the REST API (previously missing from MCP).
+
+|             |                                                          |
+| ----------- | -------------------------------------------------------- |
+| HTTP        | `GET /settings`                                          |
+| SDK group   | `client.channel`                                         |
+| API class   | `ChannelApi`                                             |
+| operationId | `listSettings`                                           |
+| Signature   | `listSettings(token: string, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<ListSettings200Response>` |
+
+#### Authentication
+
+- Query parameter `token` (required on every call)
+- SDK: pass `client.config.token` as the first method argument
+
+#### Request
+
+- `token` (string, required) — channel API token
+
+**Responses**
+
+| Status | Description                             | Schema          |
+| ------ | --------------------------------------- | --------------- |
+| `200`  | Current settings                        | `—`             |
+| `401`  | Invalid or missing authentication token | `ErrorResponse` |
+| `500`  | Internal server error                   | `ErrorResponse` |
+
+#### SDK example
+
+```typescript
+await client.channel.listSettings(client.config.token);
+```
+
+#### cURL equivalent
+
+```bash
+curl -X GET 'https://api.1msg.io/{instanceId}/settings?token={token}'
 ```
 
 ### `setConversationalAutomation`
@@ -3704,7 +3817,7 @@ Namespace: `client.webhooks` → `WebhooksApi` (2 operations)
 
 #### Get webhook URL
 
-Returns the configured client webhook URL for this channel.
+Return the webhook URL(s) currently configured for this channel, plus delivery status for each URL. `webhookUrl` is a string when a single URL is set, an array of strings when multiple URLs are configured, or `null` if none is set. **Prefer `webhookStatuses`.** The circuit breaker is per URL, not per channel. If 1 of 4 URLs is sticky-disabled, that URL is skipped; the other three still receive events. Send/receive are not affected. Channel-level `haveDisabledWebhooks`, `circuitState`, `reason`, `fails`, `trips`, and timestamps are a compatibility summary of **one** URL (the first sticky-disabled URL, else the first configured URL). They are not "the channel is dead". - `haveDisabledWebhooks` — `true` when **at least one** URL in `webhookUrl` is sticky auto-disabled. Live URLs still get events. - `circuitState` — compressed scalar for that same primary URL: `ok` | `degraded` | `open` | `half_open` | `disabled`. - `disabledWebhooks` — currently configured URLs that are sticky-disabled (subset of `webhookUrl`). - `webhookStatuses` — one row per currently configured URL. Use this array to see which endpoints are live vs skipped. - `fails` / `trips` / `firstFailAt` — **diagnostics for support**, not product UI. `fails` = failures in a rolling ~10 minute window (not lifetime). `trips` = failed recovery probes on the 15 min → 1 h → 6 h schedule (sticky disable after 3). Clients can ignore these and use `webhookStatuses` + `disabledWebhooks` only. Sticky disable skips delivery; it does not unconfigure the URL (it stays in `webhookUrl`). Re-enable with `POST /webhook` or `POST /settings`. Those endpoints **replace** the whole list — with multiple URLs, send the full array.
 
 |             |                                                        |
 | ----------- | ------------------------------------------------------ |
@@ -3725,11 +3838,11 @@ Returns the configured client webhook URL for this channel.
 
 **Responses**
 
-| Status | Description                             | Schema          |
-| ------ | --------------------------------------- | --------------- |
-| `200`  | Current webhook URL                     | `—`             |
-| `401`  | Invalid or missing authentication token | `ErrorResponse` |
-| `500`  | Internal server error                   | `ErrorResponse` |
+| Status | Description                                    | Schema          |
+| ------ | ---------------------------------------------- | --------------- |
+| `200`  | Current webhook URL and per-URL circuit status | `—`             |
+| `401`  | Invalid or missing authentication token        | `ErrorResponse` |
+| `500`  | Internal server error                          | `ErrorResponse` |
 
 #### SDK example
 
@@ -3747,15 +3860,15 @@ curl -X GET 'https://api.1msg.io/{instanceId}/webhook?token={token}'
 
 #### Set webhook URL
 
-Configure the client webhook URL for inbound events. WhatsApp **Calling** events (`field=calls`) are forwarded as passthrough payloads with `type: "calls"` and `instanceId` (connect / status / terminate). Call permission replies arrive on the normal messages path (`call_permission_reply`). Details: **Calling** tag.
+Set the client webhook URL that receives inbound events for this channel. **Replaces** the stored webhook list (it does not append). To deliver the same events to several endpoints, pass an array in `webhookUrl` (max 5) or use `POST /settings`. With several URLs already configured, posting only the disabled URL **drops the others** — send the complete array to re-enable one of many. Incoming payloads include messages, delivery ACKs, group updates, coexistence echoes, and calling events. WhatsApp Calling payloads (`type: "calls"`) are documented under the **Calling** tag. Call permission replies arrive on the normal messages path (`call_permission_reply`). Repeating `POST /webhook` with the same URL(s) clears an auto-disable (self-serve re-enable). Send/receive are not affected by webhook auto-disable.
 
-|             |                                                                                                       |
-| ----------- | ----------------------------------------------------------------------------------------------------- |
-| HTTP        | `POST /webhook`                                                                                       |
-| SDK group   | `client.webhooks`                                                                                     |
-| API class   | `WebhooksApi`                                                                                         |
-| operationId | `setWebhook`                                                                                          |
-| Signature   | `setWebhook(token: string, getWebhook200Response?: GetWebhook200Response, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<{ [key: string]: any; }>` |
+|             |                                                                                              |
+| ----------- | -------------------------------------------------------------------------------------------- |
+| HTTP        | `POST /webhook`                                                                              |
+| SDK group   | `client.webhooks`                                                                            |
+| API class   | `WebhooksApi`                                                                                |
+| operationId | `setWebhook`                                                                                 |
+| Signature   | `setWebhook(token: string, setWebhookRequest: SetWebhookRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<SetWebhook200Response>` |
 
 #### Authentication
 
@@ -3768,9 +3881,9 @@ Configure the client webhook URL for inbound events. WhatsApp **Calling** events
 
 **Request body schema**
 
-| Field        | Type   | Required | Description |
-| ------------ | ------ | -------- | ----------- |
-| `webhookUrl` | string | optional |             |
+| Field        | Type   | Required      | Description  |
+| ------------ | ------ | ------------- | ------------ |
+| `webhookUrl` | string | array<string> | **required** | HTTP or HTTPS URL, or array of URLs (max 5). Replaces the stored list. Empty values are rejected — clear webhooks with `POST /settings`. |
 
 **Responses**
 
@@ -3783,7 +3896,7 @@ Configure the client webhook URL for inbound events. WhatsApp **Calling** events
 #### SDK example
 
 ```typescript
-await client.webhooks.setWebhook(client.config.token, undefined);
+await client.webhooks.setWebhook(client.config.token, {});
 ```
 
 #### cURL equivalent
@@ -3801,6 +3914,14 @@ All models below are exported from `@1msg/sdk`. Import by name:
 ```typescript
 import type { SendMessageRequest, MessageSentResponse } from '@1msg/sdk';
 ```
+
+### `AddTemplate200Response`
+
+Check if a given object implements the AddTemplate200Response interface.
+
+| Field      | Type                   | Required | Description |
+| ---------- | ---------------------- | -------- | ----------- |
+| `response` | `{ [key: string]: any` | optional | —           |
 
 ### `AddTemplateRequest`
 
@@ -4024,6 +4145,23 @@ Check if a given object implements the CreateReadMessageRequest interface.
 | `msgId`           | `string`  | optional | —           |
 | `typingIndicator` | `boolean` | optional | —           |
 
+### `CreateSettingsRequest`
+
+Check if a given object implements the CreateSettingsRequest interface.
+
+| Field                        | Type                              | Required | Description |
+| ---------------------------- | --------------------------------- | -------- | ----------- |
+| `webhookUrl`                 | `CreateSettingsRequestWebhookUrl` | optional | —           |
+| `guaranteedHooks`            | `boolean`                         | optional | —           |
+| `ackNotificationsOn`         | `boolean`                         | optional | —           |
+| `rawHooks`                   | `boolean`                         | optional | —           |
+| `templateAnalyticsEnabled`   | `boolean`                         | optional | —           |
+| `ctaUrlLinkTrackingOptedOut` | `boolean`                         | optional | —           |
+
+### `CreateSettingsRequestWebhookUrl`
+
+_No property metadata — see generated TypeScript interface._
+
 ### `CreateUploadMedia200Response`
 
 Check if a given object implements the CreateUploadMedia200Response interface.
@@ -4036,9 +4174,10 @@ Check if a given object implements the CreateUploadMedia200Response interface.
 
 Check if a given object implements the CreateUploadMediaRequest interface.
 
-| Field  | Type     | Required     | Description |
-| ------ | -------- | ------------ | ----------- |
-| `body` | `string` | **required** | —           |
+| Field  | Type     | Required | Description |
+| ------ | -------- | -------- | ----------- |
+| `body` | `string` | optional | —           |
+| `url`  | `string` | optional | —           |
 
 ### `DeleteFlowsFlowId200Response`
 
@@ -4094,13 +4233,40 @@ Check if a given object implements the GetMmLiteStatus200Response interface.
 | `status`    | `string`  | optional | —           |
 | `message`   | `string`  | optional | —           |
 
+### `GetStatus200Response`
+
+Check if a given object implements the GetStatus200Response interface.
+
+| Field                 | Type      | Required | Description |
+| --------------------- | --------- | -------- | ----------- |
+| `isCloud`             | `boolean` | optional | —           |
+| `status`              | `string`  | optional | —           |
+| `accountStatus`       | `string`  | optional | —           |
+| `mmLiteAvailable`     | `boolean` | optional | —           |
+| `healthStatusWarning` | `string`  | optional | —           |
+
 ### `GetWebhook200Response`
 
-Check if a given object implements the GetWebhook200Response interface.
+@export
 
-| Field        | Type     | Required | Description |
-| ------------ | -------- | -------- | ----------- |
-| `webhookUrl` | `string` | optional | —           |
+| Field                  | Type                                    | Required | Description |
+| ---------------------- | --------------------------------------- | -------- | ----------- |
+| `webhookUrl`           | `GetWebhook200ResponseWebhookUrl        | null`    | optional    | —   |
+| `haveDisabledWebhooks` | `boolean`                               | optional | —           |
+| `circuitState`         | `GetWebhook200ResponseCircuitStateEnum` | optional | —           |
+| `reason`               | `string`                                | optional | —           |
+| `fails`                | `number`                                | optional | —           |
+| `trips`                | `number`                                | optional | —           |
+| `disabledAt`           | `number`                                | optional | —           |
+| `firstFailAt`          | `number`                                | optional | —           |
+| `lastStatus`           | `number`                                | optional | —           |
+| `nextProbeAt`          | `number`                                | optional | —           |
+| `disabledWebhooks`     | `Array<{ [key: string]: any`            | optional | —           |
+| `webhookStatuses`      | `Array<WebhookUrlStatus>`               | optional | —           |
+
+### `GetWebhook200ResponseWebhookUrl`
+
+_No property metadata — see generated TypeScript interface._
 
 ### `GetWhatsappBusinessEncryption200Response`
 
@@ -4193,6 +4359,35 @@ Check if a given object implements the ListMessages200Response interface.
 | ---------- | ---------------------------- | -------- | ----------- |
 | `notice`   | `string`                     | optional | —           |
 | `messages` | `Array<{ [key: string]: any` | optional | —           |
+
+### `ListSettings200Response`
+
+@export
+
+| Field                        | Type                                      | Required | Description |
+| ---------------------------- | ----------------------------------------- | -------- | ----------- |
+| `webhookUrl`                 | `ListSettings200ResponseWebhookUrl`       | optional | —           |
+| `guaranteedHooks`            | `boolean`                                 | optional | —           |
+| `ackNotificationsOn`         | `boolean`                                 | optional | —           |
+| `rawHooks`                   | `boolean`                                 | optional | —           |
+| `mmLiteEnabled`              | `boolean`                                 | optional | —           |
+| `templateAnalyticsEnabled`   | `boolean`                                 | optional | —           |
+| `ctaUrlLinkTrackingOptedOut` | `boolean`                                 | optional | —           |
+| `haveDisabledWebhooks`       | `boolean`                                 | optional | —           |
+| `circuitState`               | `ListSettings200ResponseCircuitStateEnum` | optional | —           |
+| `reason`                     | `string`                                  | optional | —           |
+| `fails`                      | `number`                                  | optional | —           |
+| `trips`                      | `number`                                  | optional | —           |
+| `disabledAt`                 | `number`                                  | optional | —           |
+| `firstFailAt`                | `number`                                  | optional | —           |
+| `lastStatus`                 | `number`                                  | optional | —           |
+| `nextProbeAt`                | `number`                                  | optional | —           |
+| `disabledWebhooks`           | `Array<{ [key: string]: any`              | optional | —           |
+| `webhookStatuses`            | `Array<WebhookUrlStatus>`                 | optional | —           |
+
+### `ListSettings200ResponseWebhookUrl`
+
+_No property metadata — see generated TypeScript interface._
 
 ### `ListTemplates200Response`
 
@@ -4330,13 +4525,14 @@ Check if a given object implements the SendButtonRequestSectionsInnerReply inter
 
 Check if a given object implements the SendCarouselRequest1 interface.
 
-| Field         | Type            | Required     | Description |
-| ------------- | --------------- | ------------ | ----------- |
-| `body`        | `string`        | optional     | —           |
-| `params`      | `Array<object>` | **required** | —           |
-| `quotedMsgId` | `string`        | optional     | —           |
-| `chatId`      | `string`        | optional     | —           |
-| `phone`       | `number`        | optional     | —           |
+| Field         | Type                         | Required | Description |
+| ------------- | ---------------------------- | -------- | ----------- |
+| `body`        | `string`                     | optional | —           |
+| `cards`       | `Array<{ [key: string]: any` | optional | —           |
+| `params`      | `Array<object>`              | optional | —           |
+| `quotedMsgId` | `string`                     | optional | —           |
+| `chatId`      | `string`                     | optional | —           |
+| `phone`       | `number`                     | optional | —           |
 
 ### `SendContactRequest`
 
@@ -4347,7 +4543,24 @@ Check if a given object implements the SendContactRequest interface.
 | `phone`       | `string`                                 | optional | —           |
 | `chatId`      | `string`                                 | optional | —           |
 | `quotedMsgId` | `string`                                 | optional | —           |
+| `contact`     | `SendContactRequestContact`              | optional | —           |
 | `contacts`    | `Array<SendContactRequestContactsInner>` | optional | —           |
+
+### `SendContactRequestContact`
+
+Check if a given object implements the SendContactRequestContact interface.
+
+| Field   | Type                            | Required     | Description |
+| ------- | ------------------------------- | ------------ | ----------- |
+| `name`  | `SendContactRequestContactName` | **required** | —           |
+| `phone` | `string`                        | **required** | —           |
+| `email` | `string`                        | optional     | —           |
+| `org`   | `{ [key: string]: any`          | optional     | —           |
+| `url`   | `string`                        | optional     | —           |
+
+### `SendContactRequestContactName`
+
+_No property metadata — see generated TypeScript interface._
 
 ### `SendContactRequestContactsInner`
 
@@ -4660,6 +4873,31 @@ Check if a given object implements the SendTemplateRequestLanguage interface.
 | `policy` | `string` | optional | —           |
 | `code`   | `string` | optional | —           |
 
+### `SetWebhook200Response`
+
+Check if a given object implements the SetWebhook200Response interface.
+
+| Field        | Type                              | Required | Description |
+| ------------ | --------------------------------- | -------- | ----------- |
+| `set`        | `boolean`                         | optional | —           |
+| `webhookUrl` | `SetWebhook200ResponseWebhookUrl` | optional | —           |
+
+### `SetWebhook200ResponseWebhookUrl`
+
+_No property metadata — see generated TypeScript interface._
+
+### `SetWebhookRequest`
+
+Check if a given object implements the SetWebhookRequest interface.
+
+| Field        | Type                          | Required     | Description |
+| ------------ | ----------------------------- | ------------ | ----------- |
+| `webhookUrl` | `SetWebhookRequestWebhookUrl` | **required** | —           |
+
+### `SetWebhookRequestWebhookUrl`
+
+_No property metadata — see generated TypeScript interface._
+
 ### `SetWhatsappBusinessEncryptionRequest`
 
 Check if a given object implements the SetWhatsappBusinessEncryptionRequest interface.
@@ -4694,6 +4932,14 @@ Check if a given object implements the UpdateCallingSettings200ResponseResponse 
 | ------- | -------- | -------- | ----------- |
 | `error` | `string` | optional | —           |
 
+### `UpdateMe200Response`
+
+Check if a given object implements the UpdateMe200Response interface.
+
+| Field    | Type     | Required | Description |
+| -------- | -------- | -------- | ----------- |
+| `result` | `string` | optional | —           |
+
 ### `UpdateMeRequest`
 
 Check if a given object implements the UpdateMeRequest interface.
@@ -4707,6 +4953,22 @@ Check if a given object implements the UpdateMeRequest interface.
 | `vertical`    | `string`        | optional | —           |
 | `photo`       | `string`        | optional | —           |
 | `websites`    | `Array<string>` | optional | —           |
+
+### `WebhookUrlStatus`
+
+@export
+
+| Field          | Type      | Required     | Description                                                                                                                                                                                                                                                       |
+| -------------- | --------- | ------------ | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `url`          | string    | **required** | This webhook URL (same string as in `webhookUrl`)                                                                                                                                                                                                                 |
+| `circuitState` | enum("ok" | "degraded"   | "open"                                                                                                                                                                                                                                                            | "half_open" | "disabled") | **required** | Delivery state for this URL only. `ok` delivering; `degraded` recent qualifying fails (still delivering, warning email on the 2nd fail); `open` skipping most deliveries pending a probe; `half_open` probe in flight (resume only on HTTP 2xx); `disabled` sticky auto-disabled until self-serve re-enable (`POST /webhook` / `POST /settings` with this URL) or a successful probe before sticky disable. |
+| `reason`       | string    | optional     | Last qualifying fail reason, e.g. `http_404` or `timeout_or_network`                                                                                                                                                                                              |
+| `fails`        | integer   | optional     | Diagnostic only — safe for clients to ignore. Number of qualifying delivery failures in the rolling ~10 minute breaker window (not lifetime, not "how many times the customer retried"). Prefer `circuitState` / `disabledWebhooks`.                              |
+| `trips`        | integer   | optional     | Diagnostic only — safe for clients to ignore. How many recovery probes already failed for this URL. Probes run on a schedule (≈15 min → 1 h → 6 h); sticky disable after 3 failed probes. The 6 h step is the last probe, not a blind "unblock in 6 hours" timer. |
+| `disabledAt`   | integer   | optional     | Epoch milliseconds when this URL became sticky-disabled                                                                                                                                                                                                           |
+| `firstFailAt`  | integer   | optional     | Diagnostic only. Epoch ms of the first fail in the current ~10 minute window (pairs with `fails`; not a customer-facing period).                                                                                                                                  |
+| `lastStatus`   | integer   | optional     | Last HTTP status from this URL, when known                                                                                                                                                                                                                        |
+| `nextProbeAt`  | integer   | optional     | Epoch milliseconds of the next half-open probe, if any                                                                                                                                                                                                            |
 
 ## Cookbook — common integration recipes
 

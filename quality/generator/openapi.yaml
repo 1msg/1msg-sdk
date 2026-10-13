@@ -2689,14 +2689,15 @@ paths:
                 type: object
                 properties:
                   webhookUrl:
+                    nullable: true
                     oneOf:
                       - type: string
+                        nullable: true
                         format: uri
                       - type: array
                         items:
                           type: string
                           format: uri
-                      - type: "null"
                     description: Configured webhook URL, array of URLs, or null when none is set
                   haveDisabledWebhooks:
                     type: boolean
