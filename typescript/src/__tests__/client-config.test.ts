@@ -15,9 +15,7 @@ describe('ClientConfig', () => {
   it('builds request URL with token query param', () => {
     const config = new ClientConfig(baseOptions);
     const url = config.buildRequestUrl('/sendMessage');
-    expect(url).toBe(
-      'https://api.stage.1msg.io/ODI371267300/sendMessage?token=test-api-token',
-    );
+    expect(url).toBe('https://api.stage.1msg.io/ODI371267300/sendMessage?token=test-api-token');
   });
 
   it('normalizes trailing slash on baseUrl', () => {

@@ -1,0 +1,1 @@
+node tools/quality/node_modules/lint-staged/bin/lint-staged.js

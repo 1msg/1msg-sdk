@@ -1,0 +1,22 @@
+{
+  "extends": "./typescript/tsconfig.quality.json",
+  "compilerOptions": {
+    "rootDir": ".",
+    "jsx": "preserve",
+    "typeRoots": ["./node_modules/@types", "./typescript/node_modules/@types"]
+  },
+  "include": ["**/*.ts", "**/*.tsx", "**/*.mts", "**/*.cts"],
+  "exclude": [
+    "**/node_modules/**",
+    "**/dist/**",
+    "tools/quality/**",
+    "quality/reports/**",
+    "java/**",
+    "kotlin/**",
+    "scala/**",
+    "csharp/**",
+    "python/**",
+    "rust/**",
+    "ruby/**"
+  ]
+}

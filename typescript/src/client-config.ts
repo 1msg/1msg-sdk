@@ -16,6 +16,7 @@ export class ClientConfig {
   readonly instanceId: string;
   readonly token: string;
 
+  /** Validate and normalize the three required connection fields before any request. */
   constructor(options: ClientConfigOptions) {
     if (!options.baseUrl?.trim()) {
       throw new Error('ClientConfig.baseUrl is required');
@@ -48,6 +49,7 @@ export class ClientConfig {
     return url.toString();
   }
 
+  /** Remove redundant URL separators without changing the configured API root. */
   private static stripTrailingSlash(value: string): string {
     return value.replace(/\/+$/, '');
   }

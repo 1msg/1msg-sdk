@@ -6,7 +6,7 @@
 ## Identity
 
 ```yaml
-package: "@1msg/sdk"
+package: '@1msg/sdk'
 registry: https://www.npmjs.com/package/@1msg/sdk
 repository: https://github.com/1msg/1msg-sdk/tree/main/typescript
 runtime: node>=18
@@ -45,13 +45,13 @@ Need WhatsApp messaging from Node/TS?
 ## Client map
 
 ```typescript
-client.config      // ClientConfig
-client.messaging   // MessagingApi — send/list messages, media, interactive
-client.profile     // ProfileApi — getMe
-client.groups      // GroupsApi — create/list/manage groups
-client.flows       // FlowsApi — WhatsApp Flows lifecycle
-client.templates   // TemplatesApi — listTemplates
-client.sendMessage // convenience for sendMessage
+client.config; // ClientConfig
+client.messaging; // MessagingApi — send/list messages, media, interactive
+client.profile; // ProfileApi — getMe
+client.groups; // GroupsApi — create/list/manage groups
+client.flows; // FlowsApi — WhatsApp Flows lifecycle
+client.templates; // TemplatesApi — listTemplates
+client.sendMessage; // convenience for sendMessage
 ```
 
 ## Recipient rules
@@ -90,7 +90,7 @@ operationId: initiateCall
 http: POST /initiateCall
 client: client.calling.initiateCall
 summary: Call action (connect / pre_accept / accept / reject / terminate)
-description: Perform a WhatsApp Calling action (beta). Proxies upstream `POST /calling/calls`. Despite the historical path name `/initiateCall`, this endpoint handles **all** call actions: | action | Use | Required | |--------|-----|----------| | `connect` | Outbound business → user | `to` + `session` (`sdp_type: offer`) | | `pre_accept` | Inbound (optional, reduces audio clipping) | `call_id` + `session` (`sdp_type: answer`) | | `accept` | Inbound answer | `call_id` + `session` (`sdp_type: answer`) | | `reject` | Decline inbound | `call_id` | | `terminate` | Hang up | `call_id` | **SDP / media (critical)** - `accept` / `pre_accept` require a **WebRTC-generated SDP answer**. - Do **not** send Meta's offer SDP back as the answer. - Postman (or curl) alone **cannot** establish real media — you need a WebRTC or SIP stack. 1msg only proxies signaling. Answer within ~**30–60 seconds** of an inbound `connect` webhook or Meta terminates as unanswered. Common Meta errors include Calling not enabled (`138000`), no permission (`138006`), SDP validation failures. **Outbound** requires a prior Call Permission Request (CPR) acceptance. See the **Calling** tag overview for the full outbound flow and CPR limits. Trial / `subscriptionBlocked` → **403** plain text. Upstream failures often return HTTP 200 with `{ "response": { "error": "..." } }`.
+description: Perform a WhatsApp Calling action (beta). Proxies upstream `POST /calling/calls`. Despite the historical path name `/initiateCall`, this endpoint handles **all** call actions: | action | Use | Required | |--------|-----|----------| | `connect` | Outbound business → user | `to` + `session` (`sdp_type: offer`) | | `pre_accept` | Inbound (optional, reduces audio clipping) | `call_id` + `session` (`sdp_type: answer`) | | `accept` | Inbound answer | `call_id` + `session` (`sdp_type: answer`) | | `reject` | Decline inbound | `call_id` | | `terminate` | Hang up | `call_id` | **SDP / media (critical)** - `accept` / `pre_accept` require a **WebRTC-generated SDP answer**. - Do **not** send Meta's offer SDP back as the answer. - Postman (or curl) alone **cannot** establish real media — you need a WebRTC or SIP stack. 1msg only proxies signaling. Answer within ~**30–60 seconds** of an inbound `connect` webhook or Meta terminates as unanswered. Common Meta errors include Calling not enabled (`138000`), no permission (`138006`), SDP validation failures. **Outbound** requires a prior Call Permission Request (CPR) acceptance. See the **Calling** tag overview for the full outbound flow and CPR limits. Trial / `subscriptionBlocked` → **403** plain text. Upstream failures often return HTTP 200 with `{ "response": { "error": "<upstream message>" } }`. `Invalid API KEY` is used only when Meta/360 body actually indicates an invalid API key or token. Other upstream 401s (notably call permission `138006`) pass through `error.message` / `error_user_msg`.
 typescript: initiateCall(token: string, initiateCallRequest: InitiateCallRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<InitiateCallResponse>
 requestBody: inline object
 responses: 200, 401, 500
@@ -129,9 +129,22 @@ operationId: getCommerce
 http: GET /commerce
 client: client.catalog.getCommerce
 summary: Get Commerce Settings
-description: Returns catalog/cart commerce settings for the channel. - `is_catalog_visible` — show catalog storefront icon (`true`) or hide it (`false`). - `is_cart_enabled` — enable cart (`true`) or disable it (`false`).
+description: Returns catalog/cart commerce settings for the channel. Fails with a provider error when the WABA has no catalog linked — that is an API/account limitation, not an MCP schema bug. - `is_catalog_visible` — show catalog storefront icon (`true`) or hide it (`false`). - `is_cart_enabled` — enable cart (`true`) or disable it (`false`).
 typescript: getCommerce(token: string, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<Array<GetCommerce200ResponseInner>
 requestBody: none
+responses: 200, 401, 500
+```
+
+### createSettings
+
+```yaml
+operationId: createSettings
+http: POST /settings
+client: client.channel.createSettings
+summary: Update channel settings
+description: Update channel settings. Only send fields you want to change. `webhookUrl` **replaces** the stored list (one URL string, or up to 5 URLs as an array). Passing an empty value clears webhooks. Repeating the same URL(s) also clears a sticky auto-disable. With several URLs, send the complete array to re-enable one of them — omitting a URL removes it from the channel.
+typescript: createSettings(token: string, createSettingsRequest: CreateSettingsRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<{ [key: string]: any; }>
+requestBody: inline object
 responses: 200, 401, 500
 ```
 
@@ -155,8 +168,21 @@ operationId: getStatus
 http: GET /status
 client: client.channel.getStatus
 summary: Get channel status
-description: Returns WhatsApp Business API client connection status.
-typescript: getStatus(token: string, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<{ [key: string]: any; }>
+description: Return WhatsApp Cloud API connection status for this channel (`connected` when the number can send). May include `accountStatus`, messaging limit, and MM Lite availability. Optional `health_status_warning` appears only when Meta Graph health could not be loaded and a soft `connected` response is returned. Omitted on the normal path and when health details are not applicable for the channel — never an internal provider/transport name.
+typescript: getStatus(token: string, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<GetStatus200Response>
+requestBody: none
+responses: 200, 401, 500
+```
+
+### listSettings
+
+```yaml
+operationId: listSettings
+http: GET /settings
+client: client.channel.listSettings
+summary: Get channel settings
+description: Return channel settings: webhook URL(s), delivery flags, and analytics toggles. Auto-disable / circuit state matches `GET /webhook`. **Prefer `webhookStatuses`** (one row per configured URL). The breaker is per URL, not per channel. Channel-level `haveDisabledWebhooks` is `true` when **at least one** URL in `webhookUrl` is sticky auto-disabled — not "the channel is dead". Live URLs still receive events. Top-level `circuitState` / `reason` / `fails` / `trips` are a compatibility summary of one URL (first sticky-disabled, else first configured). This is the same `GET /settings` endpoint as the REST API (previously missing from MCP).
+typescript: listSettings(token: string, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<ListSettings200Response>
 requestBody: none
 responses: 200, 401, 500
 ```
@@ -435,7 +461,7 @@ operationId: createUploadMedia
 http: POST /uploadMedia
 client: client.messaging.createUploadMedia
 summary: Upload media
-description: Upload a file to WhatsApp media storage and get a numeric `mediaId` for later use with `send_file` / `send_sticker`. `body` is an HTTP(S) URL or a base64 data URI.
+description: Upload a file to WhatsApp media storage and get a numeric `mediaId` for later use with `send_file` / `send_sticker` (`mediaId` field, not `body`). Pass the file as `body` **or** `url` — an HTTP(S) URL or a base64 data URI. The `mediaId` in the response is a numeric string (keep it as a string).
 typescript: createUploadMedia(token: string, createUploadMediaRequest: CreateUploadMediaRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<CreateUploadMedia200Response>
 requestBody: inline object
 responses: 200
@@ -556,16 +582,16 @@ await client.messaging.sendButton(client.config.token, {
 
 ### sendCarousel
 
-```yaml
+````yaml
 operationId: sendCarousel
 http: POST /sendCarousel
 client: client.messaging.sendCarousel
 summary: Send Carousel
-description: You can send product cards via Carousel in two ways: Template messages: do not require a 24-hour customer service window between you and the recipient. Use sendTemplate. Free-form messages: can be sent only when a customer service window is open between you and the recipient. Use sendCarousel. The message structure in /sendCarousel is largely similar to sending a template. However, in this case you must explicitly specify all elements that are created in advance when working with templates. This is because the message is sent without using a template. In /sendCarousel, for sending a Catalog Carousel there can be either 1 URL button or one or more quick reply buttons.
-typescript: sendCarousel(token: string, params: Array<object>, body?: string, quotedMsgId?: string, chatId?: string, phone?: number, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<MessageSentResponse>
+description: You can send product cards via Carousel in two ways: Template messages: do not require a 24-hour customer service window between you and the recipient. Use sendTemplate. Free-form messages: can be sent only when a customer service window is open between you and the recipient. Use sendCarousel. The message structure in /sendCarousel is largely similar to sending a template. However, in this case you must explicitly specify all elements that are created in advance when working with templates. This is because the message is sent without using a template. In /sendCarousel, for a Catalog Carousel there can be either 1 URL button or one or more quick reply buttons. Prefer the simple `cards` array (2–10 cards). Each card needs a header media/product plus a CTA URL or quick-reply buttons. Example: ```json { "phone": "79001234567", "body": "Pick a product", "cards": [ { "header": { "type": "image", "image": { "link": "https://example.com/1.jpg" } }, "body": { "text": "Card one" }, "type": "cta_url", "action": { "name": "cta_url", "parameters": { "url": "https://example.com/p1", "display_text": "Open" } } }, { "header": { "type": "image", "image": { "link": "https://example.com/2.jpg" } }, "body": { "text": "Card two" }, "type": "cta_url", "action": { "name": "cta_url", "parameters": { "url": "https://example.com/p2", "display_text": "Open" } } } ] } ``` `params` with a `CAROUSEL` component is the template-like alternative.
+typescript: sendCarousel(token: string, body?: string, cards?: Array<{ [key: string]: any; }>, params?: Array<object>, quotedMsgId?: string, chatId?: string, phone?: number, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<MessageSentResponse>
 requestBody: inline object
 responses: 200, 400, 401, 429, 500
-```
+````
 
 ```typescript
 await client.messaging.sendCarousel(client.config.token, {
@@ -577,27 +603,30 @@ await client.messaging.sendCarousel(client.config.token, {
 
 ### sendContact
 
-```yaml
+````yaml
 operationId: sendContact
 http: POST /sendContact
 client: client.messaging.sendContact
 summary: Send a Contact
+description: Send a WhatsApp contact card. Preferred simple body (legacy-compatible): ```json { "phone": "79001234567", "contact": { "name": "Lida", "phone": "+79181976551" } } ``` Cloud API shape also works: `contacts` is an array of objects with `name.formatted_name` and `phones[].phone` (E.164 string, **not** a timestamp).
 typescript: sendContact(token: string, sendContactRequest?: SendContactRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<MessageSentResponse>
 requestBody: inline object
 responses: 200, 400, 401, 429, 500
-```
+````
 
 ```typescript
 await client.messaging.sendContact(client.config.token, {
   phone: '12020721369',
-  contacts: [{
-    name: {
-      formatted_name: 'John Doe',
-      first_name: 'John',
-      last_name: 'Doe',
+  contacts: [
+    {
+      name: {
+        formatted_name: 'John Doe',
+        first_name: 'John',
+        last_name: 'Doe',
+      },
+      phones: [{ phone: '+1234567890', type: 'HOME', wa_id: '' }],
     },
-    phones: [{ phone: '+1234567890', type: 'HOME', wa_id: '' }],
-  }],
+  ],
 });
 ```
 
@@ -689,10 +718,12 @@ await client.messaging.sendList(client.config.token, {
   body: 'This is a list message',
   buttonText: 'Click me',
   action: 'Action',
-  sections: [{
-    title: 'Section 1',
-    rows: [{ id: '1', title: 'Row 1', description: 'Description for Row 1' }],
-  }],
+  sections: [
+    {
+      title: 'Section 1',
+      rows: [{ id: '1', title: 'Row 1', description: 'Description for Row 1' }],
+    },
+  ],
 });
 ```
 
@@ -762,7 +793,7 @@ await client.sendMessage({
 
 ### sendOrderDetails
 
-```yaml
+````yaml
 operationId: sendOrderDetails
 http: POST /sendOrderDetails
 client: client.messaging.sendOrderDetails
@@ -771,7 +802,7 @@ description: Send a WhatsApp **order details** payment / invoice message using a
 typescript: sendOrderDetails(token: string, sendOrderDetailsRequest: SendOrderDetailsRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<MessageSentResponse>
 requestBody: inline object
 responses: 200, 400, 401, 500
-```
+````
 
 ### sendPaymentRequest
 
@@ -848,7 +879,7 @@ operationId: getMe
 http: GET /me
 client: client.profile.getMe
 summary: Get Profile Info
-description: Get WhatsApp Business Account profile information
+description: Return the WhatsApp Business profile for this channel: About, address, description, email, phone, websites, industry (`vertical`), and profile photo URL.
 typescript: getMe(token: string, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<ProfileInfo>
 requestBody: none
 responses: 200, 401, 500
@@ -866,7 +897,7 @@ http: POST /me
 client: client.profile.updateMe
 summary: Update profile info
 description: Update WhatsApp Business Account profile fields. At least one of about, description, email, photo, address, vertical, websites is required. Blocked when the channel subscription limit is exceeded.
-typescript: updateMe(token: string, updateMeRequest?: UpdateMeRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<{ [key: string]: any; }>
+typescript: updateMe(token: string, updateMeRequest: UpdateMeRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<UpdateMe200Response>
 requestBody: inline object
 responses: 200, 401, 422, 500
 ```
@@ -878,7 +909,8 @@ operationId: addTemplate
 http: POST /addTemplate
 client: client.templates.addTemplate
 summary: Create message template
-typescript: addTemplate(token: string, addTemplateRequest?: AddTemplateRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<{ [key: string]: any; }>
+description: Create a WABA message template (`name`, `category`, `language`, `components`). After create, Meta reviews the template; list it with `GET /templates`.
+typescript: addTemplate(token: string, addTemplateRequest?: AddTemplateRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<AddTemplate200Response>
 requestBody: inline object
 responses: 200, 401, 500
 ```
@@ -915,7 +947,7 @@ responses: 200, 401, 500
 
 ### sendTemplate
 
-```yaml
+````yaml
 operationId: sendTemplate
 http: POST /sendTemplate
 client: client.templates.sendTemplate
@@ -924,7 +956,7 @@ description: Send a WhatsApp **template** message (works outside the 24-hour ses
 typescript: sendTemplate(token: string, sendTemplateRequest?: SendTemplateRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<{ [key: string]: any; }>
 requestBody: inline object
 responses: 200
-```
+````
 
 ```typescript
 await client.messaging.sendTemplate(
@@ -981,7 +1013,7 @@ operationId: getWebhook
 http: GET /webhook
 client: client.webhooks.getWebhook
 summary: Get webhook URL
-description: Returns the configured client webhook URL for this channel.
+description: Return the webhook URL(s) currently configured for this channel, plus delivery status for each URL. `webhookUrl` is a string when a single URL is set, an array of strings when multiple URLs are configured, or `null` if none is set. **Prefer `webhookStatuses`.** The circuit breaker is per URL, not per channel. If 1 of 4 URLs is sticky-disabled, that URL is skipped; the other three still receive events. Send/receive are not affected. Channel-level `haveDisabledWebhooks`, `circuitState`, `reason`, `fails`, `trips`, and timestamps are a compatibility summary of **one** URL (the first sticky-disabled URL, else the first configured URL). They are not "the channel is dead". - `haveDisabledWebhooks` — `true` when **at least one** URL in `webhookUrl` is sticky auto-disabled. Live URLs still get events. - `circuitState` — compressed scalar for that same primary URL: `ok` | `degraded` | `open` | `half_open` | `disabled`. - `disabledWebhooks` — currently configured URLs that are sticky-disabled (subset of `webhookUrl`). - `webhookStatuses` — one row per currently configured URL. Use this array to see which endpoints are live vs skipped. - `fails` / `trips` / `firstFailAt` — **diagnostics for support**, not product UI. `fails` = failures in a rolling ~10 minute window (not lifetime). `trips` = failed recovery probes on the 15 min → 1 h → 6 h schedule (sticky disable after 3). Clients can ignore these and use `webhookStatuses` + `disabledWebhooks` only. Sticky disable skips delivery; it does not unconfigure the URL (it stays in `webhookUrl`). Re-enable with `POST /webhook` or `POST /settings`. Those endpoints **replace** the whole list — with multiple URLs, send the full array.
 typescript: getWebhook(token: string, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<GetWebhook200Response>
 requestBody: none
 responses: 200, 401, 500
@@ -994,8 +1026,8 @@ operationId: setWebhook
 http: POST /webhook
 client: client.webhooks.setWebhook
 summary: Set webhook URL
-description: Configure the client webhook URL for inbound events. WhatsApp **Calling** events (`field=calls`) are forwarded as passthrough payloads with `type: "calls"` and `instanceId` (connect / status / terminate). Call permission replies arrive on the normal messages path (`call_permission_reply`). Details: **Calling** tag.
-typescript: setWebhook(token: string, getWebhook200Response?: GetWebhook200Response, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<{ [key: string]: any; }>
+description: Set the client webhook URL that receives inbound events for this channel. **Replaces** the stored webhook list (it does not append). To deliver the same events to several endpoints, pass an array in `webhookUrl` (max 5) or use `POST /settings`. With several URLs already configured, posting only the disabled URL **drops the others** — send the complete array to re-enable one of many. Incoming payloads include messages, delivery ACKs, group updates, coexistence echoes, and calling events. WhatsApp Calling payloads (`type: "calls"`) are documented under the **Calling** tag. Call permission replies arrive on the normal messages path (`call_permission_reply`). Repeating `POST /webhook` with the same URL(s) clears an auto-disable (self-serve re-enable). Send/receive are not affected by webhook auto-disable.
+typescript: setWebhook(token: string, setWebhookRequest: SetWebhookRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<SetWebhook200Response>
 requestBody: inline object
 responses: 200, 401, 500
 ```
@@ -1010,6 +1042,7 @@ import type { SendMessageRequest, MessageSentResponse, ProfileInfo } from '@1msg
 
 ### All exported models
 
+- `AddTemplate200Response` (1 fields)
 - `AddTemplateRequest` (4 fields)
 - `BlockUserRequest` (1 fields)
 - `CallingSettings` (1 fields)
@@ -1031,15 +1064,19 @@ import type { SendMessageRequest, MessageSentResponse, ProfileInfo } from '@1msg
 - `CreateReadMessage200Response` (1 fields)
 - `CreateReadMessage401Response` (1 fields)
 - `CreateReadMessageRequest` (3 fields)
+- `CreateSettingsRequest` (6 fields)
+- `CreateSettingsRequestWebhookUrl`
 - `CreateUploadMedia200Response` (1 fields)
-- `CreateUploadMediaRequest` (1 fields)
+- `CreateUploadMediaRequest` (2 fields)
 - `DeleteFlowsFlowId200Response` (2 fields)
 - `DeleteGroupsGroupId200Response` (2 fields)
 - `DeleteMediaLegacyRequest` (1 fields)
 - `ErrorResponse` (1 fields)
 - `GetCommerce200ResponseInner` (3 fields)
 - `GetMmLiteStatus200Response` (3 fields)
-- `GetWebhook200Response` (1 fields)
+- `GetStatus200Response` (5 fields)
+- `GetWebhook200Response` (12 fields)
+- `GetWebhook200ResponseWebhookUrl`
 - `GetWhatsappBusinessEncryption200Response` (3 fields)
 - `InitiateCallRequest` (6 fields)
 - `InitiateCallRequestSession` (2 fields)
@@ -1049,6 +1086,8 @@ import type { SendMessageRequest, MessageSentResponse, ProfileInfo } from '@1msg
 - `ListBlockedUsers200Response` (1 fields)
 - `ListFlows200Response` (5 fields)
 - `ListMessages200Response` (2 fields)
+- `ListSettings200Response` (18 fields)
+- `ListSettings200ResponseWebhookUrl`
 - `ListTemplates200Response` (3 fields)
 - `MessageSentResponse` (4 fields)
 - `PatchFlowsFlowIdAssets200Response` (3 fields)
@@ -1061,8 +1100,10 @@ import type { SendMessageRequest, MessageSentResponse, ProfileInfo } from '@1msg
 - `SendButtonRequest` (8 fields)
 - `SendButtonRequestSectionsInner` (2 fields)
 - `SendButtonRequestSectionsInnerReply` (2 fields)
-- `SendCarouselRequest1` (5 fields)
-- `SendContactRequest` (4 fields)
+- `SendCarouselRequest1` (6 fields)
+- `SendContactRequest` (5 fields)
+- `SendContactRequestContact` (5 fields)
+- `SendContactRequestContactName`
 - `SendContactRequestContactsInner` (7 fields)
 - `SendContactRequestContactsInnerName` (6 fields)
 - `SendContactRequestContactsInnerOrg` (3 fields)
@@ -1089,16 +1130,22 @@ import type { SendMessageRequest, MessageSentResponse, ProfileInfo } from '@1msg
 - `SendStickerRequest` (5 fields)
 - `SendTemplateRequest` (10 fields)
 - `SendTemplateRequestLanguage` (2 fields)
+- `SetWebhook200Response` (2 fields)
+- `SetWebhook200ResponseWebhookUrl`
+- `SetWebhookRequest` (1 fields)
+- `SetWebhookRequestWebhookUrl`
 - `SetWhatsappBusinessEncryptionRequest` (1 fields)
 - `SuccessResponse` (1 fields)
 - `UpdateCallingSettings200Response` (3 fields)
 - `UpdateCallingSettings200ResponseResponse` (1 fields)
+- `UpdateMe200Response` (1 fields)
 - `UpdateMeRequest` (7 fields)
+- `WebhookUrlStatus` (9 fields)
 
 ## Error handling
 
 ```typescript
-import { ResponseError } from "@1msg/sdk";
+import { ResponseError } from '@1msg/sdk';
 // 400 validation, 401 auth, 429 rate limit, 500 server
 ```
 
@@ -1106,6 +1153,5 @@ import { ResponseError } from "@1msg/sdk";
 
 openapi_title: 1MSG WhatsApp Business API (Public)
 openapi_version: 1.0.0
-operations: 60
-models: 84
-
+operations: 62
+models: 99
