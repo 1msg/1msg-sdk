@@ -14,12 +14,12 @@
     "gen/sdk-exact-optional.cjs": "f574aa1c01ebf294d72698a273bb48051c8bef81b494c1591ae24b9db76e12b4",
     "gen/sdk-openapi-generator.json": "381512004372deb54bc534592d1b9be262a8409b5e7190ef489927f2638231c5",
     "openapitools.json": "b7658c68d73bb8fd9d92f6ea45cf6d2be303ceca01d991681800bf8088465d57",
-    "package-lock.json": "bdfeb550255495678477c34d25450322e451c4f3e4ea4cbe7a35e6955f67adb3",
-    "packages/sdk/package.json": "ad2d1ad03d8d91dfd1711256a5ecd03903c9c507cec65810afa73a8a59b98aeb",
+    "package-lock.json": "795a58b6261e0d2371a6285904defcc3246b129573985111f220e795647361c9",
+    "packages/sdk/package.json": "18512b6576a68ae52764076a13353b2cd75ed86ba433d6c96caa2fa688634c2f",
     "packages/sdk/src/client-config.ts": "009294617e2216ce71b8537ad7db129b4dd25544b6c19b5c3cd5c8a4db3fa293",
     "packages/sdk/src/client.ts": "5e4a2b9009aaa58eea30a046384f8208f8f910c49df0e5dd6bb39a9002c138fc",
     "packages/sdk/src/index.ts": "bf511c5f2729823a0dd2705ad85f4de5fb6e71fe5308f5bb29e3f3a53718c37a",
-    "packages/sdk/src/version.ts": "59cb84c7afd9012ea621044a58075ea6bf0fc4113067375fd8c7d839a403116a",
+    "packages/sdk/src/version.ts": "0ac45924bdb813e4dcc87d9dc29b6700f737770688a1f17c5bf49c8ffc7af33e",
     "public/openapi.yaml": "5010623f5ab269355b2b6dc11d9b4d47d1e392d9cb366cef66cbbd8239c3ab2b",
     "public/paths/calling/callingSettings.yaml": "8f1ff6184a953c190d025f43bdd5ecc85fea2d8e30423b3cf0d381d539c41cf7",
     "public/paths/calling/initiateCall.yaml": "82febe8ab1ff895e78a522ef23f943507fa6978a3867f4f7d2b4cdfa07109b77",
@@ -108,9 +108,9 @@
   },
   "postprocessorSha256": "22b45d7c425a5012875d6a0aae05e7baa787036085ed0021fffb2099218e4046",
   "release": {
-    "version": "1.0.4",
-    "runId": "offline-1msg-156-final",
-    "artifactSha256": "a68783cd7214e853d9a2bfc3a01836f9657bea4594a474971bb19656ea07c480",
+    "version": "1.0.5",
+    "runId": "release-preparation-20261102-1.0.5",
+    "artifactSha256": "961ad1b54143fe463d2d12d16ef4ff3484de4564add25ad7ec2b00b3e98cea77",
     "versionDerivation": "gen/bump-sdk-version.js applied to sourceCommit before generation"
   }
 }
