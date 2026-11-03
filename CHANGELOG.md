@@ -5,11 +5,28 @@ All notable changes to this project are documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.1.1] - 2026-11-03
+
+### Build & CI
+
+- **sdk:** Publish reviewed TypeScript artifacts with npm OIDC
+
+
+### Miscellaneous
+
+- Migrate repository tooling to Node 24 and pnpm (#7) * chore: migrate repository tooling to Node 24 and pnpm * fix: declare SDK test Node types for strict pnpm installs
+
+
+### Other
+
+- Merge pull request #6 from 1msg/codex/sdk-trusted-publishing ci(sdk): publish reviewed TypeScript artifacts with npm OIDC
+
 ## [1.1.0] - 2026-11-02
 
 ### Added
 
 - Enforce SDK TypeScript quality and freeze deferred native profiles
+
 
 ### Build & CI
 
@@ -19,9 +36,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - **quality:** Merge 1MSG-156 improvements (#4) 1MSG-156: enforce SDK TypeScript quality and native adoption inventory
 
+
 ### Documentation
 
 - Pin C# 2.0.1 and Ruby 2.0.2 after registry publishes Co-authored-by: Cursor <cursoragent@cursor.com>
+
 
 ### Fixed
 
@@ -30,6 +49,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **quality:** Support older Git in shared fixtures
 
 - **quality:** Parse suppression comments with template context
+
 
 ### Miscellaneous
 
@@ -55,6 +75,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Drop ChatApi aliases and move Kotlin/Scala to io.onemsg.sdk Co-authored-by: Cursor <cursoragent@cursor.com>
 
+
 ### Documentation
 
 - Add full README + AGENTS.md for Java, Kotlin, Scala, C# Mirror TypeScript-style OpenAPI docs with registry links for Maven Central and NuGet. Co-authored-by: Cursor <cursoragent@cursor.com>
@@ -65,11 +86,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - 1MSG POM names and note published Kotlin/Scala still use io.onemsg.chat Co-authored-by: Cursor <cursoragent@cursor.com>
 
+
 ### Fixed
 
 - Fix test
 
 - **csharp:** Restore OneMsg.Sdk sources after bad sync
+
 
 ### Miscellaneous
 
@@ -111,6 +134,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - **scala:** Sync io.1msg:sdk-scala v1.0.3
 
+
 ### Other
 
 - Initial commit
@@ -125,9 +149,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Added c, cpp, csharp, java, python raw generated clients
 
-- csharp update
+-  csharp update
 
-- csharp update
+-  csharp update
 
 - Added README and updated dependencies for C# SDK
 
@@ -170,3 +194,5 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Prepare public SDK docs for announcement and drop MCP from this repo. Customer-facing README was stale: mixed versions, generator names, Chat API wording, and an MCP example that belongs in a separate product. Add changelog and GitHub Release workflows, and keep deprecated TypeScript aliases. Co-authored-by: Cursor <cursoragent@cursor.com>
 
 - Merge pull request #3 from 1msg/docs/1msg-63-sdk-announce Prepare public SDK docs and changelog for announcement
+
+
