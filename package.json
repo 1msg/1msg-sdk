@@ -3,9 +3,9 @@
   "private": true,
   "version": "1.0.0",
   "engines": {
-    "node": "24.x"
+    "node": "24.22.x"
   },
-  "packageManager": "npm@11.17.0",
+  "packageManager": "pnpm@10.34.9",
   "workspaces": [
     "typescript"
   ],
@@ -14,8 +14,8 @@
     "lint:static": "node tools/quality/node_modules/eslint/bin/eslint.js . --max-warnings=0",
     "lint:typed": "node tools/quality/node_modules/eslint/bin/eslint.js -c eslint.typed.config.mjs . --max-warnings=0",
     "lint:arch": "node tools/quality/node_modules/dependency-cruiser/bin/dependency-cruiser.mjs --config .dependency-cruiser.cjs typescript/src",
-    "test": "npm --prefix typescript test -- --runInBand",
-    "build": "npm --prefix typescript run build",
+    "test": "pnpm --dir typescript test --runInBand",
+    "build": "pnpm --dir typescript run build",
     "test:pack": "node scripts/pack-smoke.mjs",
     "test:generated": "node --test quality/generator/exact-optional.test.mjs && node quality/generator/generate.mjs && node quality/generator/verify-negative.mjs",
     "test:exceptions": "node quality/exceptions/verify.mjs && node --test quality/exceptions/verify.test.mjs",

@@ -15,33 +15,38 @@ jobs:
       - uses: actions/checkout@v4
         with:
           fetch-depth: 0
+      - uses: pnpm/action-setup@v4
+        with:
+          version: '10.34.9'
+          dest: ${{ runner.temp }}/pnpm-${{ github.run_id }}-${{ github.run_attempt }}-${{ github.job }}
+          run_install: false
       - uses: actions/setup-node@v4
         with:
-          node-version: '24.19.0'
+          node-version: '24.22.2'
       - uses: actions/setup-java@v4
         with:
           distribution: temurin
           java-version: '24.0.2'
-      - run: npm ci
-      - run: npm --prefix tools/quality ci
-      - run: npm run test:preset
-      - run: npm run quality:guards
-      - run: npm run format:check
-      - run: npm run lint:static
-      - run: npm run lint:typed
-      - run: npm run typecheck
-      - run: npm run lint:arch
-      - run: npm run lint:unused:production
-      - run: npm run lint:unused:full
-      - run: npm run lint:duplicates
-      - run: npm run lint:duplicates:full
-      - run: npm run lint:complexity
-      - run: npm run test:exceptions
-      - run: npm run test:generated
-      - run: npm run test:quality
-      - run: npm test
-      - run: npm run build
-      - run: npm run test:pack
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm --dir tools/quality --ignore-workspace install --lockfile-dir "$PWD/quality/tooling" --frozen-lockfile --ignore-scripts
+      - run: pnpm run test:preset
+      - run: pnpm run quality:guards
+      - run: pnpm run format:check
+      - run: pnpm run lint:static
+      - run: pnpm run lint:typed
+      - run: pnpm run typecheck
+      - run: pnpm run lint:arch
+      - run: pnpm run lint:unused:production
+      - run: pnpm run lint:unused:full
+      - run: pnpm run lint:duplicates
+      - run: pnpm run lint:duplicates:full
+      - run: pnpm run lint:complexity
+      - run: pnpm run test:exceptions
+      - run: pnpm run test:generated
+      - run: pnpm run test:quality
+      - run: pnpm test
+      - run: pnpm run build
+      - run: pnpm run test:pack
       - uses: actions/upload-artifact@v4
         if: always()
         with:

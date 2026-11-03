@@ -1,6 +1,6 @@
 # Repository quality and ownership
 
-The TypeScript wrapper uses the strict authored TypeScript profile; generated TypeScript uses profile D. Run `npm ci`, `npm --prefix tools/quality ci`, then the scripts in `.github/workflows/quality.yml`. Build and tests are offline and must not contact a live instance. Never publish or deploy as part of quality checks.
+The TypeScript wrapper uses the strict authored TypeScript profile; generated TypeScript uses profile D. Run `pnpm install --frozen-lockfile`, `pnpm --dir tools/quality --ignore-workspace install --lockfile-dir "$PWD/quality/tooling" --frozen-lockfile --ignore-scripts`, then the scripts in `.github/workflows/quality.yml`. Build and tests are offline and must not contact a live instance. Never publish or deploy as part of quality checks.
 
 `typescript/src/generated/src` is reproduced by `node quality/generator/generate.mjs` from the pinned public contract, OpenAPI Generator 7.22.0 JAR checksum and checksummed TypeScript producer. Edit the contract/producer and intentionally run `--write`; review the entire output inventory. Never hand-edit generated code or broaden ignores.
 

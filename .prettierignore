@@ -13,3 +13,7 @@ csharp
 python
 rust
 ruby
+
+# Package-manager generated data; pnpm frozen installation validates both locks.
+/pnpm-lock.yaml
+/quality/tooling/pnpm-lock.yaml
