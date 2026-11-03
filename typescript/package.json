@@ -1,6 +1,6 @@
 {
   "name": "@1msg/sdk",
-  "version": "1.0.5",
+  "version": "1.0.6",
   "description": "TypeScript SDK for the 1msg WhatsApp API",
   "license": "MIT",
   "repository": {
@@ -27,7 +27,7 @@
     "build": "tsc -p tsconfig.build.json",
     "clean": "rm -rf dist",
     "test": "jest",
-    "prepublishOnly": "npm run build"
+    "prepublishOnly": "pnpm run build"
   },
   "keywords": [
     "1msg",
@@ -44,5 +44,6 @@
   },
   "engines": {
     "node": ">=18.0.0"
-  }
+  },
+  "packageManager": "pnpm@10.34.9"
 }

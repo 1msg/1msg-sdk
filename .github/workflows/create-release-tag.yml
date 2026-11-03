@@ -105,10 +105,12 @@ jobs:
             if [[ -z "$suggested" || "$suggested" == "$current" ]]; then
               echo "No release-worthy commits since ${current} (need feat/fix/perf/refactor/breaking)." >&2
               echo "Use bump=patch|minor|major to force, or wait for product commits." >&2
-              echo "skip=true" >> "$GITHUB_OUTPUT"
-              echo "current=$current" >> "$GITHUB_OUTPUT"
-              echo "suggested=$current" >> "$GITHUB_OUTPUT"
-              echo "bump=none" >> "$GITHUB_OUTPUT"
+              {
+                echo "skip=true"
+                echo "current=$current"
+                echo "suggested=$current"
+                echo "bump=none"
+              } >> "$GITHUB_OUTPUT"
               exit 0
             fi
             cur="${current#v}"; nxt="${suggested#v}"
@@ -130,11 +132,13 @@ jobs:
             exit 1
           fi
 
-          echo "skip=false" >> "$GITHUB_OUTPUT"
-          echo "current=${current:-none}" >> "$GITHUB_OUTPUT"
-          echo "suggested=$suggested" >> "$GITHUB_OUTPUT"
-          echo "bump=$bump" >> "$GITHUB_OUTPUT"
-          echo "default_branch=${{ github.event.repository.default_branch }}" >> "$GITHUB_OUTPUT"
+          {
+            echo "skip=false"
+            echo "current=${current:-none}"
+            echo "suggested=$suggested"
+            echo "bump=$bump"
+            echo "default_branch=${{ github.event.repository.default_branch }}"
+          } >> "$GITHUB_OUTPUT"
 
       - name: Summary (always)
         if: always() && steps.next.outputs.suggested != ''
