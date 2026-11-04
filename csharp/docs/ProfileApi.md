@@ -13,7 +13,7 @@ All URIs are relative to *https://api.1msg.io*
 
 Get Profile Info
 
-Get WhatsApp Business Account profile information
+Return the WhatsApp Business profile for this channel: About, address, description, email, phone, websites, industry (`vertical`), and profile photo URL. 
 
 ### Example
 ```csharp
@@ -111,7 +111,7 @@ catch (ApiException e)
 
 <a id="updateme"></a>
 # **UpdateMe**
-> Dictionary&lt;string, Object&gt; UpdateMe (string token, UpdateMeRequest updateMeRequest = null)
+> UpdateMe200Response UpdateMe (string token, UpdateMeRequest updateMeRequest)
 
 Update profile info
 
@@ -144,12 +144,12 @@ namespace Example
             HttpClientHandler httpClientHandler = new HttpClientHandler();
             var apiInstance = new ProfileApi(httpClient, config, httpClientHandler);
             var token = "token_example";  // string | JWT token or API key for authorization
-            var updateMeRequest = new UpdateMeRequest(); // UpdateMeRequest |  (optional) 
+            var updateMeRequest = new UpdateMeRequest(); // UpdateMeRequest | 
 
             try
             {
                 // Update profile info
-                Dictionary<string, Object> result = apiInstance.UpdateMe(token, updateMeRequest);
+                UpdateMe200Response result = apiInstance.UpdateMe(token, updateMeRequest);
                 Debug.WriteLine(result);
             }
             catch (ApiException  e)
@@ -170,7 +170,7 @@ This returns an ApiResponse object which contains the response data, status code
 try
 {
     // Update profile info
-    ApiResponse<Dictionary<string, Object>> response = apiInstance.UpdateMeWithHttpInfo(token, updateMeRequest);
+    ApiResponse<UpdateMe200Response> response = apiInstance.UpdateMeWithHttpInfo(token, updateMeRequest);
     Debug.Write("Status Code: " + response.StatusCode);
     Debug.Write("Response Headers: " + response.Headers);
     Debug.Write("Response Body: " + response.Data);
@@ -188,11 +188,11 @@ catch (ApiException e)
 | Name | Type | Description | Notes |
 |------|------|-------------|-------|
 | **token** | **string** | JWT token or API key for authorization |  |
-| **updateMeRequest** | [**UpdateMeRequest**](UpdateMeRequest.md) |  | [optional]  |
+| **updateMeRequest** | [**UpdateMeRequest**](UpdateMeRequest.md) |  |  |
 
 ### Return type
 
-**Dictionary<string, Object>**
+[**UpdateMe200Response**](UpdateMe200Response.md)
 
 ### Authorization
 

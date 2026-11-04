@@ -18,9 +18,11 @@ All URIs are relative to *https://api.1msg.io*
 
 <a id="createflows"></a>
 # **CreateFlows**
-> CreateGroups200Response CreateFlows (string token, string wabaAccountId = null)
+> CreateGroups200Response CreateFlows (string token, CreateFlowsRequest createFlowsRequest, string wabaAccountId = null)
 
 Create Flow
+
+Create a WhatsApp Flow (`name` + `categories` required). Currently returns HTTP 501 until the Meta Graph Flows rewrite is available. 
 
 ### Example
 ```csharp
@@ -49,12 +51,13 @@ namespace Example
             HttpClientHandler httpClientHandler = new HttpClientHandler();
             var apiInstance = new FlowsApi(httpClient, config, httpClientHandler);
             var token = "token_example";  // string | JWT token or API key for authorization
+            var createFlowsRequest = new CreateFlowsRequest(); // CreateFlowsRequest | 
             var wabaAccountId = {{wabaAccountId}};  // string |  (optional) 
 
             try
             {
                 // Create Flow
-                CreateGroups200Response result = apiInstance.CreateFlows(token, wabaAccountId);
+                CreateGroups200Response result = apiInstance.CreateFlows(token, createFlowsRequest, wabaAccountId);
                 Debug.WriteLine(result);
             }
             catch (ApiException  e)
@@ -75,7 +78,7 @@ This returns an ApiResponse object which contains the response data, status code
 try
 {
     // Create Flow
-    ApiResponse<CreateGroups200Response> response = apiInstance.CreateFlowsWithHttpInfo(token, wabaAccountId);
+    ApiResponse<CreateGroups200Response> response = apiInstance.CreateFlowsWithHttpInfo(token, createFlowsRequest, wabaAccountId);
     Debug.Write("Status Code: " + response.StatusCode);
     Debug.Write("Response Headers: " + response.Headers);
     Debug.Write("Response Body: " + response.Data);
@@ -93,6 +96,7 @@ catch (ApiException e)
 | Name | Type | Description | Notes |
 |------|------|-------------|-------|
 | **token** | **string** | JWT token or API key for authorization |  |
+| **createFlowsRequest** | [**CreateFlowsRequest**](CreateFlowsRequest.md) |  |  |
 | **wabaAccountId** | **string** |  | [optional]  |
 
 ### Return type
@@ -105,7 +109,7 @@ catch (ApiException e)
 
 ### HTTP request headers
 
- - **Content-Type**: Not defined
+ - **Content-Type**: application/json
  - **Accept**: application/json
 
 
@@ -113,6 +117,7 @@ catch (ApiException e)
 | Status code | Description | Response headers |
 |-------------|-------------|------------------|
 | **200** | OK |  -  |
+| **501** | WhatsApp Flows are not available on this channel yet |  -  |
 
 [[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
 
@@ -730,9 +735,11 @@ catch (ApiException e)
 
 <a id="listflows"></a>
 # **ListFlows**
-> ListFlows200Response ListFlows (string token, string wabaAccountId = null)
+> ListFlows200Response ListFlows (string token, string wabaAccountId = null, string fields = null)
 
 List Flows
+
+List WhatsApp Flows for the WABA. Currently returns HTTP 501 until the Meta Graph Flows rewrite is available. 
 
 ### Example
 ```csharp
@@ -762,11 +769,12 @@ namespace Example
             var apiInstance = new FlowsApi(httpClient, config, httpClientHandler);
             var token = "token_example";  // string | JWT token or API key for authorization
             var wabaAccountId = {{wabaAccountId}};  // string |  (optional) 
+            var fields = "fields_example";  // string | Comma-separated Flow fields to return (optional) 
 
             try
             {
                 // List Flows
-                ListFlows200Response result = apiInstance.ListFlows(token, wabaAccountId);
+                ListFlows200Response result = apiInstance.ListFlows(token, wabaAccountId, fields);
                 Debug.WriteLine(result);
             }
             catch (ApiException  e)
@@ -787,7 +795,7 @@ This returns an ApiResponse object which contains the response data, status code
 try
 {
     // List Flows
-    ApiResponse<ListFlows200Response> response = apiInstance.ListFlowsWithHttpInfo(token, wabaAccountId);
+    ApiResponse<ListFlows200Response> response = apiInstance.ListFlowsWithHttpInfo(token, wabaAccountId, fields);
     Debug.Write("Status Code: " + response.StatusCode);
     Debug.Write("Response Headers: " + response.Headers);
     Debug.Write("Response Body: " + response.Data);
@@ -806,6 +814,7 @@ catch (ApiException e)
 |------|------|-------------|-------|
 | **token** | **string** | JWT token or API key for authorization |  |
 | **wabaAccountId** | **string** |  | [optional]  |
+| **fields** | **string** | Comma-separated Flow fields to return | [optional]  |
 
 ### Return type
 
@@ -825,14 +834,17 @@ catch (ApiException e)
 | Status code | Description | Response headers |
 |-------------|-------------|------------------|
 | **200** | OK |  -  |
+| **501** | WhatsApp Flows are not available on this channel yet |  -  |
 
 [[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
 
 <a id="patchflowsflowidassets"></a>
 # **PatchFlowsFlowIdAssets**
-> PatchFlowsFlowIdAssets200Response PatchFlowsFlowIdAssets (string flowId, string token, string wabaAccountId = null)
+> PatchFlowsFlowIdAssets200Response PatchFlowsFlowIdAssets (string flowId, string token, PatchFlowsFlowIdAssetsRequest patchFlowsFlowIdAssetsRequest, string wabaAccountId = null)
 
 Update Flow Structure
+
+Replace the Flow JSON document (`flowJson`). Currently returns HTTP 501 until the Meta Graph Flows rewrite is available. 
 
 ### Example
 ```csharp
@@ -862,12 +874,13 @@ namespace Example
             var apiInstance = new FlowsApi(httpClient, config, httpClientHandler);
             var flowId = "flowId_example";  // string | Flow ID
             var token = "token_example";  // string | JWT token or API key for authorization
+            var patchFlowsFlowIdAssetsRequest = new PatchFlowsFlowIdAssetsRequest(); // PatchFlowsFlowIdAssetsRequest | 
             var wabaAccountId = {{wabaAccountId}};  // string |  (optional) 
 
             try
             {
                 // Update Flow Structure
-                PatchFlowsFlowIdAssets200Response result = apiInstance.PatchFlowsFlowIdAssets(flowId, token, wabaAccountId);
+                PatchFlowsFlowIdAssets200Response result = apiInstance.PatchFlowsFlowIdAssets(flowId, token, patchFlowsFlowIdAssetsRequest, wabaAccountId);
                 Debug.WriteLine(result);
             }
             catch (ApiException  e)
@@ -888,7 +901,7 @@ This returns an ApiResponse object which contains the response data, status code
 try
 {
     // Update Flow Structure
-    ApiResponse<PatchFlowsFlowIdAssets200Response> response = apiInstance.PatchFlowsFlowIdAssetsWithHttpInfo(flowId, token, wabaAccountId);
+    ApiResponse<PatchFlowsFlowIdAssets200Response> response = apiInstance.PatchFlowsFlowIdAssetsWithHttpInfo(flowId, token, patchFlowsFlowIdAssetsRequest, wabaAccountId);
     Debug.Write("Status Code: " + response.StatusCode);
     Debug.Write("Response Headers: " + response.Headers);
     Debug.Write("Response Body: " + response.Data);
@@ -907,6 +920,7 @@ catch (ApiException e)
 |------|------|-------------|-------|
 | **flowId** | **string** | Flow ID |  |
 | **token** | **string** | JWT token or API key for authorization |  |
+| **patchFlowsFlowIdAssetsRequest** | [**PatchFlowsFlowIdAssetsRequest**](PatchFlowsFlowIdAssetsRequest.md) |  |  |
 | **wabaAccountId** | **string** |  | [optional]  |
 
 ### Return type
@@ -919,7 +933,7 @@ catch (ApiException e)
 
 ### HTTP request headers
 
- - **Content-Type**: Not defined
+ - **Content-Type**: application/json
  - **Accept**: application/json
 
 
@@ -927,14 +941,17 @@ catch (ApiException e)
 | Status code | Description | Response headers |
 |-------------|-------------|------------------|
 | **200** | OK |  -  |
+| **501** | WhatsApp Flows are not available on this channel yet |  -  |
 
 [[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
 
 <a id="patchflowsflowidmetadata"></a>
 # **PatchFlowsFlowIdMetadata**
-> Dictionary&lt;string, Object&gt; PatchFlowsFlowIdMetadata (string flowId, string token, string wabaAccountId = null)
+> Dictionary&lt;string, Object&gt; PatchFlowsFlowIdMetadata (string flowId, string token, PatchFlowsFlowIdMetadataRequest patchFlowsFlowIdMetadataRequest, string wabaAccountId = null)
 
 Update Flow Metadata
+
+Update Flow `name`, `categories`, and/or `endpointUri`. Currently returns HTTP 501 until the Meta Graph Flows rewrite is available. 
 
 ### Example
 ```csharp
@@ -964,12 +981,13 @@ namespace Example
             var apiInstance = new FlowsApi(httpClient, config, httpClientHandler);
             var flowId = "flowId_example";  // string | Flow ID
             var token = "token_example";  // string | JWT token or API key for authorization
+            var patchFlowsFlowIdMetadataRequest = new PatchFlowsFlowIdMetadataRequest(); // PatchFlowsFlowIdMetadataRequest | 
             var wabaAccountId = {{wabaAccountId}};  // string |  (optional) 
 
             try
             {
                 // Update Flow Metadata
-                Dictionary<string, Object> result = apiInstance.PatchFlowsFlowIdMetadata(flowId, token, wabaAccountId);
+                Dictionary<string, Object> result = apiInstance.PatchFlowsFlowIdMetadata(flowId, token, patchFlowsFlowIdMetadataRequest, wabaAccountId);
                 Debug.WriteLine(result);
             }
             catch (ApiException  e)
@@ -990,7 +1008,7 @@ This returns an ApiResponse object which contains the response data, status code
 try
 {
     // Update Flow Metadata
-    ApiResponse<Dictionary<string, Object>> response = apiInstance.PatchFlowsFlowIdMetadataWithHttpInfo(flowId, token, wabaAccountId);
+    ApiResponse<Dictionary<string, Object>> response = apiInstance.PatchFlowsFlowIdMetadataWithHttpInfo(flowId, token, patchFlowsFlowIdMetadataRequest, wabaAccountId);
     Debug.Write("Status Code: " + response.StatusCode);
     Debug.Write("Response Headers: " + response.Headers);
     Debug.Write("Response Body: " + response.Data);
@@ -1009,6 +1027,7 @@ catch (ApiException e)
 |------|------|-------------|-------|
 | **flowId** | **string** | Flow ID |  |
 | **token** | **string** | JWT token or API key for authorization |  |
+| **patchFlowsFlowIdMetadataRequest** | [**PatchFlowsFlowIdMetadataRequest**](PatchFlowsFlowIdMetadataRequest.md) |  |  |
 | **wabaAccountId** | **string** |  | [optional]  |
 
 ### Return type
@@ -1021,7 +1040,7 @@ catch (ApiException e)
 
 ### HTTP request headers
 
- - **Content-Type**: Not defined
+ - **Content-Type**: application/json
  - **Accept**: application/json
 
 
@@ -1029,6 +1048,7 @@ catch (ApiException e)
 | Status code | Description | Response headers |
 |-------------|-------------|------------------|
 | **200** | OK |  -  |
+| **501** | WhatsApp Flows are not available on this channel yet |  -  |
 
 [[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
 

@@ -14,7 +14,7 @@ All URIs are relative to *https://api.1msg.io*
 
 <a id="creategroups"></a>
 # **CreateGroups**
-> CreateGroups200Response CreateGroups (string token)
+> CreateGroups200Response CreateGroups (string token, CreateGroupsRequest createGroupsRequest)
 
 Create Group
 
@@ -45,11 +45,12 @@ namespace Example
             HttpClientHandler httpClientHandler = new HttpClientHandler();
             var apiInstance = new GroupsApi(httpClient, config, httpClientHandler);
             var token = "token_example";  // string | JWT token or API key for authorization
+            var createGroupsRequest = new CreateGroupsRequest(); // CreateGroupsRequest | 
 
             try
             {
                 // Create Group
-                CreateGroups200Response result = apiInstance.CreateGroups(token);
+                CreateGroups200Response result = apiInstance.CreateGroups(token, createGroupsRequest);
                 Debug.WriteLine(result);
             }
             catch (ApiException  e)
@@ -70,7 +71,7 @@ This returns an ApiResponse object which contains the response data, status code
 try
 {
     // Create Group
-    ApiResponse<CreateGroups200Response> response = apiInstance.CreateGroupsWithHttpInfo(token);
+    ApiResponse<CreateGroups200Response> response = apiInstance.CreateGroupsWithHttpInfo(token, createGroupsRequest);
     Debug.Write("Status Code: " + response.StatusCode);
     Debug.Write("Response Headers: " + response.Headers);
     Debug.Write("Response Body: " + response.Data);
@@ -88,6 +89,7 @@ catch (ApiException e)
 | Name | Type | Description | Notes |
 |------|------|-------------|-------|
 | **token** | **string** | JWT token or API key for authorization |  |
+| **createGroupsRequest** | [**CreateGroupsRequest**](CreateGroupsRequest.md) |  |  |
 
 ### Return type
 
@@ -99,7 +101,7 @@ catch (ApiException e)
 
 ### HTTP request headers
 
- - **Content-Type**: Not defined
+ - **Content-Type**: application/json
  - **Accept**: application/json
 
 
@@ -112,9 +114,11 @@ catch (ApiException e)
 
 <a id="creategroupsgroupid"></a>
 # **CreateGroupsGroupId**
-> Dictionary&lt;string, Object&gt; CreateGroupsGroupId (string groupId, string token)
+> Dictionary&lt;string, Object&gt; CreateGroupsGroupId (string groupId, string token, CreateGroupsGroupIdRequest createGroupsGroupIdRequest)
 
 Update Group Info
+
+Update group subject, description, and/or profile picture. Path `groupId` is the WABA group id (without `@g.us`). 
 
 ### Example
 ```csharp
@@ -144,11 +148,12 @@ namespace Example
             var apiInstance = new GroupsApi(httpClient, config, httpClientHandler);
             var groupId = {{createdGroupId}};  // string | 
             var token = "token_example";  // string | JWT token or API key for authorization
+            var createGroupsGroupIdRequest = new CreateGroupsGroupIdRequest(); // CreateGroupsGroupIdRequest | 
 
             try
             {
                 // Update Group Info
-                Dictionary<string, Object> result = apiInstance.CreateGroupsGroupId(groupId, token);
+                Dictionary<string, Object> result = apiInstance.CreateGroupsGroupId(groupId, token, createGroupsGroupIdRequest);
                 Debug.WriteLine(result);
             }
             catch (ApiException  e)
@@ -169,7 +174,7 @@ This returns an ApiResponse object which contains the response data, status code
 try
 {
     // Update Group Info
-    ApiResponse<Dictionary<string, Object>> response = apiInstance.CreateGroupsGroupIdWithHttpInfo(groupId, token);
+    ApiResponse<Dictionary<string, Object>> response = apiInstance.CreateGroupsGroupIdWithHttpInfo(groupId, token, createGroupsGroupIdRequest);
     Debug.Write("Status Code: " + response.StatusCode);
     Debug.Write("Response Headers: " + response.Headers);
     Debug.Write("Response Body: " + response.Data);
@@ -188,6 +193,7 @@ catch (ApiException e)
 |------|------|-------------|-------|
 | **groupId** | **string** |  |  |
 | **token** | **string** | JWT token or API key for authorization |  |
+| **createGroupsGroupIdRequest** | [**CreateGroupsGroupIdRequest**](CreateGroupsGroupIdRequest.md) |  |  |
 
 ### Return type
 
@@ -199,7 +205,7 @@ catch (ApiException e)
 
 ### HTTP request headers
 
- - **Content-Type**: Not defined
+ - **Content-Type**: application/json
  - **Accept**: application/json
 
 
@@ -412,7 +418,7 @@ catch (ApiException e)
 
 <a id="getgroupsgroupid"></a>
 # **GetGroupsGroupId**
-> Dictionary&lt;string, Object&gt; GetGroupsGroupId (string groupId, string token)
+> Dictionary&lt;string, Object&gt; GetGroupsGroupId (string groupId, string token, string fields = null)
 
 Get Group Info
 
@@ -444,11 +450,12 @@ namespace Example
             var apiInstance = new GroupsApi(httpClient, config, httpClientHandler);
             var groupId = {{createdGroupId}};  // string | 
             var token = "token_example";  // string | JWT token or API key for authorization
+            var fields = "fields_example";  // string | Comma-separated group fields to return (optional) 
 
             try
             {
                 // Get Group Info
-                Dictionary<string, Object> result = apiInstance.GetGroupsGroupId(groupId, token);
+                Dictionary<string, Object> result = apiInstance.GetGroupsGroupId(groupId, token, fields);
                 Debug.WriteLine(result);
             }
             catch (ApiException  e)
@@ -469,7 +476,7 @@ This returns an ApiResponse object which contains the response data, status code
 try
 {
     // Get Group Info
-    ApiResponse<Dictionary<string, Object>> response = apiInstance.GetGroupsGroupIdWithHttpInfo(groupId, token);
+    ApiResponse<Dictionary<string, Object>> response = apiInstance.GetGroupsGroupIdWithHttpInfo(groupId, token, fields);
     Debug.Write("Status Code: " + response.StatusCode);
     Debug.Write("Response Headers: " + response.Headers);
     Debug.Write("Response Body: " + response.Data);
@@ -488,6 +495,7 @@ catch (ApiException e)
 |------|------|-------------|-------|
 | **groupId** | **string** |  |  |
 | **token** | **string** | JWT token or API key for authorization |  |
+| **fields** | **string** | Comma-separated group fields to return | [optional]  |
 
 ### Return type
 
@@ -612,9 +620,11 @@ catch (ApiException e)
 
 <a id="listgroups"></a>
 # **ListGroups**
-> Dictionary&lt;string, Object&gt; ListGroups (string token)
+> Dictionary&lt;string, Object&gt; ListGroups (string token, int? limit = null, string before = null, string after = null)
 
 Get Groups List
+
+List WhatsApp groups for this channel. Paginate with `limit`, `before`, and `after`.
 
 ### Example
 ```csharp
@@ -643,11 +653,14 @@ namespace Example
             HttpClientHandler httpClientHandler = new HttpClientHandler();
             var apiInstance = new GroupsApi(httpClient, config, httpClientHandler);
             var token = "token_example";  // string | JWT token or API key for authorization
+            var limit = 56;  // int? | Max groups to return (optional) 
+            var before = "before_example";  // string | Cursor for the previous page (optional) 
+            var after = "after_example";  // string | Cursor for the next page (optional) 
 
             try
             {
                 // Get Groups List
-                Dictionary<string, Object> result = apiInstance.ListGroups(token);
+                Dictionary<string, Object> result = apiInstance.ListGroups(token, limit, before, after);
                 Debug.WriteLine(result);
             }
             catch (ApiException  e)
@@ -668,7 +681,7 @@ This returns an ApiResponse object which contains the response data, status code
 try
 {
     // Get Groups List
-    ApiResponse<Dictionary<string, Object>> response = apiInstance.ListGroupsWithHttpInfo(token);
+    ApiResponse<Dictionary<string, Object>> response = apiInstance.ListGroupsWithHttpInfo(token, limit, before, after);
     Debug.Write("Status Code: " + response.StatusCode);
     Debug.Write("Response Headers: " + response.Headers);
     Debug.Write("Response Body: " + response.Data);
@@ -686,6 +699,9 @@ catch (ApiException e)
 | Name | Type | Description | Notes |
 |------|------|-------------|-------|
 | **token** | **string** | JWT token or API key for authorization |  |
+| **limit** | **int?** | Max groups to return | [optional]  |
+| **before** | **string** | Cursor for the previous page | [optional]  |
+| **after** | **string** | Cursor for the next page | [optional]  |
 
 ### Return type
 

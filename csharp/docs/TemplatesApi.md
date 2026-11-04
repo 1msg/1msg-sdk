@@ -11,9 +11,11 @@ All URIs are relative to *https://api.1msg.io*
 
 <a id="addtemplate"></a>
 # **AddTemplate**
-> Dictionary&lt;string, Object&gt; AddTemplate (string token, AddTemplateRequest addTemplateRequest = null)
+> AddTemplate200Response AddTemplate (string token, AddTemplateRequest addTemplateRequest = null)
 
 Create message template
+
+Create a WABA message template (`name`, `category`, `language`, `components`). After create, Meta reviews the template; list it with `GET /templates`.  Authentication OTP templates (`category: AUTHENTICATION`, copy-code / OTP button) can later be sent only to a phone number. Meta does not accept a BSUID recipient for them (error 131062). If the recipient is known only by BSUID — for example they use a username and their phone number is not in your Business Portfolio — that template cannot be sent.  To ask a BSUID user for their phone number, add a `REQUEST_CONTACT_INFO` button on a `UTILITY` or `MARKETING` template. Do not send `text` on that button — WhatsApp sets the label (and rejects a custom one). The button also has no send-time parameters: `POST /sendTemplate` does not take a button component for it. Inside an open 24-hour window, call `POST /sendContactInfo` instead of a template.  When the user shares the number, the inbound webhook is a `contacts` message with `origin: contact_request`. The phone is stored on that BSUID automatically. See `POST /sendContactInfo`.  ```json {   \"name\": \"request_phone\",   \"category\": \"UTILITY\",   \"language\": \"en_US\",   \"components\": [     {       \"type\": \"BODY\",       \"text\": \"Please share your phone number so we can continue.\"     },     {       \"type\": \"BUTTONS\",       \"buttons\": [{ \"type\": \"REQUEST_CONTACT_INFO\" }]     }   ] } ``` 
 
 ### Example
 ```csharp
@@ -47,7 +49,7 @@ namespace Example
             try
             {
                 // Create message template
-                Dictionary<string, Object> result = apiInstance.AddTemplate(token, addTemplateRequest);
+                AddTemplate200Response result = apiInstance.AddTemplate(token, addTemplateRequest);
                 Debug.WriteLine(result);
             }
             catch (ApiException  e)
@@ -68,7 +70,7 @@ This returns an ApiResponse object which contains the response data, status code
 try
 {
     // Create message template
-    ApiResponse<Dictionary<string, Object>> response = apiInstance.AddTemplateWithHttpInfo(token, addTemplateRequest);
+    ApiResponse<AddTemplate200Response> response = apiInstance.AddTemplateWithHttpInfo(token, addTemplateRequest);
     Debug.Write("Status Code: " + response.StatusCode);
     Debug.Write("Response Headers: " + response.Headers);
     Debug.Write("Response Body: " + response.Data);
@@ -90,7 +92,7 @@ catch (ApiException e)
 
 ### Return type
 
-**Dictionary<string, Object>**
+[**AddTemplate200Response**](AddTemplate200Response.md)
 
 ### Authorization
 
@@ -105,7 +107,7 @@ catch (ApiException e)
 ### HTTP response details
 | Status code | Description | Response headers |
 |-------------|-------------|------------------|
-| **200** | Template created |  -  |
+| **200** | Template created. Provider payload is wrapped in &#x60;response&#x60;. |  -  |
 | **401** | Invalid or missing authentication token |  -  |
 | **500** | Internal server error |  -  |
 
@@ -113,9 +115,11 @@ catch (ApiException e)
 
 <a id="listtemplates"></a>
 # **ListTemplates**
-> ListTemplates200Response ListTemplates (string token)
+> ListTemplates200Response ListTemplates (string token, int? limit = null, int? offset = null, string sort = null)
 
 Get templates list
+
+List message templates. Paginate with `limit` / `offset`; sort by `id`, `name`, or `status`.
 
 ### Example
 ```csharp
@@ -144,11 +148,14 @@ namespace Example
             HttpClientHandler httpClientHandler = new HttpClientHandler();
             var apiInstance = new TemplatesApi(httpClient, config, httpClientHandler);
             var token = "token_example";  // string | JWT token or API key for authorization
+            var limit = 56;  // int? |  (optional) 
+            var offset = 56;  // int? |  (optional) 
+            var sort = "id";  // string | Sort field (`id`, `name`, or `status`) (optional) 
 
             try
             {
                 // Get templates list
-                ListTemplates200Response result = apiInstance.ListTemplates(token);
+                ListTemplates200Response result = apiInstance.ListTemplates(token, limit, offset, sort);
                 Debug.WriteLine(result);
             }
             catch (ApiException  e)
@@ -169,7 +176,7 @@ This returns an ApiResponse object which contains the response data, status code
 try
 {
     // Get templates list
-    ApiResponse<ListTemplates200Response> response = apiInstance.ListTemplatesWithHttpInfo(token);
+    ApiResponse<ListTemplates200Response> response = apiInstance.ListTemplatesWithHttpInfo(token, limit, offset, sort);
     Debug.Write("Status Code: " + response.StatusCode);
     Debug.Write("Response Headers: " + response.Headers);
     Debug.Write("Response Body: " + response.Data);
@@ -187,6 +194,9 @@ catch (ApiException e)
 | Name | Type | Description | Notes |
 |------|------|-------------|-------|
 | **token** | **string** | JWT token or API key for authorization |  |
+| **limit** | **int?** |  | [optional]  |
+| **offset** | **int?** |  | [optional]  |
+| **sort** | **string** | Sort field (&#x60;id&#x60;, &#x60;name&#x60;, or &#x60;status&#x60;) | [optional]  |
 
 ### Return type
 
@@ -211,9 +221,11 @@ catch (ApiException e)
 
 <a id="removetemplate"></a>
 # **RemoveTemplate**
-> Dictionary&lt;string, Object&gt; RemoveTemplate (string token, Dictionary<string, Object> requestBody = null)
+> Dictionary&lt;string, Object&gt; RemoveTemplate (string token, RemoveTemplateRequest removeTemplateRequest)
 
 Remove message template
+
+Delete a message template by `name` (all language versions of that name).
 
 ### Example
 ```csharp
@@ -242,12 +254,12 @@ namespace Example
             HttpClientHandler httpClientHandler = new HttpClientHandler();
             var apiInstance = new TemplatesApi(httpClient, config, httpClientHandler);
             var token = "token_example";  // string | JWT token or API key for authorization
-            var requestBody = new Dictionary<string, Object>(); // Dictionary<string, Object> |  (optional) 
+            var removeTemplateRequest = new RemoveTemplateRequest(); // RemoveTemplateRequest | 
 
             try
             {
                 // Remove message template
-                Dictionary<string, Object> result = apiInstance.RemoveTemplate(token, requestBody);
+                Dictionary<string, Object> result = apiInstance.RemoveTemplate(token, removeTemplateRequest);
                 Debug.WriteLine(result);
             }
             catch (ApiException  e)
@@ -268,7 +280,7 @@ This returns an ApiResponse object which contains the response data, status code
 try
 {
     // Remove message template
-    ApiResponse<Dictionary<string, Object>> response = apiInstance.RemoveTemplateWithHttpInfo(token, requestBody);
+    ApiResponse<Dictionary<string, Object>> response = apiInstance.RemoveTemplateWithHttpInfo(token, removeTemplateRequest);
     Debug.Write("Status Code: " + response.StatusCode);
     Debug.Write("Response Headers: " + response.Headers);
     Debug.Write("Response Body: " + response.Data);
@@ -286,7 +298,7 @@ catch (ApiException e)
 | Name | Type | Description | Notes |
 |------|------|-------------|-------|
 | **token** | **string** | JWT token or API key for authorization |  |
-| **requestBody** | [**Dictionary&lt;string, Object&gt;**](Object.md) |  | [optional]  |
+| **removeTemplateRequest** | [**RemoveTemplateRequest**](RemoveTemplateRequest.md) |  |  |
 
 ### Return type
 
@@ -317,7 +329,7 @@ catch (ApiException e)
 
 Send Template Message
 
-Send a WhatsApp template message (works outside the 24-hour session window).  Supported `params` button `sub_type` values include: `url`, `quick_reply`, `copy_code` / `coupon_code`, `catalog`, `flow`, `limited_time_offer`, and **`order_details`** (WhatsApp Payments **India only** — requires an approved Utility template with an ORDER_DETAILS button).  For India order/invoice payments outside 24h, include a button component:  ```json {   \"type\": \"button\",   \"sub_type\": \"order_details\",   \"index\": 0,   \"parameters\": [{     \"type\": \"action\",     \"action\": { \"order_details\": { \"reference_id\": \"...\", \"currency\": \"INR\", \"order\": {} } }   }] } ```  Convenience wrapper with structured fields: `POST /sendOrderDetails`. 
+Send a WhatsApp **template** message (works outside the 24-hour session window).  Use this tool — not `send_message` — when the 24h session is closed.  `params` MUST be Cloud API **component objects**, never a flat list of strings and never the old On-Prem `hsm` / `localizable_params` format.  Example body variable `{{1}}`:  ```json {   \"type\": \"body\",   \"parameters\": [{ \"type\": \"text\", \"text\": \"Ivan\" }] } ```  Do not send `\"type\": \"hsm\"` and do not send `params: [\"Ivan\", \"123\"]`.  Supported `params` button `sub_type` values include: `url`, `quick_reply`, `copy_code` / `coupon_code`, `catalog`, `flow`, `limited_time_offer`, and **`order_details`** (WhatsApp Payments **India only** — requires an approved Utility template with an ORDER_DETAILS button).  Convenience wrapper with structured fields: `POST /sendOrderDetails`.  Authentication OTP templates (category `AUTHENTICATION`, or a template with an OTP / copy-code button) can only be sent to a phone number (`phone` or a phone `chatId`). Meta rejects a BSUID `recipient` for these templates with error 131062. If the recipient is known only by BSUID — for example they use a username and their phone number is not in your Business Portfolio — the template cannot be sent.  A `REQUEST_CONTACT_INFO` button (UTILITY or MARKETING only) has no send-time parameters. Do not add a button component for it in `params`, and do not send button text — WhatsApp sets that label on the template. Create the button with `POST /addTemplate` as `{ \"type\": \"REQUEST_CONTACT_INFO\" }` with no `text`. Inside an open 24-hour window, `POST /sendContactInfo` asks for the number without a template. 
 
 ### Example
 ```csharp

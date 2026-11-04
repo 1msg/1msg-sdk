@@ -15,6 +15,7 @@ All URIs are relative to *https://api.1msg.io*
 | [**SendButton**](MessagingApi.md#sendbutton) | **POST** /sendButton | Send Reply Buttons Message |
 | [**SendCarousel**](MessagingApi.md#sendcarousel) | **POST** /sendCarousel | Send Carousel |
 | [**SendContact**](MessagingApi.md#sendcontact) | **POST** /sendContact | Send a Contact |
+| [**SendContactInfo**](MessagingApi.md#sendcontactinfo) | **POST** /sendContactInfo | Request the user&#39;s phone number |
 | [**SendCtaUrl**](MessagingApi.md#sendctaurl) | **POST** /sendCtaUrl | Send CTA URL interactive message |
 | [**SendFile**](MessagingApi.md#sendfile) | **POST** /sendFile | Send a File |
 | [**SendFlow**](MessagingApi.md#sendflow) | **POST** /sendFlow | Send WhatsApp Flow Message |
@@ -135,9 +136,11 @@ catch (ApiException e)
 
 <a id="createuploadmedia"></a>
 # **CreateUploadMedia**
-> void CreateUploadMedia (string token, Dictionary<string, Object> requestBody = null)
+> CreateUploadMedia200Response CreateUploadMedia (string token, CreateUploadMediaRequest createUploadMediaRequest)
 
 Upload media
+
+Upload a file to WhatsApp media storage and get a numeric `mediaId` for later use with `send_file` / `send_sticker` (`mediaId` field, not `body`).  Pass the file as `body` **or** `url` — an HTTP(S) URL or a base64 data URI. The `mediaId` in the response is a numeric string (keep it as a string). 
 
 ### Example
 ```csharp
@@ -166,12 +169,13 @@ namespace Example
             HttpClientHandler httpClientHandler = new HttpClientHandler();
             var apiInstance = new MessagingApi(httpClient, config, httpClientHandler);
             var token = "token_example";  // string | JWT token or API key for authorization
-            var requestBody = new Dictionary<string, Object>(); // Dictionary<string, Object> |  (optional) 
+            var createUploadMediaRequest = new CreateUploadMediaRequest(); // CreateUploadMediaRequest | 
 
             try
             {
                 // Upload media
-                apiInstance.CreateUploadMedia(token, requestBody);
+                CreateUploadMedia200Response result = apiInstance.CreateUploadMedia(token, createUploadMediaRequest);
+                Debug.WriteLine(result);
             }
             catch (ApiException  e)
             {
@@ -191,7 +195,10 @@ This returns an ApiResponse object which contains the response data, status code
 try
 {
     // Upload media
-    apiInstance.CreateUploadMediaWithHttpInfo(token, requestBody);
+    ApiResponse<CreateUploadMedia200Response> response = apiInstance.CreateUploadMediaWithHttpInfo(token, createUploadMediaRequest);
+    Debug.Write("Status Code: " + response.StatusCode);
+    Debug.Write("Response Headers: " + response.Headers);
+    Debug.Write("Response Body: " + response.Data);
 }
 catch (ApiException e)
 {
@@ -206,11 +213,11 @@ catch (ApiException e)
 | Name | Type | Description | Notes |
 |------|------|-------------|-------|
 | **token** | **string** | JWT token or API key for authorization |  |
-| **requestBody** | [**Dictionary&lt;string, Object&gt;**](Object.md) |  | [optional]  |
+| **createUploadMediaRequest** | [**CreateUploadMediaRequest**](CreateUploadMediaRequest.md) |  |  |
 
 ### Return type
 
-void (empty response body)
+[**CreateUploadMedia200Response**](CreateUploadMedia200Response.md)
 
 ### Authorization
 
@@ -219,7 +226,7 @@ void (empty response body)
 ### HTTP request headers
 
  - **Content-Type**: application/json
- - **Accept**: Not defined
+ - **Accept**: application/json
 
 
 ### HTTP response details
@@ -541,9 +548,11 @@ catch (ApiException e)
 
 <a id="listmessages"></a>
 # **ListMessages**
-> ListMessages200Response ListMessages (string token)
+> ListMessages200Response ListMessages (string token, string chatId = null, int? limit = null, bool? last = null, int? lastMessageNumber = null, int? firstMessageNumber = null, int? minTime = null, int? maxTime = null, string msgId = null)
 
 Get messages list
+
+List stored chat history for this channel (requires history storage). Filter with `chatId`, `limit`, `last`, message numbers, or time bounds. 
 
 ### Example
 ```csharp
@@ -572,11 +581,19 @@ namespace Example
             HttpClientHandler httpClientHandler = new HttpClientHandler();
             var apiInstance = new MessagingApi(httpClient, config, httpClientHandler);
             var token = "token_example";  // string | JWT token or API key for authorization
+            var chatId = "chatId_example";  // string | Filter messages for one chat (`phone@c.us`, group `@g.us`, or BSUID `@lid`) (optional) 
+            var limit = 56;  // int? | Max rows to return (default 100) (optional) 
+            var last = true;  // bool? | If true, return the latest messages (DESC). Default false. (optional) 
+            var lastMessageNumber = 56;  // int? |  (optional) 
+            var firstMessageNumber = 56;  // int? |  (optional) 
+            var minTime = 56;  // int? | Unix timestamp lower bound (optional) 
+            var maxTime = 56;  // int? | Unix timestamp upper bound (optional) 
+            var msgId = "msgId_example";  // string | Filter by stored message id (optional) 
 
             try
             {
                 // Get messages list
-                ListMessages200Response result = apiInstance.ListMessages(token);
+                ListMessages200Response result = apiInstance.ListMessages(token, chatId, limit, last, lastMessageNumber, firstMessageNumber, minTime, maxTime, msgId);
                 Debug.WriteLine(result);
             }
             catch (ApiException  e)
@@ -597,7 +614,7 @@ This returns an ApiResponse object which contains the response data, status code
 try
 {
     // Get messages list
-    ApiResponse<ListMessages200Response> response = apiInstance.ListMessagesWithHttpInfo(token);
+    ApiResponse<ListMessages200Response> response = apiInstance.ListMessagesWithHttpInfo(token, chatId, limit, last, lastMessageNumber, firstMessageNumber, minTime, maxTime, msgId);
     Debug.Write("Status Code: " + response.StatusCode);
     Debug.Write("Response Headers: " + response.Headers);
     Debug.Write("Response Body: " + response.Data);
@@ -615,6 +632,14 @@ catch (ApiException e)
 | Name | Type | Description | Notes |
 |------|------|-------------|-------|
 | **token** | **string** | JWT token or API key for authorization |  |
+| **chatId** | **string** | Filter messages for one chat (&#x60;phone@c.us&#x60;, group &#x60;@g.us&#x60;, or BSUID &#x60;@lid&#x60;) | [optional]  |
+| **limit** | **int?** | Max rows to return (default 100) | [optional]  |
+| **last** | **bool?** | If true, return the latest messages (DESC). Default false. | [optional]  |
+| **lastMessageNumber** | **int?** |  | [optional]  |
+| **firstMessageNumber** | **int?** |  | [optional]  |
+| **minTime** | **int?** | Unix timestamp lower bound | [optional]  |
+| **maxTime** | **int?** | Unix timestamp upper bound | [optional]  |
+| **msgId** | **string** | Filter by stored message id | [optional]  |
 
 ### Return type
 
@@ -954,11 +979,11 @@ catch (ApiException e)
 
 <a id="sendcarousel"></a>
 # **SendCarousel**
-> MessageSentResponse SendCarousel (string token, List<Object> varParams, string body = null, string quotedMsgId = null, string chatId = null, int? phone = null)
+> MessageSentResponse SendCarousel (string token, string body = null, List<Dictionary<string, Object>> cards = null, List<Object> varParams = null, string quotedMsgId = null, string chatId = null, int? phone = null)
 
 Send Carousel
 
-You can send product cards via Carousel in two ways:  Template messages: do not require a 24-hour customer service window between you and the recipient. Use sendTemplate.  Free-form messages: can be sent only when a customer service window is open between you and the recipient. Use sendCarousel.  The message structure in /sendCarousel is largely similar to sending a template. However, in this case you must  explicitly specify all elements that are created in advance when working with templates. This is because the message  is sent without using a template.  In /sendCarousel, for sending a Catalog Carousel there can be either 1 URL button or one or more quick reply buttons. 
+You can send product cards via Carousel in two ways:  Template messages: do not require a 24-hour customer service window between you and the recipient. Use sendTemplate.  Free-form messages: can be sent only when a customer service window is open between you and the recipient. Use sendCarousel.  The message structure in /sendCarousel is largely similar to sending a template. However, in this case you must  explicitly specify all elements that are created in advance when working with templates. This is because the message  is sent without using a template.  In /sendCarousel, for a Catalog Carousel there can be either 1 URL button or one or more quick reply buttons.  Prefer the simple `cards` array (2–10 cards). Each card needs a header media/product plus a CTA URL or quick-reply buttons. Example:  ```json {   \"phone\": \"79001234567\",   \"body\": \"Pick a product\",   \"cards\": [     {       \"header\": { \"type\": \"image\", \"image\": { \"link\": \"https://example.com/1.jpg\" } },       \"body\": { \"text\": \"Card one\" },       \"type\": \"cta_url\",       \"action\": { \"name\": \"cta_url\", \"parameters\": { \"url\": \"https://example.com/p1\", \"display_text\": \"Open\" } }     },     {       \"header\": { \"type\": \"image\", \"image\": { \"link\": \"https://example.com/2.jpg\" } },       \"body\": { \"text\": \"Card two\" },       \"type\": \"cta_url\",       \"action\": { \"name\": \"cta_url\", \"parameters\": { \"url\": \"https://example.com/p2\", \"display_text\": \"Open\" } }     }   ] } ```  `params` with a `CAROUSEL` component is the template-like alternative. 
 
 ### Example
 ```csharp
@@ -987,8 +1012,9 @@ namespace Example
             HttpClientHandler httpClientHandler = new HttpClientHandler();
             var apiInstance = new MessagingApi(httpClient, config, httpClientHandler);
             var token = "token_example";  // string | JWT token or API key for authorization
-            var varParams = new List<Object>(); // List<Object> | Required. Template-like structure (same as sendTemplate params). Must include a CAROUSEL component and its cards.  Structure: - params[] item with type CAROUSEL and cards (2..10) - cards[] item:   - components[] items:     - header: parameters[0] with type image/video/product       - image: {\\\"image\\\": {\\\"link\\\": \\\"https://...\\\"}}       - video: {\\\"video\\\": {\\\"link\\\": \\\"https://...\\\"}}       - product: {\\\"product\\\": {\\\"catalog_id\\\": \\\"...\\\", \\\"product_retailer_id\\\": \\\"...\\\"}}     - button: sub_type url or quick_reply       - url: parameters {\\\"text\\\": \\\"Button\\\", \\\"url\\\": \\\"https://...\\\"}       - quick_reply: parameters[] of {\\\"id\\\": \\\"...\\\", \\\"text\\\": \\\"...\\\"} 
             var body = "body_example";  // string | Text shown above the carousel. Optional. If omitted and params include a body component, the body will be taken from params. (optional) 
+            var cards = new List<Dictionary<string, Object>>(); // List<Dictionary<string, Object>> | Preferred. 2–10 carousel cards (header + body + CTA or quick replies). (optional) 
+            var varParams = new List<Object>(); // List<Object> | Required. Template-like structure (same as sendTemplate params). Must include a CAROUSEL component and its cards.  Structure: - params[] item with type CAROUSEL and cards (2..10) - cards[] item:   - components[] items:     - header: parameters[0] with type image/video/product       - image: {\\\"image\\\": {\\\"link\\\": \\\"https://...\\\"}}       - video: {\\\"video\\\": {\\\"link\\\": \\\"https://...\\\"}}       - product: {\\\"product\\\": {\\\"catalog_id\\\": \\\"...\\\", \\\"product_retailer_id\\\": \\\"...\\\"}}     - button: sub_type url or quick_reply       - url: parameters {\\\"text\\\": \\\"Button\\\", \\\"url\\\": \\\"https://...\\\"}       - quick_reply: parameters[] of {\\\"id\\\": \\\"...\\\", \\\"text\\\": \\\"...\\\"}  (optional) 
             var quotedMsgId = "quotedMsgId_example";  // string | Quoted message ID (Cloud API) (optional) 
             var chatId = "chatId_example";  // string | Required if phone is not set. Chat ID from the message list. Examples: 12020721369@c.us or 120363046942338209@g.us(group) (optional) 
             var phone = 56;  // int? | Required if chatId is not set. A phone number starting with the country code. USA example: 12020721369. (optional) 
@@ -996,7 +1022,7 @@ namespace Example
             try
             {
                 // Send Carousel
-                MessageSentResponse result = apiInstance.SendCarousel(token, varParams, body, quotedMsgId, chatId, phone);
+                MessageSentResponse result = apiInstance.SendCarousel(token, body, cards, varParams, quotedMsgId, chatId, phone);
                 Debug.WriteLine(result);
             }
             catch (ApiException  e)
@@ -1017,7 +1043,7 @@ This returns an ApiResponse object which contains the response data, status code
 try
 {
     // Send Carousel
-    ApiResponse<MessageSentResponse> response = apiInstance.SendCarouselWithHttpInfo(token, varParams, body, quotedMsgId, chatId, phone);
+    ApiResponse<MessageSentResponse> response = apiInstance.SendCarouselWithHttpInfo(token, body, cards, varParams, quotedMsgId, chatId, phone);
     Debug.Write("Status Code: " + response.StatusCode);
     Debug.Write("Response Headers: " + response.Headers);
     Debug.Write("Response Body: " + response.Data);
@@ -1035,8 +1061,9 @@ catch (ApiException e)
 | Name | Type | Description | Notes |
 |------|------|-------------|-------|
 | **token** | **string** | JWT token or API key for authorization |  |
-| **varParams** | [**List&lt;Object&gt;**](Object.md) | Required. Template-like structure (same as sendTemplate params). Must include a CAROUSEL component and its cards.  Structure: - params[] item with type CAROUSEL and cards (2..10) - cards[] item:   - components[] items:     - header: parameters[0] with type image/video/product       - image: {\\\&quot;image\\\&quot;: {\\\&quot;link\\\&quot;: \\\&quot;https://...\\\&quot;}}       - video: {\\\&quot;video\\\&quot;: {\\\&quot;link\\\&quot;: \\\&quot;https://...\\\&quot;}}       - product: {\\\&quot;product\\\&quot;: {\\\&quot;catalog_id\\\&quot;: \\\&quot;...\\\&quot;, \\\&quot;product_retailer_id\\\&quot;: \\\&quot;...\\\&quot;}}     - button: sub_type url or quick_reply       - url: parameters {\\\&quot;text\\\&quot;: \\\&quot;Button\\\&quot;, \\\&quot;url\\\&quot;: \\\&quot;https://...\\\&quot;}       - quick_reply: parameters[] of {\\\&quot;id\\\&quot;: \\\&quot;...\\\&quot;, \\\&quot;text\\\&quot;: \\\&quot;...\\\&quot;}  |  |
 | **body** | **string** | Text shown above the carousel. Optional. If omitted and params include a body component, the body will be taken from params. | [optional]  |
+| **cards** | [**List&lt;Dictionary&lt;string, Object&gt;&gt;**](Dictionary&lt;string, Object&gt;.md) | Preferred. 2–10 carousel cards (header + body + CTA or quick replies). | [optional]  |
+| **varParams** | [**List&lt;Object&gt;**](Object.md) | Required. Template-like structure (same as sendTemplate params). Must include a CAROUSEL component and its cards.  Structure: - params[] item with type CAROUSEL and cards (2..10) - cards[] item:   - components[] items:     - header: parameters[0] with type image/video/product       - image: {\\\&quot;image\\\&quot;: {\\\&quot;link\\\&quot;: \\\&quot;https://...\\\&quot;}}       - video: {\\\&quot;video\\\&quot;: {\\\&quot;link\\\&quot;: \\\&quot;https://...\\\&quot;}}       - product: {\\\&quot;product\\\&quot;: {\\\&quot;catalog_id\\\&quot;: \\\&quot;...\\\&quot;, \\\&quot;product_retailer_id\\\&quot;: \\\&quot;...\\\&quot;}}     - button: sub_type url or quick_reply       - url: parameters {\\\&quot;text\\\&quot;: \\\&quot;Button\\\&quot;, \\\&quot;url\\\&quot;: \\\&quot;https://...\\\&quot;}       - quick_reply: parameters[] of {\\\&quot;id\\\&quot;: \\\&quot;...\\\&quot;, \\\&quot;text\\\&quot;: \\\&quot;...\\\&quot;}  | [optional]  |
 | **quotedMsgId** | **string** | Quoted message ID (Cloud API) | [optional]  |
 | **chatId** | **string** | Required if phone is not set. Chat ID from the message list. Examples: 12020721369@c.us or 120363046942338209@g.us(group) | [optional]  |
 | **phone** | **int?** | Required if chatId is not set. A phone number starting with the country code. USA example: 12020721369. | [optional]  |
@@ -1071,6 +1098,8 @@ catch (ApiException e)
 > MessageSentResponse SendContact (string token, SendContactRequest sendContactRequest = null)
 
 Send a Contact
+
+Send a WhatsApp contact card.  Preferred simple body (legacy-compatible):  ```json {   \"phone\": \"79001234567\",   \"contact\": { \"name\": \"Lida\", \"phone\": \"+79181976551\" } } ```  Cloud API shape also works: `contacts` is an array of objects with `name.formatted_name` and `phones[].phone` (E.164 string, **not** a timestamp). 
 
 ### Example
 ```csharp
@@ -1144,6 +1173,112 @@ catch (ApiException e)
 |------|------|-------------|-------|
 | **token** | **string** | JWT token or API key for authorization |  |
 | **sendContactRequest** | [**SendContactRequest**](SendContactRequest.md) |  | [optional]  |
+
+### Return type
+
+[**MessageSentResponse**](MessageSentResponse.md)
+
+### Authorization
+
+[tokenAuth](../README.md#tokenAuth)
+
+### HTTP request headers
+
+ - **Content-Type**: application/json
+ - **Accept**: application/json
+
+
+### HTTP response details
+| Status code | Description | Response headers |
+|-------------|-------------|------------------|
+| **200** | Message sent successfully |  -  |
+| **400** | Invalid request parameters |  -  |
+| **401** | Invalid or missing authentication token |  -  |
+| **429** | Rate limit exceeded |  -  |
+| **500** | Internal server error |  -  |
+
+[[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
+
+<a id="sendcontactinfo"></a>
+# **SendContactInfo**
+> MessageSentResponse SendContactInfo (string token, SendContactInfoRequest sendContactInfoRequest = null)
+
+Request the user's phone number
+
+Send a service-window interactive message that asks the WhatsApp user to share their phone number (`request_contact_info`).  Use this when you only know the user by BSUID (WhatsApp username) and the 24-hour customer service window is open. Outside that window, create a UTILITY or MARKETING template with a `REQUEST_CONTACT_INFO` button (`POST /addTemplate`) and send it with `POST /sendTemplate`.  `body` is the text shown above the button (1–1024 characters). WhatsApp chooses the button label. This method has no button-text field — do not send one.  ```json {   \"bsuid\": \"US.13491208655302741918\",   \"body\": \"Please share your phone number so we can reach you.\" } ```  `phone`, `chatId` (`…@c.us`, `…@lid`, `…@username`), or `bsuid` identifies the recipient. One of them is enough.  After Meta accepts the send, the outgoing webhook and stored history message use this same text as `messages[].body` (`type: interactive`).  When the user taps the button, Meta sends an inbound `contacts` message. The sender stays the BSUID. The shared number is on the card with `origin: contact_request`. We write that phone onto the existing BSUID contact automatically — there is no separate “link phone” call.  ```json {   \"contacts\": [     {       \"profile\": { \"name\": \"Ada\", \"username\": \"ada\" },       \"user_id\": \"US.13491208655302741918\"     }   ],   \"messages\": [     {       \"from_user_id\": \"US.13491208655302741918\",       \"type\": \"contacts\",       \"contacts\": [         {           \"origin\": \"contact_request\",           \"phones\": [{ \"phone\": \"+1 202-555-0123\", \"wa_id\": \"12025550123\" }]         }       ]     }   ] } ```  The stored inbound message body is the digits (`12025550123`).  If Meta later includes a phone on an ordinary message or status for that same BSUID (`wa_id`, `from`, or `recipient_id`, together with `user_id` / `recipient_user_id`), that phone is merged onto the same contact. A contact card the user forwards (`origin` other than `contact_request`) is someone else's number and is not stored as this sender's phone. 
+
+### Example
+```csharp
+using System.Collections.Generic;
+using System.Diagnostics;
+using System.Net.Http;
+using OneMsg.Sdk.Api;
+using OneMsg.Sdk.Client;
+using OneMsg.Sdk.Model;
+
+namespace Example
+{
+    public class SendContactInfoExample
+    {
+        public static void Main()
+        {
+            Configuration config = new Configuration();
+            config.BasePath = "https://api.1msg.io";
+            // Configure API key authorization: tokenAuth
+            config.AddApiKey("token", "YOUR_API_KEY");
+            // Uncomment below to setup prefix (e.g. Bearer) for API key, if needed
+            // config.AddApiKeyPrefix("token", "Bearer");
+
+            // create instances of HttpClient, HttpClientHandler to be reused later with different Api classes
+            HttpClient httpClient = new HttpClient();
+            HttpClientHandler httpClientHandler = new HttpClientHandler();
+            var apiInstance = new MessagingApi(httpClient, config, httpClientHandler);
+            var token = "token_example";  // string | JWT token or API key for authorization
+            var sendContactInfoRequest = new SendContactInfoRequest(); // SendContactInfoRequest |  (optional) 
+
+            try
+            {
+                // Request the user's phone number
+                MessageSentResponse result = apiInstance.SendContactInfo(token, sendContactInfoRequest);
+                Debug.WriteLine(result);
+            }
+            catch (ApiException  e)
+            {
+                Debug.Print("Exception when calling MessagingApi.SendContactInfo: " + e.Message);
+                Debug.Print("Status Code: " + e.ErrorCode);
+                Debug.Print(e.StackTrace);
+            }
+        }
+    }
+}
+```
+
+#### Using the SendContactInfoWithHttpInfo variant
+This returns an ApiResponse object which contains the response data, status code and headers.
+
+```csharp
+try
+{
+    // Request the user's phone number
+    ApiResponse<MessageSentResponse> response = apiInstance.SendContactInfoWithHttpInfo(token, sendContactInfoRequest);
+    Debug.Write("Status Code: " + response.StatusCode);
+    Debug.Write("Response Headers: " + response.Headers);
+    Debug.Write("Response Body: " + response.Data);
+}
+catch (ApiException e)
+{
+    Debug.Print("Exception when calling MessagingApi.SendContactInfoWithHttpInfo: " + e.Message);
+    Debug.Print("Status Code: " + e.ErrorCode);
+    Debug.Print(e.StackTrace);
+}
+```
+
+### Parameters
+
+| Name | Type | Description | Notes |
+|------|------|-------------|-------|
+| **token** | **string** | JWT token or API key for authorization |  |
+| **sendContactInfoRequest** | [**SendContactInfoRequest**](SendContactInfoRequest.md) |  | [optional]  |
 
 ### Return type
 
@@ -1860,11 +1995,11 @@ catch (ApiException e)
 
 <a id="sendmessage"></a>
 # **SendMessage**
-> MessageSentResponse SendMessage (string token, string body, string quotedMsgId = null, string chatId = null, int? phone = null)
+> MessageSentResponse SendMessage (string token, string body, string quotedMsgId = null, string chatId = null, int? phone = null, string category = null, SendMessageRequestDirectSend directSend = null)
 
 Send a Message
 
-Send a message to an existing chat. (Only if the dialogue has an Open Session).  The message will be added to the queue for sending and delivered even if the phone  is disconnected from the Internet or authorization is not passed.  Only one of two parameters is needed to determine the destination - chatId or phone. 
+Send a message to an existing chat. (Only if the dialogue has an Open Session).  The message will be added to the queue for sending and delivered even if the phone  is disconnected from the Internet or authorization is not passed.  Only one of two parameters is needed to determine the destination - chatId or phone.  Direct Send is in beta. Meta has not enabled it on every business portfolio, so `category` and `directSend` are a beta option: watch delivery errors before relying on them.  Set `category` to `utility` or `authentication` to send outside the 24-hour window as a Meta Direct Send template instead of the 1MSG marketing auto-template. `authentication` is part of that beta and is not recommended. `directSend.serviceFirst: true` tries a free service message first and uses Direct Send only when Meta rejects it because the window is closed (131047). `directSend.templateName` is only valid with `utility` (`^[a-z0-9_]+$`, max 512). Direct Send text is limited to 1024 characters. Without `templateName`, the first unseen phrase may be delivered as Meta's onboarding template. A named template does not guarantee delivery — wait for webhook errors 131000 or 132021. An open 24-hour window is still billed as utility when `category` is set and `serviceFirst` is not true. 
 
 ### Example
 ```csharp
@@ -1895,13 +2030,15 @@ namespace Example
             var token = "token_example";  // string | JWT token or API key for authorization
             var body = "body_example";  // string | Message text, UTF-8 or UTF-16 string with emoji
             var quotedMsgId = "quotedMsgId_example";  // string | Message ID to quote/reply to (Cloud API wamid) (optional) 
-            var chatId = "chatId_example";  // string | Chat ID in format: phone@c.us (individual) or phone@g.us (group) (optional) 
+            var chatId = "chatId_example";  // string | Recipient chat ID: phone@c.us, group@g.us, or BSUID@lid (optional) 
             var phone = 56;  // int? | Phone number starting with country code (alternative to chatId) (optional) 
+            var category = "utility";  // string | Optional Direct Send category. Direct Send is in beta: Meta has not enabled it on every business portfolio. `utility` or `authentication` enables it. `authentication` is part of that beta and is not recommended. Omit or `service` keeps a normal service message (and the marketing auto-template outside the 24-hour window). `marketing` is rejected.  (optional) 
+            var directSend = new SendMessageRequestDirectSend(); // SendMessageRequestDirectSend |  (optional) 
 
             try
             {
                 // Send a Message
-                MessageSentResponse result = apiInstance.SendMessage(token, body, quotedMsgId, chatId, phone);
+                MessageSentResponse result = apiInstance.SendMessage(token, body, quotedMsgId, chatId, phone, category, directSend);
                 Debug.WriteLine(result);
             }
             catch (ApiException  e)
@@ -1922,7 +2059,7 @@ This returns an ApiResponse object which contains the response data, status code
 try
 {
     // Send a Message
-    ApiResponse<MessageSentResponse> response = apiInstance.SendMessageWithHttpInfo(token, body, quotedMsgId, chatId, phone);
+    ApiResponse<MessageSentResponse> response = apiInstance.SendMessageWithHttpInfo(token, body, quotedMsgId, chatId, phone, category, directSend);
     Debug.Write("Status Code: " + response.StatusCode);
     Debug.Write("Response Headers: " + response.Headers);
     Debug.Write("Response Body: " + response.Data);
@@ -1942,8 +2079,10 @@ catch (ApiException e)
 | **token** | **string** | JWT token or API key for authorization |  |
 | **body** | **string** | Message text, UTF-8 or UTF-16 string with emoji |  |
 | **quotedMsgId** | **string** | Message ID to quote/reply to (Cloud API wamid) | [optional]  |
-| **chatId** | **string** | Chat ID in format: phone@c.us (individual) or phone@g.us (group) | [optional]  |
+| **chatId** | **string** | Recipient chat ID: phone@c.us, group@g.us, or BSUID@lid | [optional]  |
 | **phone** | **int?** | Phone number starting with country code (alternative to chatId) | [optional]  |
+| **category** | **string** | Optional Direct Send category. Direct Send is in beta: Meta has not enabled it on every business portfolio. &#x60;utility&#x60; or &#x60;authentication&#x60; enables it. &#x60;authentication&#x60; is part of that beta and is not recommended. Omit or &#x60;service&#x60; keeps a normal service message (and the marketing auto-template outside the 24-hour window). &#x60;marketing&#x60; is rejected.  | [optional]  |
+| **directSend** | [**SendMessageRequestDirectSend**](SendMessageRequestDirectSend.md) |  | [optional]  |
 
 ### Return type
 
@@ -2182,9 +2321,11 @@ catch (ApiException e)
 
 <a id="sendproduct"></a>
 # **SendProduct**
-> MessageSentResponse SendProduct (string token, Dictionary<string, Object> requestBody = null)
+> MessageSentResponse SendProduct (string token, SendProductRequest sendProductRequest)
 
 Send a Product
+
+Send a single catalog product or a product list. Destination is `chatId` or `phone`. `action` is required: - single product: `{ \"catalog_id\": \"...\", \"product_retailer_id\": \"...\" }` - product list: `{ \"catalog_id\": \"...\", \"sections\": [{ \"title\": \"...\", \"product_items\": [{ \"product_retailer_id\": \"...\" }] }] }` 
 
 ### Example
 ```csharp
@@ -2213,12 +2354,12 @@ namespace Example
             HttpClientHandler httpClientHandler = new HttpClientHandler();
             var apiInstance = new MessagingApi(httpClient, config, httpClientHandler);
             var token = "token_example";  // string | JWT token or API key for authorization
-            var requestBody = new Dictionary<string, Object>(); // Dictionary<string, Object> |  (optional) 
+            var sendProductRequest = new SendProductRequest(); // SendProductRequest | 
 
             try
             {
                 // Send a Product
-                MessageSentResponse result = apiInstance.SendProduct(token, requestBody);
+                MessageSentResponse result = apiInstance.SendProduct(token, sendProductRequest);
                 Debug.WriteLine(result);
             }
             catch (ApiException  e)
@@ -2239,7 +2380,7 @@ This returns an ApiResponse object which contains the response data, status code
 try
 {
     // Send a Product
-    ApiResponse<MessageSentResponse> response = apiInstance.SendProductWithHttpInfo(token, requestBody);
+    ApiResponse<MessageSentResponse> response = apiInstance.SendProductWithHttpInfo(token, sendProductRequest);
     Debug.Write("Status Code: " + response.StatusCode);
     Debug.Write("Response Headers: " + response.Headers);
     Debug.Write("Response Body: " + response.Data);
@@ -2257,7 +2398,7 @@ catch (ApiException e)
 | Name | Type | Description | Notes |
 |------|------|-------------|-------|
 | **token** | **string** | JWT token or API key for authorization |  |
-| **requestBody** | [**Dictionary&lt;string, Object&gt;**](Object.md) |  | [optional]  |
+| **sendProductRequest** | [**SendProductRequest**](SendProductRequest.md) |  |  |
 
 ### Return type
 

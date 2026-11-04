@@ -4,7 +4,8 @@
 
 Name | Type | Description | Notes
 ------------ | ------------- | ------------- | -------------
-**Phone** | **string** |  | [optional] 
+**Phone** | **string** | Recipient phone with country code. Use phone or chatId. | [optional] 
+**ChatId** | **string** | Recipient chat ID (&#x60;phone@c.us&#x60;, group &#x60;@g.us&#x60;, or BSUID &#x60;@lid&#x60;). Use phone or chatId. | [optional] 
 **Body** | **string** |  | [optional] 
 **QuotedMsgId** | **string** |  | [optional] 
 
