@@ -1,11 +1,13 @@
 import { spawnSync } from 'node:child_process';
 import { createHash } from 'node:crypto';
+import { existsSync } from 'node:fs';
 import { mkdtemp, readFile, writeFile, mkdir, readdir, rm, cp } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { dirname, join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
 import { postProcessExactOptionalSdk } from './exact-optional.mjs';
+import { makeExportsExplicit } from './explicit-public-exports.cjs';
 import { postProcessGeneratedTypeScriptSdk } from './postprocess.cjs';
 
 const directory = dirname(fileURLToPath(import.meta.url));
@@ -70,6 +72,10 @@ try {
   if (result.status !== 0) throw new Error(`Generation failed: ${result.status}`);
   postProcessGeneratedTypeScriptSdk(temporary);
   postProcessExactOptionalSdk(temporary);
+  const barrels = ['src/index.ts', 'src/models/index.ts', 'src/apis/index.ts']
+    .map((file) => join(temporary, file))
+    .filter((file) => existsSync(file));
+  if (barrels.length > 0) makeExportsExplicit(barrels);
   const expected = await inventory(join(temporary, 'src'));
   const output = join(root, 'typescript/src/generated/src');
   const inventoryFile = join(directory, 'inventory.json');

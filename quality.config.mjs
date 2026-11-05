@@ -25,6 +25,10 @@ export default {
       pattern: 'quality/generator/postprocess.cjs',
       producer: 'Vendored API generator; checksum checked by quality/generator/generate.mjs',
     },
+    {
+      pattern: 'quality/generator/explicit-public-exports.cjs',
+      producer: 'Vendored explicit barrel rewrite from gen/explicit-public-exports.cjs',
+    },
   ],
   comments: {
     full: [
@@ -46,6 +50,7 @@ export default {
   duplicateIgnore: [
     'typescript/src/generated/**',
     'quality/generator/postprocess.cjs',
+    'quality/generator/explicit-public-exports.cjs',
     '**/__tests__/**',
     '**/*.test.*',
   ],
@@ -58,5 +63,9 @@ export default {
     'quality/generator',
     'quality/exceptions',
   ],
-  duplicateFullIgnore: ['typescript/src/generated/**', 'quality/generator/postprocess.cjs'],
+  duplicateFullIgnore: [
+    'typescript/src/generated/**',
+    'quality/generator/postprocess.cjs',
+    'quality/generator/explicit-public-exports.cjs',
+  ],
 };

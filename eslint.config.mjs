@@ -10,6 +10,7 @@ export default [
       '**/quality/reports/**',
       'typescript/src/generated/**',
       'quality/generator/postprocess.cjs',
+      'quality/generator/explicit-public-exports.cjs',
       'java/**',
       'kotlin/**',
       'scala/**',
