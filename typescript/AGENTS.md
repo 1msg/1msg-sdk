@@ -630,6 +630,19 @@ await client.messaging.sendContact(client.config.token, {
 });
 ```
 
+### sendContactInfo
+
+````yaml
+operationId: sendContactInfo
+http: POST /sendContactInfo
+client: client.messaging.sendContactInfo
+summary: Request the user's phone number
+description: Send a service-window interactive message that asks the WhatsApp user to share their phone number (`request_contact_info`). Use this when you only know the user by BSUID (WhatsApp username) and the 24-hour customer service window is open. Outside that window, create a UTILITY or MARKETING template with a `REQUEST_CONTACT_INFO` button (`POST /addTemplate`) and send it with `POST /sendTemplate`. `body` is the text shown above the button (1–1024 characters). WhatsApp chooses the button label. This method has no button-text field — do not send one. ```json { "bsuid": "US.13491208655302741918", "body": "Please share your phone number so we can reach you." } ``` `phone`, `chatId` (`…@c.us`, `…@lid`, `…@username`), or `bsuid` identifies the recipient. One of them is enough. After Meta accepts the send, the outgoing webhook and stored history message use this same text as `messages[].body` (`type: interactive`). When the user taps the button, Meta sends an inbound `contacts` message. The sender stays the BSUID. The shared number is on the card with `origin: contact_request`. We write that phone onto the existing BSUID contact automatically — there is no separate “link phone” call. ```json { "contacts": [ { "profile": { "name": "Ada", "username": "ada" }, "user_id": "US.13491208655302741918" } ], "messages": [ { "from_user_id": "US.13491208655302741918", "type": "contacts", "contacts": [ { "origin": "contact_request", "phones": [{ "phone": "+1 202-555-0123", "wa_id": "12025550123" }] } ] } ] } ``` The stored inbound message body is the digits (`12025550123`). If Meta later includes a phone on an ordinary message or status for that same BSUID (`wa_id`, `from`, or `recipient_id`, together with `user_id` / `recipient_user_id`), that phone is merged onto the same contact. A contact card the user forwards (`origin` other than `contact_request`) is someone else's number and is not stored as this sender's phone.
+typescript: sendContactInfo(token: string, sendContactInfoRequest?: SendContactInfoRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<MessageSentResponse>
+requestBody: inline object
+responses: 200, 400, 401, 429, 500
+````
+
 ### sendCtaUrl
 
 ```yaml
@@ -778,8 +791,8 @@ operationId: sendMessage
 http: POST /sendMessage
 client: client.messaging.sendMessage
 summary: Send a Message
-description: Send a message to an existing chat. (Only if the dialogue has an Open Session). The message will be added to the queue for sending and delivered even if the phone is disconnected from the Internet or authorization is not passed. Only one of two parameters is needed to determine the destination - chatId or phone.
-typescript: sendMessage(token: string, body: string, quotedMsgId?: string, chatId?: string, phone?: number, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<MessageSentResponse>
+description: Send a message to an existing chat. (Only if the dialogue has an Open Session). The message will be added to the queue for sending and delivered even if the phone is disconnected from the Internet or authorization is not passed. Only one of two parameters is needed to determine the destination - chatId or phone. Direct Send is in beta. Meta has not enabled it on every business portfolio, so `category` and `directSend` are a beta option: watch delivery errors before relying on them. Set `category` to `utility` or `authentication` to send outside the 24-hour window as a Meta Direct Send template instead of the 1MSG marketing auto-template. `authentication` is part of that beta and is not recommended. `directSend.serviceFirst: true` tries a free service message first and uses Direct Send only when Meta rejects it because the window is closed (131047). `directSend.templateName` is only valid with `utility` (`^[a-z0-9_]+$`, max 512). Direct Send text is limited to 1024 characters. Without `templateName`, the first unseen phrase may be delivered as Meta's onboarding template. A named template does not guarantee delivery — wait for webhook errors 131000 or 132021. An open 24-hour window is still billed as utility when `category` is set and `serviceFirst` is not true.
+typescript: sendMessage(token: string, body: string, quotedMsgId?: string, chatId?: string, phone?: number, category?: SendMessageCategoryEnum, directSend?: SendMessageRequestDirectSend, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<MessageSentResponse>
 requestBody: inline object
 responses: 200, 400, 401, 429, 500
 ```
@@ -904,16 +917,16 @@ responses: 200, 401, 422, 500
 
 ### addTemplate
 
-```yaml
+````yaml
 operationId: addTemplate
 http: POST /addTemplate
 client: client.templates.addTemplate
 summary: Create message template
-description: Create a WABA message template (`name`, `category`, `language`, `components`). After create, Meta reviews the template; list it with `GET /templates`.
+description: Create a WABA message template (`name`, `category`, `language`, `components`). After create, Meta reviews the template; list it with `GET /templates`. Authentication OTP templates (`category: AUTHENTICATION`, copy-code / OTP button) can later be sent only to a phone number. Meta does not accept a BSUID recipient for them (error 131062). If the recipient is known only by BSUID — for example they use a username and their phone number is not in your Business Portfolio — that template cannot be sent. To ask a BSUID user for their phone number, add a `REQUEST_CONTACT_INFO` button on a `UTILITY` or `MARKETING` template. Do not send `text` on that button — WhatsApp sets the label (and rejects a custom one). The button also has no send-time parameters: `POST /sendTemplate` does not take a button component for it. Inside an open 24-hour window, call `POST /sendContactInfo` instead of a template. When the user shares the number, the inbound webhook is a `contacts` message with `origin: contact_request`. The phone is stored on that BSUID automatically. See `POST /sendContactInfo`. ```json { "name": "request_phone", "category": "UTILITY", "language": "en_US", "components": [ { "type": "BODY", "text": "Please share your phone number so we can continue." }, { "type": "BUTTONS", "buttons": [{ "type": "REQUEST_CONTACT_INFO" }] } ] } ```
 typescript: addTemplate(token: string, addTemplateRequest?: AddTemplateRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<AddTemplate200Response>
 requestBody: inline object
 responses: 200, 401, 500
-```
+````
 
 ### listTemplates
 
@@ -952,7 +965,7 @@ operationId: sendTemplate
 http: POST /sendTemplate
 client: client.templates.sendTemplate
 summary: Send Template Message
-description: Send a WhatsApp **template** message (works outside the 24-hour session window). Use this tool — not `send_message` — when the 24h session is closed. `params` MUST be Cloud API **component objects**, never a flat list of strings and never the old On-Prem `hsm` / `localizable_params` format. Example body variable `{{1}}`: ```json { "type": "body", "parameters": [{ "type": "text", "text": "Ivan" }] } ``` Do not send `"type": "hsm"` and do not send `params: ["Ivan", "123"]`. Supported `params` button `sub_type` values include: `url`, `quick_reply`, `copy_code` / `coupon_code`, `catalog`, `flow`, `limited_time_offer`, and **`order_details`** (WhatsApp Payments **India only** — requires an approved Utility template with an ORDER_DETAILS button). Convenience wrapper with structured fields: `POST /sendOrderDetails`.
+description: Send a WhatsApp **template** message (works outside the 24-hour session window). Use this tool — not `send_message` — when the 24h session is closed. `params` MUST be Cloud API **component objects**, never a flat list of strings and never the old On-Prem `hsm` / `localizable_params` format. Example body variable `{{1}}`: ```json { "type": "body", "parameters": [{ "type": "text", "text": "Ivan" }] } ``` Do not send `"type": "hsm"` and do not send `params: ["Ivan", "123"]`. Supported `params` button `sub_type` values include: `url`, `quick_reply`, `copy_code` / `coupon_code`, `catalog`, `flow`, `limited_time_offer`, and **`order_details`** (WhatsApp Payments **India only** — requires an approved Utility template with an ORDER_DETAILS button). Convenience wrapper with structured fields: `POST /sendOrderDetails`. Authentication OTP templates (category `AUTHENTICATION`, or a template with an OTP / copy-code button) can only be sent to a phone number (`phone` or a phone `chatId`). Meta rejects a BSUID `recipient` for these templates with error 131062. If the recipient is known only by BSUID — for example they use a username and their phone number is not in your Business Portfolio — the template cannot be sent. A `REQUEST_CONTACT_INFO` button (UTILITY or MARKETING only) has no send-time parameters. Do not add a button component for it in `params`, and do not send button text — WhatsApp sets that label on the template. Create the button with `POST /addTemplate` as `{ "type": "REQUEST_CONTACT_INFO" }` with no `text`. Inside an open 24-hour window, `POST /sendContactInfo` asks for the number without a template.
 typescript: sendTemplate(token: string, sendTemplateRequest?: SendTemplateRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<{ [key: string]: any; }>
 requestBody: inline object
 responses: 200
@@ -1101,6 +1114,7 @@ import type { SendMessageRequest, MessageSentResponse, ProfileInfo } from '@1msg
 - `SendButtonRequestSectionsInner` (2 fields)
 - `SendButtonRequestSectionsInnerReply` (2 fields)
 - `SendCarouselRequest1` (6 fields)
+- `SendContactInfoRequest` (5 fields)
 - `SendContactRequest` (5 fields)
 - `SendContactRequestContact` (5 fields)
 - `SendContactRequestContactName`
@@ -1118,7 +1132,8 @@ import type { SendMessageRequest, MessageSentResponse, ProfileInfo } from '@1msg
 - `SendListRequestSectionsInnerRowsInner` (3 fields)
 - `SendLocationRequest1` (7 fields)
 - `SendLocationRequestRequest` (4 fields)
-- `SendMessageRequest` (4 fields)
+- `SendMessageRequest` (6 fields)
+- `SendMessageRequestDirectSend` (2 fields)
 - `SendOrderDetailsRequest` (10 fields)
 - `SendOrderDetailsRequestLanguage` (2 fields)
 - `SendOrderDetailsRequestOrder` (6 fields)
@@ -1152,6 +1167,6 @@ import { ResponseError } from '@1msg/sdk';
 ## Metadata
 
 openapi_title: 1MSG WhatsApp Business API (Public)
-openapi_version: 1.0.0
-operations: 62
-models: 99
+openapi_version: 2.0.0
+operations: 63
+models: 101

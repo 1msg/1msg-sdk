@@ -13,9 +13,9 @@ parameter, response code, type export, and common integration pattern is documen
 | **API docs**        | [docs.1msg.io](https://docs.1msg.io/)                                             |
 | **Platform**        | [platform.1msg.io](https://platform.1msg.io/)                                     |
 | **Support**         | support@1msg.io                                                                   |
-| **OpenAPI version** | 1.0.0                                                                             |
-| **Operations**      | 62                                                                                |
-| **Exported models** | 99                                                                                |
+| **OpenAPI version** | 2.0.0                                                                             |
+| **Operations**      | 63                                                                                |
+| **Exported models** | 101                                                                               |
 | **AI agent guide**  | [AGENTS.md](./AGENTS.md)                                                          |
 
 ---
@@ -162,11 +162,11 @@ await client.sendMessage({ body: 'Hi', chatId: '12020721369@c.us' });
 
 ## API reference
 
-**62 operations** documented below with HTTP mapping, schemas, SDK and cURL examples.
+**63 operations** documented below with HTTP mapping, schemas, SDK and cURL examples.
 
 ## messaging
 
-Namespace: `client.messaging` → `MessagingApi` (23 operations)
+Namespace: `client.messaging` → `MessagingApi` (24 operations)
 
 ### `createReadMessage`
 
@@ -838,6 +838,75 @@ curl -X POST 'https://api.1msg.io/{instanceId}/sendContact?token={token}' \
   }'
 ```
 
+### `sendContactInfo`
+
+#### Request the user's phone number
+
+Send a service-window interactive message that asks the WhatsApp user to share their phone number (`request_contact_info`). Use this when you only know the user by BSUID (WhatsApp username) and the 24-hour customer service window is open. Outside that window, create a UTILITY or MARKETING template with a `REQUEST_CONTACT_INFO` button (`POST /addTemplate`) and send it with `POST /sendTemplate`. `body` is the text shown above the button (1–1024 characters). WhatsApp chooses the button label. This method has no button-text field — do not send one. `json { "bsuid": "US.13491208655302741918", "body": "Please share your phone number so we can reach you." } ` `phone`, `chatId` (`…@c.us`, `…@lid`, `…@username`), or `bsuid` identifies the recipient. One of them is enough. After Meta accepts the send, the outgoing webhook and stored history message use this same text as `messages[].body` (`type: interactive`). When the user taps the button, Meta sends an inbound `contacts` message. The sender stays the BSUID. The shared number is on the card with `origin: contact_request`. We write that phone onto the existing BSUID contact automatically — there is no separate “link phone” call. `json { "contacts": [ { "profile": { "name": "Ada", "username": "ada" }, "user_id": "US.13491208655302741918" } ], "messages": [ { "from_user_id": "US.13491208655302741918", "type": "contacts", "contacts": [ { "origin": "contact_request", "phones": [{ "phone": "+1 202-555-0123", "wa_id": "12025550123" }] } ] } ] } ` The stored inbound message body is the digits (`12025550123`). If Meta later includes a phone on an ordinary message or status for that same BSUID (`wa_id`, `from`, or `recipient_id`, together with `user_id` / `recipient_user_id`), that phone is merged onto the same contact. A contact card the user forwards (`origin` other than `contact_request`) is someone else's number and is not stored as this sender's phone.
+
+|             |                                                                                                              |
+| ----------- | ------------------------------------------------------------------------------------------------------------ |
+| HTTP        | `POST /sendContactInfo`                                                                                      |
+| SDK group   | `client.messaging`                                                                                           |
+| API class   | `MessagingApi`                                                                                               |
+| operationId | `sendContactInfo`                                                                                            |
+| Signature   | `sendContactInfo(token: string, sendContactInfoRequest?: SendContactInfoRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<MessageSentResponse>` |
+
+#### Authentication
+
+- Query parameter `token` (required on every call)
+- SDK: pass `client.config.token` as the first method argument
+
+#### Request
+
+- `token` (string, required) — channel API token
+
+**Request body schema**
+
+| Field         | Type   | Required     | Description                                                                                                                       |
+| ------------- | ------ | ------------ | --------------------------------------------------------------------------------------------------------------------------------- |
+| `phone`       | string | optional     | Recipient phone with country code. Use phone, chatId, or bsuid.                                                                   |
+| `chatId`      | string | optional     | Recipient chat ID (`phone@c.us`, BSUID `@lid`, or username `@username`).                                                          |
+| `bsuid`       | string | optional     | Business-scoped user id, for example `US.13491208655302741918`.                                                                   |
+| `quotedMsgId` | string | optional     |                                                                                                                                   |
+| `body`        | string | **required** | Text shown above the share-contact button. WhatsApp sets the button label; do not send button text. (minLength=1, maxLength=1024) |
+
+**OpenAPI example body**
+
+```json
+{
+  "bsuid": "US.13491208655302741918",
+  "body": "Please share your phone number so we can reach you."
+}
+```
+
+**Responses**
+
+| Status | Description                             | Schema                |
+| ------ | --------------------------------------- | --------------------- |
+| `200`  | Message sent successfully               | `MessageSentResponse` |
+| `400`  | Invalid request parameters              | `ErrorResponse`       |
+| `401`  | Invalid or missing authentication token | `ErrorResponse`       |
+| `429`  | Rate limit exceeded                     | `ErrorResponse`       |
+| `500`  | Internal server error                   | `ErrorResponse`       |
+
+#### SDK example
+
+```typescript
+await client.messaging.sendContactInfo(client.config.token, {});
+```
+
+#### cURL equivalent
+
+```bash
+curl -X POST 'https://api.1msg.io/{instanceId}/sendContactInfo?token={token}' \
+  -H 'Content-Type: application/json' \
+  -d '{
+    "bsuid": "US.13491208655302741918",
+    "body": "Please share your phone number so we can reach you."
+  }'
+```
+
 ### `sendCtaUrl`
 
 #### Send CTA URL interactive message
@@ -1331,15 +1400,15 @@ curl -X POST 'https://api.1msg.io/{instanceId}/sendLocationRequest?token={token}
 
 #### Send a Message
 
-Send a message to an existing chat. (Only if the dialogue has an Open Session). The message will be added to the queue for sending and delivered even if the phone is disconnected from the Internet or authorization is not passed. Only one of two parameters is needed to determine the destination - chatId or phone.
+Send a message to an existing chat. (Only if the dialogue has an Open Session). The message will be added to the queue for sending and delivered even if the phone is disconnected from the Internet or authorization is not passed. Only one of two parameters is needed to determine the destination - chatId or phone. Direct Send is in beta. Meta has not enabled it on every business portfolio, so `category` and `directSend` are a beta option: watch delivery errors before relying on them. Set `category` to `utility` or `authentication` to send outside the 24-hour window as a Meta Direct Send template instead of the 1MSG marketing auto-template. `authentication` is part of that beta and is not recommended. `directSend.serviceFirst: true` tries a free service message first and uses Direct Send only when Meta rejects it because the window is closed (131047). `directSend.templateName` is only valid with `utility` (`^[a-z0-9_]+$`, max 512). Direct Send text is limited to 1024 characters. Without `templateName`, the first unseen phrase may be delivered as Meta's onboarding template. A named template does not guarantee delivery — wait for webhook errors 131000 or 132021. An open 24-hour window is still billed as utility when `category` is set and `serviceFirst` is not true.
 
-|             |                                                                                                                              |
-| ----------- | ---------------------------------------------------------------------------------------------------------------------------- |
-| HTTP        | `POST /sendMessage`                                                                                                          |
-| SDK group   | `client.messaging`                                                                                                           |
-| API class   | `MessagingApi`                                                                                                               |
-| operationId | `sendMessage`                                                                                                                |
-| Signature   | `sendMessage(token: string, body: string, quotedMsgId?: string, chatId?: string, phone?: number, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<MessageSentResponse>` |
+|             |                                                                                                                                                                                                             |
+| ----------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| HTTP        | `POST /sendMessage`                                                                                                                                                                                         |
+| SDK group   | `client.messaging`                                                                                                                                                                                          |
+| API class   | `MessagingApi`                                                                                                                                                                                              |
+| operationId | `sendMessage`                                                                                                                                                                                               |
+| Signature   | `sendMessage(token: string, body: string, quotedMsgId?: string, chatId?: string, phone?: number, category?: SendMessageCategoryEnum, directSend?: SendMessageRequestDirectSend, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<MessageSentResponse>` |
 
 #### Authentication
 
@@ -1352,12 +1421,16 @@ Send a message to an existing chat. (Only if the dialogue has an Open Session). 
 
 **Request body schema**
 
-| Field         | Type    | Required     | Description                                                                                                                                  |
-| ------------- | ------- | ------------ | -------------------------------------------------------------------------------------------------------------------------------------------- |
-| `body`        | string  | **required** | Message text, UTF-8 or UTF-16 string with emoji (minLength=1, maxLength=4096, example="Hello World 🌍")                                      |
-| `quotedMsgId` | string  | optional     | Message ID to quote/reply to (Cloud API wamid) (pattern=`^wamid\..+$`, example="wamid.HBgNMTIwMjA3MjEzNjkVAgARGBI5RTBCNUY0QUE2RjZBQzhGNDkA") |
-| `chatId`      | string  | optional     | Recipient chat ID: phone@c.us, group@g.us, or BSUID@lid (example="12020721369@c.us")                                                         |
-| `phone`       | integer | optional     | Phone number starting with country code (alternative to chatId) (example=12020721369)                                                        |
+| Field          | Type           | Required         | Description                                                                                                                                                                                                                                                   |
+| -------------- | -------------- | ---------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `body`         | string         | **required**     | Message text, UTF-8 or UTF-16 string with emoji (minLength=1, maxLength=4096, example="Hello World 🌍")                                                                                                                                                       |
+| `quotedMsgId`  | string         | optional         | Message ID to quote/reply to (Cloud API wamid) (pattern=`^wamid\..+$`, example="wamid.HBgNMTIwMjA3MjEzNjkVAgARGBI5RTBCNUY0QUE2RjZBQzhGNDkA")                                                                                                                  |
+| `chatId`       | string         | optional         | Recipient chat ID: phone@c.us, group@g.us, or BSUID@lid (example="12020721369@c.us")                                                                                                                                                                          |
+| `phone`        | integer        | optional         | Phone number starting with country code (alternative to chatId) (example=12020721369)                                                                                                                                                                         |
+| `category`     | enum("utility" | "authentication" | "service")                                                                                                                                                                                                                                                    | optional | Optional Direct Send category. Direct Send is in beta: Meta has not enabled it on every business portfolio. `utility` or `authentication` enables it. `authentication` is part of that beta and is not recommended. Omit or `service` keeps a normal service message (and the marketing auto-template outside the 24-hour window). `marketing` is rejected. (example="utility") |
+| `directSend`   | object         | optional         | Optional. Ignored unless `category` is `utility` or `authentication`. `serviceFirst` is not forwarded to Meta.                                                                                                                                                |
+| `serviceFirst` | boolean        | optional         | When true, send a service message first. Success stops there. A closed-window error (131047) retries as Direct Send. Any other error is returned and Direct Send is not attempted. Omit or false to send Direct Send immediately, even inside an open window. |
+| `templateName` | string         | optional         | Utility only. Meta creates or reuses a Direct Send template with this exact name (`^[a-z0-9_]+$`, max 512). Do not reuse a template created by hand. (maxLength=512, pattern=`^[a-z0-9_]+$`, example="order_shipped")                                         |
 
 **OpenAPI example body**
 
@@ -2795,7 +2868,7 @@ Namespace: `client.templates` → `TemplatesApi` (4 operations)
 
 #### Create message template
 
-Create a WABA message template (`name`, `category`, `language`, `components`). After create, Meta reviews the template; list it with `GET /templates`.
+Create a WABA message template (`name`, `category`, `language`, `components`). After create, Meta reviews the template; list it with `GET /templates`. Authentication OTP templates (`category: AUTHENTICATION`, copy-code / OTP button) can later be sent only to a phone number. Meta does not accept a BSUID recipient for them (error 131062). If the recipient is known only by BSUID — for example they use a username and their phone number is not in your Business Portfolio — that template cannot be sent. To ask a BSUID user for their phone number, add a `REQUEST_CONTACT_INFO` button on a `UTILITY` or `MARKETING` template. Do not send `text` on that button — WhatsApp sets the label (and rejects a custom one). The button also has no send-time parameters: `POST /sendTemplate` does not take a button component for it. Inside an open 24-hour window, call `POST /sendContactInfo` instead of a template. When the user shares the number, the inbound webhook is a `contacts` message with `origin: contact_request`. The phone is stored on that BSUID automatically. See `POST /sendContactInfo`. `json { "name": "request_phone", "category": "UTILITY", "language": "en_US", "components": [ { "type": "BODY", "text": "Please share your phone number so we can continue." }, { "type": "BUTTONS", "buttons": [{ "type": "REQUEST_CONTACT_INFO" }] } ] } `
 
 |             |                                                                                                  |
 | ----------- | ------------------------------------------------------------------------------------------------ |
@@ -2983,7 +3056,7 @@ curl -X POST 'https://api.1msg.io/{instanceId}/removeTemplate?token={token}' \
 
 #### Send Template Message
 
-Send a WhatsApp **template** message (works outside the 24-hour session window). Use this tool — not `send_message` — when the 24h session is closed. `params` MUST be Cloud API **component objects**, never a flat list of strings and never the old On-Prem `hsm` / `localizable_params` format. Example body variable `{{1}}`: `json { "type": "body", "parameters": [{ "type": "text", "text": "Ivan" }] } ` Do not send `"type": "hsm"` and do not send `params: ["Ivan", "123"]`. Supported `params` button `sub_type` values include: `url`, `quick_reply`, `copy_code` / `coupon_code`, `catalog`, `flow`, `limited_time_offer`, and **`order_details`** (WhatsApp Payments **India only** — requires an approved Utility template with an ORDER_DETAILS button). Convenience wrapper with structured fields: `POST /sendOrderDetails`.
+Send a WhatsApp **template** message (works outside the 24-hour session window). Use this tool — not `send_message` — when the 24h session is closed. `params` MUST be Cloud API **component objects**, never a flat list of strings and never the old On-Prem `hsm` / `localizable_params` format. Example body variable `{{1}}`: `json { "type": "body", "parameters": [{ "type": "text", "text": "Ivan" }] } ` Do not send `"type": "hsm"` and do not send `params: ["Ivan", "123"]`. Supported `params` button `sub_type` values include: `url`, `quick_reply`, `copy_code` / `coupon_code`, `catalog`, `flow`, `limited_time_offer`, and **`order_details`** (WhatsApp Payments **India only** — requires an approved Utility template with an ORDER_DETAILS button). Convenience wrapper with structured fields: `POST /sendOrderDetails`. Authentication OTP templates (category `AUTHENTICATION`, or a template with an OTP / copy-code button) can only be sent to a phone number (`phone` or a phone `chatId`). Meta rejects a BSUID `recipient` for these templates with error 131062. If the recipient is known only by BSUID — for example they use a username and their phone number is not in your Business Portfolio — the template cannot be sent. A `REQUEST_CONTACT_INFO` button (UTILITY or MARKETING only) has no send-time parameters. Do not add a button component for it in `params`, and do not send button text — WhatsApp sets that label on the template. Create the button with `POST /addTemplate` as `{ "type": "REQUEST_CONTACT_INFO" }` with no `text`. Inside an open 24-hour window, `POST /sendContactInfo` asks for the number without a template.
 
 |             |                                                                                                     |
 | ----------- | --------------------------------------------------------------------------------------------------- |
@@ -3004,20 +3077,20 @@ Send a WhatsApp **template** message (works outside the 24-hour session window).
 
 **Request body schema**
 
-| Field                    | Type          | Required | Description                                                                                                                                                                                                                                  |
-| ------------------------ | ------------- | -------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `template`               | string        | optional | Approved template name (template `name`, not the old HSM `element_name`)                                                                                                                                                                     |
-| `language`               | object        | optional | Template language. Always set `policy` to `deterministic`.                                                                                                                                                                                   |
-| `policy`                 | string        | optional | Must be `deterministic` (example="deterministic")                                                                                                                                                                                            |
-| `code`                   | string        | optional | (example="en")                                                                                                                                                                                                                               |
-| `namespace`              | string        | optional | Template namespace from `list_templates`                                                                                                                                                                                                     |
-| `params`                 | array<object> | optional | Template components in WhatsApp Cloud API format. Each item is an object with `type` (`body`, `header`, `button`) and `parameters` (objects with `type` + `text` / media / action). Never a list of strings. Never HSM `localizable_params`. |
-| `phone`                  | string        | optional | Recipient phone with country code (use phone or chatId)                                                                                                                                                                                      |
-| `chatId`                 | string        | optional | Recipient chat ID (`phone@c.us`, group `@g.us`, or BSUID `@lid`). Use phone or chatId.                                                                                                                                                       |
-| `quotedMsgId`            | string        | optional | Optional Cloud API wamid to quote                                                                                                                                                                                                            |
-| `useMMlite`              | boolean       | optional | Force Marketing Messages API (POST marketing_messages). If omitted: auto for MARKETING category when channel has mm_lite_enabled and mm_lite_available service settings.                                                                     |
-| `messageActivitySharing` | boolean       | optional | Sets message_activity_sharing on WABA payload. Enables click tracking webhooks. Requires MM Lite path. Ignored on Cloud API fallback.                                                                                                        |
-| `messageSendTtlSeconds`  | integer       | optional | Template message TTL in seconds (message_send_ttl_seconds). MARKETING via MM Lite: 43200–2592000. AUTHENTICATION: 30–900. UTILITY: 30–43200. AUTH/UTILITY also accept -1 (30-day custom TTL).                                                |
+| Field                    | Type          | Required | Description                                                                                                                                                                                                                                                                                                                                                                                       |
+| ------------------------ | ------------- | -------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `template`               | string        | optional | Approved template name (template `name`, not the old HSM `element_name`)                                                                                                                                                                                                                                                                                                                          |
+| `language`               | object        | optional | Template language. Always set `policy` to `deterministic`.                                                                                                                                                                                                                                                                                                                                        |
+| `policy`                 | string        | optional | Must be `deterministic` (example="deterministic")                                                                                                                                                                                                                                                                                                                                                 |
+| `code`                   | string        | optional | (example="en")                                                                                                                                                                                                                                                                                                                                                                                    |
+| `namespace`              | string        | optional | Template namespace from `list_templates`                                                                                                                                                                                                                                                                                                                                                          |
+| `params`                 | array<object> | optional | Template components in WhatsApp Cloud API format. Each item is an object with `type` (`body`, `header`, `button`) and `parameters` (objects with `type` + `text` / media / action). Never a list of strings. Never HSM `localizable_params`.                                                                                                                                                      |
+| `phone`                  | string        | optional | Recipient phone with country code (use phone or chatId)                                                                                                                                                                                                                                                                                                                                           |
+| `chatId`                 | string        | optional | Recipient chat ID (`phone@c.us`, group `@g.us`, or BSUID `@lid`). Use phone or chatId.                                                                                                                                                                                                                                                                                                            |
+| `quotedMsgId`            | string        | optional | Optional Cloud API wamid to quote                                                                                                                                                                                                                                                                                                                                                                 |
+| `useMMlite`              | boolean       | optional | Force Marketing Messages API (POST marketing_messages). If omitted, and the channel has mm_lite_enabled and mm_lite_available: MARKETING templates and templates with an unknown category use marketing_messages. An unknown category falls back to messages (mmLiteFallback) when Meta rejects it. Known AUTHENTICATION and UTILITY templates stay on messages. useMMlite:false forces messages. |
+| `messageActivitySharing` | boolean       | optional | Sets message_activity_sharing on WABA payload. Enables click tracking webhooks. Requires MM Lite path. Ignored on Cloud API fallback.                                                                                                                                                                                                                                                             |
+| `messageSendTtlSeconds`  | integer       | optional | Template message TTL in seconds (message_send_ttl_seconds). MARKETING via MM Lite: 43200–2592000. AUTHENTICATION: 30–900. UTILITY: 30–43200. AUTH/UTILITY also accept -1 (30-day custom TTL).                                                                                                                                                                                                     |
 
 **OpenAPI example body**
 
@@ -4534,6 +4607,18 @@ Check if a given object implements the SendCarouselRequest1 interface.
 | `chatId`      | `string`                     | optional | —           |
 | `phone`       | `number`                     | optional | —           |
 
+### `SendContactInfoRequest`
+
+Check if a given object implements the SendContactInfoRequest interface.
+
+| Field         | Type     | Required     | Description |
+| ------------- | -------- | ------------ | ----------- |
+| `phone`       | `string` | optional     | —           |
+| `chatId`      | `string` | optional     | —           |
+| `bsuid`       | `string` | optional     | —           |
+| `quotedMsgId` | `string` | optional     | —           |
+| `body`        | `string` | **required** | —           |
+
 ### `SendContactRequest`
 
 Check if a given object implements the SendContactRequest interface.
@@ -4730,14 +4815,27 @@ Check if a given object implements the SendLocationRequestRequest interface.
 
 ### `SendMessageRequest`
 
-Check if a given object implements the SendMessageRequest interface.
+@export
 
-| Field         | Type    | Required     | Description                                                                                                                                  |
-| ------------- | ------- | ------------ | -------------------------------------------------------------------------------------------------------------------------------------------- |
-| `body`        | string  | **required** | Message text, UTF-8 or UTF-16 string with emoji (minLength=1, maxLength=4096, example="Hello World 🌍")                                      |
-| `quotedMsgId` | string  | optional     | Message ID to quote/reply to (Cloud API wamid) (pattern=`^wamid\..+$`, example="wamid.HBgNMTIwMjA3MjEzNjkVAgARGBI5RTBCNUY0QUE2RjZBQzhGNDkA") |
-| `chatId`      | string  | optional     | Recipient chat ID: phone@c.us, group@g.us, or BSUID@lid (example="12020721369@c.us")                                                         |
-| `phone`       | integer | optional     | Phone number starting with country code (alternative to chatId) (example=12020721369)                                                        |
+| Field          | Type           | Required         | Description                                                                                                                                                                                                                                                   |
+| -------------- | -------------- | ---------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `body`         | string         | **required**     | Message text, UTF-8 or UTF-16 string with emoji (minLength=1, maxLength=4096, example="Hello World 🌍")                                                                                                                                                       |
+| `quotedMsgId`  | string         | optional         | Message ID to quote/reply to (Cloud API wamid) (pattern=`^wamid\..+$`, example="wamid.HBgNMTIwMjA3MjEzNjkVAgARGBI5RTBCNUY0QUE2RjZBQzhGNDkA")                                                                                                                  |
+| `chatId`       | string         | optional         | Recipient chat ID: phone@c.us, group@g.us, or BSUID@lid (example="12020721369@c.us")                                                                                                                                                                          |
+| `phone`        | integer        | optional         | Phone number starting with country code (alternative to chatId) (example=12020721369)                                                                                                                                                                         |
+| `category`     | enum("utility" | "authentication" | "service")                                                                                                                                                                                                                                                    | optional | Optional Direct Send category. Direct Send is in beta: Meta has not enabled it on every business portfolio. `utility` or `authentication` enables it. `authentication` is part of that beta and is not recommended. Omit or `service` keeps a normal service message (and the marketing auto-template outside the 24-hour window). `marketing` is rejected. (example="utility") |
+| `directSend`   | object         | optional         | Optional. Ignored unless `category` is `utility` or `authentication`. `serviceFirst` is not forwarded to Meta.                                                                                                                                                |
+| `serviceFirst` | boolean        | optional         | When true, send a service message first. Success stops there. A closed-window error (131047) retries as Direct Send. Any other error is returned and Direct Send is not attempted. Omit or false to send Direct Send immediately, even inside an open window. |
+| `templateName` | string         | optional         | Utility only. Meta creates or reuses a Direct Send template with this exact name (`^[a-z0-9_]+$`, max 512). Do not reuse a template created by hand. (maxLength=512, pattern=`^[a-z0-9_]+$`, example="order_shipped")                                         |
+
+### `SendMessageRequestDirectSend`
+
+Check if a given object implements the SendMessageRequestDirectSend interface.
+
+| Field          | Type      | Required | Description |
+| -------------- | --------- | -------- | ----------- |
+| `serviceFirst` | `boolean` | optional | —           |
+| `templateName` | `string`  | optional | —           |
 
 ### `SendOrderDetailsRequest`
 
@@ -5076,7 +5174,7 @@ No. Tokens must stay server-side. Use a backend proxy.
 
 ### How are versions published?
 
-SDK semver is independent from OpenAPI `info.version`. Patch releases ship doc fixes; minor/major track API changes.
+Package `X.Y` matches OpenAPI `info.version` `X.Y`. The patch is the package's own.
 
 ## Troubleshooting
 
@@ -5107,7 +5205,7 @@ Each operation exposes `*Raw()` and `*RequestOpts()` for custom `fetch` control.
 
 ## Regeneration and versioning
 
-Docs regenerate on `npm run generate:sdk`. npm versions are immutable — patch bump for doc-only changes.
+Docs regenerate on `pnpm run generate:sdk`. npm versions are immutable — patch bump for doc-only changes.
 
 ## License
 
