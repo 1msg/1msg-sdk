@@ -30,22 +30,23 @@ import com.squareup.moshi.JsonClass
 /**
  * 
  *
- * @param about Profile About section
- * @param address 
+ * @param about Profile About section (WhatsApp status text)
+ * @param address Business address shown on the profile
  * @param description Business description (max 256 characters)
- * @param email 
+ * @param email Business email shown on the profile
  * @param vertical Industry of the business
  * @param photo HTTPS URL or data:image/...;base64,... payload
- * @param websites 
+ * @param websites Business website URLs
  */
 
 
 data class UpdateMeRequest (
 
-    /* Profile About section */
+    /* Profile About section (WhatsApp status text) */
     @Json(name = "about")
     val about: kotlin.String? = null,
 
+    /* Business address shown on the profile */
     @Json(name = "address")
     val address: kotlin.String? = null,
 
@@ -53,6 +54,7 @@ data class UpdateMeRequest (
     @Json(name = "description")
     val description: kotlin.String? = null,
 
+    /* Business email shown on the profile */
     @Json(name = "email")
     val email: kotlin.String? = null,
 
@@ -64,6 +66,7 @@ data class UpdateMeRequest (
     @Json(name = "photo")
     val photo: kotlin.String? = null,
 
+    /* Business website URLs */
     @Json(name = "websites")
     val websites: kotlin.collections.List<kotlin.String>? = null
 

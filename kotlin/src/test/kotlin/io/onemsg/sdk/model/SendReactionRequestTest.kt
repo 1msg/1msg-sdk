@@ -33,10 +33,16 @@ class SendReactionRequestTest : ShouldSpec() {
         // uncomment below to create an instance of SendReactionRequest
         //val modelInstance = SendReactionRequest()
 
-        // to test the property `phone`
+        // to test the property `phone` - Recipient phone with country code. Use phone or chatId.
         should("test phone") {
             // uncomment below to test the property
             //modelInstance.phone shouldBe ("TODO")
+        }
+
+        // to test the property `chatId` - Recipient chat ID (`phone@c.us`, group `@g.us`, or BSUID `@lid`). Use phone or chatId.
+        should("test chatId") {
+            // uncomment below to test the property
+            //modelInstance.chatId shouldBe ("TODO")
         }
 
         // to test the property `body`

@@ -52,10 +52,10 @@ data class SendContactRequestContactsInner (
     val birthday: kotlin.String? = null,
 
     @Json(name = "addresses")
-    val addresses: kotlin.collections.List<kotlin.Any>? = null,
+    val addresses: kotlin.collections.List<kotlin.collections.Map<kotlin.String, kotlin.Any>>? = null,
 
     @Json(name = "emails")
-    val emails: kotlin.collections.List<kotlin.Any>? = null,
+    val emails: kotlin.collections.List<kotlin.collections.Map<kotlin.String, kotlin.Any>>? = null,
 
     @Json(name = "org")
     val org: SendContactRequestContactsInnerOrg? = null,
@@ -64,7 +64,7 @@ data class SendContactRequestContactsInner (
     val phones: kotlin.collections.List<SendContactRequestContactsInnerPhonesInner>? = null,
 
     @Json(name = "urls")
-    val urls: kotlin.collections.List<kotlin.Any>? = null
+    val urls: kotlin.collections.List<kotlin.collections.Map<kotlin.String, kotlin.Any>>? = null
 
 ) {
 

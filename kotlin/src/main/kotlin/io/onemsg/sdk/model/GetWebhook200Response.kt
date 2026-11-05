@@ -23,6 +23,8 @@
 
 package io.onemsg.sdk.model
 
+import io.onemsg.sdk.model.GetWebhook200ResponseWebhookUrl
+import io.onemsg.sdk.model.WebhookUrlStatus
 
 import com.squareup.moshi.Json
 import com.squareup.moshi.JsonClass
@@ -31,16 +33,84 @@ import com.squareup.moshi.JsonClass
  * 
  *
  * @param webhookUrl 
+ * @param haveDisabledWebhooks `true` when at least one URL in `webhookUrl` is sticky auto-disabled. Not \"the channel is dead\": other configured URLs still receive events. Send/receive are unaffected. 
+ * @param circuitState Compatibility scalar for **one** URL (first sticky-disabled, else first configured). Not the channel as a whole. Prefer `webhookStatuses[].circuitState`. 
+ * @param reason Last qualifying fail reason of the summary URL (same URL as `circuitState`)
+ * @param fails Diagnostic only (summary URL). Qualifying failures in the rolling ~10 minute breaker window — not lifetime and not customer retries. Prefer `webhookStatuses` / `disabledWebhooks`. 
+ * @param trips Diagnostic only (summary URL). Failed recovery probes (≈15 min → 1 h → 6 h). Sticky disable after 3. Not a blind unblock timer. 
+ * @param disabledAt Epoch milliseconds when the summary URL became sticky-disabled
+ * @param firstFailAt Diagnostic only (summary URL). Epoch ms of the first fail in the current ~10 minute window (pairs with `fails`). 
+ * @param lastStatus Last HTTP status from the summary URL, when known
+ * @param nextProbeAt Epoch milliseconds of the next half-open probe for the summary URL, if any
+ * @param disabledWebhooks Currently configured URLs that are sticky auto-disabled (subset of `webhookUrl`). Does not include leftover URLs that are no longer configured. 
+ * @param webhookStatuses One entry per currently configured URL. Prefer this over top-level `haveDisabledWebhooks` / `circuitState` when more than one webhook is set. 
  */
 
 
 data class GetWebhook200Response (
 
     @Json(name = "webhookUrl")
-    val webhookUrl: kotlin.String? = null
+    val webhookUrl: GetWebhook200ResponseWebhookUrl? = null,
+
+    /* `true` when at least one URL in `webhookUrl` is sticky auto-disabled. Not \"the channel is dead\": other configured URLs still receive events. Send/receive are unaffected.  */
+    @Json(name = "haveDisabledWebhooks")
+    val haveDisabledWebhooks: kotlin.Boolean? = null,
+
+    /* Compatibility scalar for **one** URL (first sticky-disabled, else first configured). Not the channel as a whole. Prefer `webhookStatuses[].circuitState`.  */
+    @Json(name = "circuitState")
+    val circuitState: GetWebhook200Response.CircuitState? = null,
+
+    /* Last qualifying fail reason of the summary URL (same URL as `circuitState`) */
+    @Json(name = "reason")
+    val reason: kotlin.String? = null,
+
+    /* Diagnostic only (summary URL). Qualifying failures in the rolling ~10 minute breaker window — not lifetime and not customer retries. Prefer `webhookStatuses` / `disabledWebhooks`.  */
+    @Json(name = "fails")
+    val fails: kotlin.Int? = null,
+
+    /* Diagnostic only (summary URL). Failed recovery probes (≈15 min → 1 h → 6 h). Sticky disable after 3. Not a blind unblock timer.  */
+    @Json(name = "trips")
+    val trips: kotlin.Int? = null,
+
+    /* Epoch milliseconds when the summary URL became sticky-disabled */
+    @Json(name = "disabledAt")
+    val disabledAt: kotlin.Int? = null,
+
+    /* Diagnostic only (summary URL). Epoch ms of the first fail in the current ~10 minute window (pairs with `fails`).  */
+    @Json(name = "firstFailAt")
+    val firstFailAt: kotlin.Int? = null,
+
+    /* Last HTTP status from the summary URL, when known */
+    @Json(name = "lastStatus")
+    val lastStatus: kotlin.Int? = null,
+
+    /* Epoch milliseconds of the next half-open probe for the summary URL, if any */
+    @Json(name = "nextProbeAt")
+    val nextProbeAt: kotlin.Int? = null,
+
+    /* Currently configured URLs that are sticky auto-disabled (subset of `webhookUrl`). Does not include leftover URLs that are no longer configured.  */
+    @Json(name = "disabledWebhooks")
+    val disabledWebhooks: kotlin.collections.List<kotlin.collections.Map<kotlin.String, kotlin.Any>>? = null,
+
+    /* One entry per currently configured URL. Prefer this over top-level `haveDisabledWebhooks` / `circuitState` when more than one webhook is set.  */
+    @Json(name = "webhookStatuses")
+    val webhookStatuses: kotlin.collections.List<WebhookUrlStatus>? = null
 
 ) : kotlin.collections.HashMap<String, kotlin.Any>() {
 
+    /**
+     * Compatibility scalar for **one** URL (first sticky-disabled, else first configured). Not the channel as a whole. Prefer `webhookStatuses[].circuitState`. 
+     *
+     * Values: OK,DEGRADED,OPEN,HALF_OPEN,DISABLED
+     */
+    @JsonClass(generateAdapter = false)
+    enum class CircuitState(val value: kotlin.String) {
+        @Json(name = "ok") OK("ok"),
+        @Json(name = "degraded") DEGRADED("degraded"),
+        @Json(name = "open") OPEN("open"),
+        @Json(name = "half_open") HALF_OPEN("half_open"),
+        @Json(name = "disabled") DISABLED("disabled");
+    }
 
 }
 

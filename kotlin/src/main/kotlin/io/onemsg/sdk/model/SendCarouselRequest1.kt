@@ -30,8 +30,9 @@ import com.squareup.moshi.JsonClass
 /**
  * 
  *
- * @param params 
- * @param body 
+ * @param body Text shown above the carousel
+ * @param cards Preferred. 2–10 carousel cards.
+ * @param params Template-like alternative — include a CAROUSEL component with cards
  * @param quotedMsgId 
  * @param chatId 
  * @param phone 
@@ -40,11 +41,17 @@ import com.squareup.moshi.JsonClass
 
 data class SendCarouselRequest1 (
 
-    @Json(name = "params")
-    val params: kotlin.collections.List<kotlin.Any>,
-
+    /* Text shown above the carousel */
     @Json(name = "body")
     val body: kotlin.String? = null,
+
+    /* Preferred. 2–10 carousel cards. */
+    @Json(name = "cards")
+    val cards: kotlin.collections.List<kotlin.collections.Map<kotlin.String, kotlin.Any>>? = null,
+
+    /* Template-like alternative — include a CAROUSEL component with cards */
+    @Json(name = "params")
+    val params: kotlin.collections.List<kotlin.Any>? = null,
 
     @Json(name = "quotedMsgId")
     val quotedMsgId: kotlin.String? = null,

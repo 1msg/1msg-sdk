@@ -28,7 +28,10 @@ import okhttp3.Call
 import okhttp3.HttpUrl
 
 import io.onemsg.sdk.model.ConversationalAutomation
+import io.onemsg.sdk.model.CreateSettingsRequest
 import io.onemsg.sdk.model.ErrorResponse
+import io.onemsg.sdk.model.GetStatus200Response
+import io.onemsg.sdk.model.ListSettings200Response
 
 import com.squareup.moshi.Json
 
@@ -52,6 +55,86 @@ open class ChannelApi(basePath: kotlin.String = defaultBasePath, client: Call.Fa
         val defaultBasePath: String by lazy {
             System.getProperties().getProperty(ApiClient.BASE_URL_KEY, "https://api.1msg.io")
         }
+    }
+
+    /**
+     * POST /settings
+     * Update channel settings
+     * Update channel settings. Only send fields you want to change.  &#x60;webhookUrl&#x60; **replaces** the stored list (one URL string, or up to 5 URLs as an array). Passing an empty value clears webhooks. Repeating the same URL(s) also clears a sticky auto-disable. With several URLs, send the complete array to re-enable one of them — omitting a URL removes it from the channel. 
+     * @param token JWT token or API key for authorization
+     * @param createSettingsRequest 
+     * @return kotlin.collections.Map<kotlin.String, kotlin.Any>
+     * @throws IllegalStateException If the request is not correctly configured
+     * @throws IOException Rethrows the OkHttp execute method exception
+     * @throws UnsupportedOperationException If the API returns an informational or redirection response
+     * @throws ClientException If the API returns a client error response
+     * @throws ServerException If the API returns a server error response
+     */
+    @Suppress("UNCHECKED_CAST")
+    @Throws(IllegalStateException::class, IOException::class, UnsupportedOperationException::class, ClientException::class, ServerException::class)
+    fun createSettings(token: kotlin.String, createSettingsRequest: CreateSettingsRequest) : kotlin.collections.Map<kotlin.String, kotlin.Any> {
+        val localVarResponse = createSettingsWithHttpInfo(token = token, createSettingsRequest = createSettingsRequest)
+
+        return when (localVarResponse.responseType) {
+            ResponseType.Success -> (localVarResponse as Success<*>).data as kotlin.collections.Map<kotlin.String, kotlin.Any>
+            ResponseType.Informational -> throw UnsupportedOperationException("Client does not support Informational responses.")
+            ResponseType.Redirection -> throw UnsupportedOperationException("Client does not support Redirection responses.")
+            ResponseType.ClientError -> {
+                val localVarError = localVarResponse as ClientError<*>
+                throw ClientException("Client error : ${localVarError.statusCode} ${localVarError.message.orEmpty()}", localVarError.statusCode, localVarResponse)
+            }
+            ResponseType.ServerError -> {
+                val localVarError = localVarResponse as ServerError<*>
+                throw ServerException("Server error : ${localVarError.statusCode} ${localVarError.message.orEmpty()} ${localVarError.body}", localVarError.statusCode, localVarResponse)
+            }
+        }
+    }
+
+    /**
+     * POST /settings
+     * Update channel settings
+     * Update channel settings. Only send fields you want to change.  &#x60;webhookUrl&#x60; **replaces** the stored list (one URL string, or up to 5 URLs as an array). Passing an empty value clears webhooks. Repeating the same URL(s) also clears a sticky auto-disable. With several URLs, send the complete array to re-enable one of them — omitting a URL removes it from the channel. 
+     * @param token JWT token or API key for authorization
+     * @param createSettingsRequest 
+     * @return ApiResponse<kotlin.collections.Map<kotlin.String, kotlin.Any>?>
+     * @throws IllegalStateException If the request is not correctly configured
+     * @throws IOException Rethrows the OkHttp execute method exception
+     */
+    @Suppress("UNCHECKED_CAST")
+    @Throws(IllegalStateException::class, IOException::class)
+    fun createSettingsWithHttpInfo(token: kotlin.String, createSettingsRequest: CreateSettingsRequest) : ApiResponse<kotlin.collections.Map<kotlin.String, kotlin.Any>?> {
+        val localVariableConfig = createSettingsRequestConfig(token = token, createSettingsRequest = createSettingsRequest)
+
+        return request<CreateSettingsRequest, kotlin.collections.Map<kotlin.String, kotlin.Any>>(
+            localVariableConfig
+        )
+    }
+
+    /**
+     * To obtain the request config of the operation createSettings
+     *
+     * @param token JWT token or API key for authorization
+     * @param createSettingsRequest 
+     * @return RequestConfig
+     */
+    fun createSettingsRequestConfig(token: kotlin.String, createSettingsRequest: CreateSettingsRequest) : RequestConfig<CreateSettingsRequest> {
+        val localVariableBody = createSettingsRequest
+        val localVariableQuery: MultiValueMap = mutableMapOf<kotlin.String, kotlin.collections.List<kotlin.String>>()
+            .apply {
+                put("token", listOf(token.toString()))
+            }
+        val localVariableHeaders: MutableMap<String, String> = mutableMapOf()
+        localVariableHeaders["Content-Type"] = "application/json"
+        localVariableHeaders["Accept"] = "application/json"
+
+        return RequestConfig(
+            method = RequestMethod.POST,
+            path = "/settings",
+            query = localVariableQuery,
+            headers = localVariableHeaders,
+            requiresAuthentication = true,
+            body = localVariableBody
+        )
     }
 
     /**
@@ -133,9 +216,9 @@ open class ChannelApi(basePath: kotlin.String = defaultBasePath, client: Call.Fa
     /**
      * GET /status
      * Get channel status
-     * Returns WhatsApp Business API client connection status.
+     * Return WhatsApp Cloud API connection status for this channel (&#x60;connected&#x60; when the number can send). May include &#x60;accountStatus&#x60;, messaging limit, and MM Lite availability.  Optional &#x60;health_status_warning&#x60; appears only when Meta Graph health could not be loaded and a soft &#x60;connected&#x60; response is returned. Omitted on the normal path and when health details are not applicable for the channel — never an internal provider/transport name. 
      * @param token JWT token or API key for authorization
-     * @return kotlin.collections.Map<kotlin.String, kotlin.Any>
+     * @return GetStatus200Response
      * @throws IllegalStateException If the request is not correctly configured
      * @throws IOException Rethrows the OkHttp execute method exception
      * @throws UnsupportedOperationException If the API returns an informational or redirection response
@@ -144,11 +227,11 @@ open class ChannelApi(basePath: kotlin.String = defaultBasePath, client: Call.Fa
      */
     @Suppress("UNCHECKED_CAST")
     @Throws(IllegalStateException::class, IOException::class, UnsupportedOperationException::class, ClientException::class, ServerException::class)
-    fun getStatus(token: kotlin.String) : kotlin.collections.Map<kotlin.String, kotlin.Any> {
+    fun getStatus(token: kotlin.String) : GetStatus200Response {
         val localVarResponse = getStatusWithHttpInfo(token = token)
 
         return when (localVarResponse.responseType) {
-            ResponseType.Success -> (localVarResponse as Success<*>).data as kotlin.collections.Map<kotlin.String, kotlin.Any>
+            ResponseType.Success -> (localVarResponse as Success<*>).data as GetStatus200Response
             ResponseType.Informational -> throw UnsupportedOperationException("Client does not support Informational responses.")
             ResponseType.Redirection -> throw UnsupportedOperationException("Client does not support Redirection responses.")
             ResponseType.ClientError -> {
@@ -165,18 +248,18 @@ open class ChannelApi(basePath: kotlin.String = defaultBasePath, client: Call.Fa
     /**
      * GET /status
      * Get channel status
-     * Returns WhatsApp Business API client connection status.
+     * Return WhatsApp Cloud API connection status for this channel (&#x60;connected&#x60; when the number can send). May include &#x60;accountStatus&#x60;, messaging limit, and MM Lite availability.  Optional &#x60;health_status_warning&#x60; appears only when Meta Graph health could not be loaded and a soft &#x60;connected&#x60; response is returned. Omitted on the normal path and when health details are not applicable for the channel — never an internal provider/transport name. 
      * @param token JWT token or API key for authorization
-     * @return ApiResponse<kotlin.collections.Map<kotlin.String, kotlin.Any>?>
+     * @return ApiResponse<GetStatus200Response?>
      * @throws IllegalStateException If the request is not correctly configured
      * @throws IOException Rethrows the OkHttp execute method exception
      */
     @Suppress("UNCHECKED_CAST")
     @Throws(IllegalStateException::class, IOException::class)
-    fun getStatusWithHttpInfo(token: kotlin.String) : ApiResponse<kotlin.collections.Map<kotlin.String, kotlin.Any>?> {
+    fun getStatusWithHttpInfo(token: kotlin.String) : ApiResponse<GetStatus200Response?> {
         val localVariableConfig = getStatusRequestConfig(token = token)
 
-        return request<Unit, kotlin.collections.Map<kotlin.String, kotlin.Any>>(
+        return request<Unit, GetStatus200Response>(
             localVariableConfig
         )
     }
@@ -199,6 +282,82 @@ open class ChannelApi(basePath: kotlin.String = defaultBasePath, client: Call.Fa
         return RequestConfig(
             method = RequestMethod.GET,
             path = "/status",
+            query = localVariableQuery,
+            headers = localVariableHeaders,
+            requiresAuthentication = true,
+            body = localVariableBody
+        )
+    }
+
+    /**
+     * GET /settings
+     * Get channel settings
+     * Return channel settings: webhook URL(s), delivery flags, and analytics toggles.  Auto-disable / circuit state matches &#x60;GET /webhook&#x60;. **Prefer &#x60;webhookStatuses&#x60;** (one row per configured URL). The breaker is per URL, not per channel.  Channel-level &#x60;haveDisabledWebhooks&#x60; is &#x60;true&#x60; when **at least one** URL in &#x60;webhookUrl&#x60; is sticky auto-disabled — not \&quot;the channel is dead\&quot;. Live URLs still receive events. Top-level &#x60;circuitState&#x60; / &#x60;reason&#x60; / &#x60;fails&#x60; / &#x60;trips&#x60; are a compatibility summary of one URL (first sticky-disabled, else first configured).  This is the same &#x60;GET /settings&#x60; endpoint as the REST API (previously missing from MCP). 
+     * @param token JWT token or API key for authorization
+     * @return ListSettings200Response
+     * @throws IllegalStateException If the request is not correctly configured
+     * @throws IOException Rethrows the OkHttp execute method exception
+     * @throws UnsupportedOperationException If the API returns an informational or redirection response
+     * @throws ClientException If the API returns a client error response
+     * @throws ServerException If the API returns a server error response
+     */
+    @Suppress("UNCHECKED_CAST")
+    @Throws(IllegalStateException::class, IOException::class, UnsupportedOperationException::class, ClientException::class, ServerException::class)
+    fun listSettings(token: kotlin.String) : ListSettings200Response {
+        val localVarResponse = listSettingsWithHttpInfo(token = token)
+
+        return when (localVarResponse.responseType) {
+            ResponseType.Success -> (localVarResponse as Success<*>).data as ListSettings200Response
+            ResponseType.Informational -> throw UnsupportedOperationException("Client does not support Informational responses.")
+            ResponseType.Redirection -> throw UnsupportedOperationException("Client does not support Redirection responses.")
+            ResponseType.ClientError -> {
+                val localVarError = localVarResponse as ClientError<*>
+                throw ClientException("Client error : ${localVarError.statusCode} ${localVarError.message.orEmpty()}", localVarError.statusCode, localVarResponse)
+            }
+            ResponseType.ServerError -> {
+                val localVarError = localVarResponse as ServerError<*>
+                throw ServerException("Server error : ${localVarError.statusCode} ${localVarError.message.orEmpty()} ${localVarError.body}", localVarError.statusCode, localVarResponse)
+            }
+        }
+    }
+
+    /**
+     * GET /settings
+     * Get channel settings
+     * Return channel settings: webhook URL(s), delivery flags, and analytics toggles.  Auto-disable / circuit state matches &#x60;GET /webhook&#x60;. **Prefer &#x60;webhookStatuses&#x60;** (one row per configured URL). The breaker is per URL, not per channel.  Channel-level &#x60;haveDisabledWebhooks&#x60; is &#x60;true&#x60; when **at least one** URL in &#x60;webhookUrl&#x60; is sticky auto-disabled — not \&quot;the channel is dead\&quot;. Live URLs still receive events. Top-level &#x60;circuitState&#x60; / &#x60;reason&#x60; / &#x60;fails&#x60; / &#x60;trips&#x60; are a compatibility summary of one URL (first sticky-disabled, else first configured).  This is the same &#x60;GET /settings&#x60; endpoint as the REST API (previously missing from MCP). 
+     * @param token JWT token or API key for authorization
+     * @return ApiResponse<ListSettings200Response?>
+     * @throws IllegalStateException If the request is not correctly configured
+     * @throws IOException Rethrows the OkHttp execute method exception
+     */
+    @Suppress("UNCHECKED_CAST")
+    @Throws(IllegalStateException::class, IOException::class)
+    fun listSettingsWithHttpInfo(token: kotlin.String) : ApiResponse<ListSettings200Response?> {
+        val localVariableConfig = listSettingsRequestConfig(token = token)
+
+        return request<Unit, ListSettings200Response>(
+            localVariableConfig
+        )
+    }
+
+    /**
+     * To obtain the request config of the operation listSettings
+     *
+     * @param token JWT token or API key for authorization
+     * @return RequestConfig
+     */
+    fun listSettingsRequestConfig(token: kotlin.String) : RequestConfig<Unit> {
+        val localVariableBody = null
+        val localVariableQuery: MultiValueMap = mutableMapOf<kotlin.String, kotlin.collections.List<kotlin.String>>()
+            .apply {
+                put("token", listOf(token.toString()))
+            }
+        val localVariableHeaders: MutableMap<String, String> = mutableMapOf()
+        localVariableHeaders["Accept"] = "application/json"
+
+        return RequestConfig(
+            method = RequestMethod.GET,
+            path = "/settings",
             query = localVariableQuery,
             headers = localVariableHeaders,
             requiresAuthentication = true,

@@ -30,7 +30,7 @@ import com.squareup.moshi.JsonClass
 /**
  * 
  *
- * @param phone 
+ * @param phone E.164 phone (`+79181976551`). Not a timestamp.
  * @param type 
  * @param waId 
  */
@@ -38,6 +38,7 @@ import com.squareup.moshi.JsonClass
 
 data class SendContactRequestContactsInnerPhonesInner (
 
+    /* E.164 phone (`+79181976551`). Not a timestamp. */
     @Json(name = "phone")
     val phone: kotlin.String? = null,
 

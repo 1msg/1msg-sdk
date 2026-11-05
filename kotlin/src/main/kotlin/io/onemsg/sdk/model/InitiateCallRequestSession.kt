@@ -50,12 +50,12 @@ data class InitiateCallRequestSession (
     /**
      * offer for outbound connect; answer for pre_accept/accept
      *
-     * Values: offer,answer
+     * Values: OFFER,ANSWER
      */
     @JsonClass(generateAdapter = false)
     enum class SdpType(val value: kotlin.String) {
-        @Json(name = "offer") offer("offer"),
-        @Json(name = "answer") answer("answer");
+        @Json(name = "offer") OFFER("offer"),
+        @Json(name = "answer") ANSWER("answer");
     }
 
 }

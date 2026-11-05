@@ -30,24 +30,28 @@ import com.squareup.moshi.JsonClass
 /**
  * 
  *
- * @param name 
- * @param category 
- * @param language 
- * @param components 
+ * @param name Template name
+ * @param category MARKETING, UTILITY, or AUTHENTICATION
+ * @param language Template language code (e.g. en_US)
+ * @param components Template components (HEADER, BODY, FOOTER, BUTTONS, CAROUSEL)
  */
 
 
 data class AddTemplateRequest (
 
+    /* Template name */
     @Json(name = "name")
     val name: kotlin.String? = null,
 
+    /* MARKETING, UTILITY, or AUTHENTICATION */
     @Json(name = "category")
     val category: kotlin.String? = null,
 
+    /* Template language code (e.g. en_US) */
     @Json(name = "language")
     val language: kotlin.String? = null,
 
+    /* Template components (HEADER, BODY, FOOTER, BUTTONS, CAROUSEL) */
     @Json(name = "components")
     val components: kotlin.collections.List<kotlin.collections.Map<kotlin.String, kotlin.Any>>? = null
 

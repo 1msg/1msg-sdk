@@ -28,17 +28,18 @@ import com.squareup.moshi.Json
 import com.squareup.moshi.JsonClass
 
 /**
- * 
+ * Template language. Always set `policy` to `deterministic`.
  *
- * @param policy 
+ * @param policy Must be `deterministic`
  * @param code 
  */
 
 
 data class SendTemplateRequestLanguage (
 
+    /* Must be `deterministic` */
     @Json(name = "policy")
-    val policy: kotlin.String? = null,
+    val policy: kotlin.String? = "deterministic",
 
     @Json(name = "code")
     val code: kotlin.String? = null

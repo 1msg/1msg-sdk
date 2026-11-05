@@ -28,12 +28,24 @@ import io.kotlintest.specs.ShouldSpec
 
 import io.onemsg.sdk.api.ChannelApi
 import io.onemsg.sdk.model.ConversationalAutomation
+import io.onemsg.sdk.model.CreateSettingsRequest
 import io.onemsg.sdk.model.ErrorResponse
+import io.onemsg.sdk.model.GetStatus200Response
+import io.onemsg.sdk.model.ListSettings200Response
 
 class ChannelApiTest : ShouldSpec() {
     init {
         // uncomment below to create an instance of ChannelApi
         //val apiInstance = ChannelApi()
+
+        // to test createSettings
+        should("test createSettings") {
+            // uncomment below to test createSettings
+            //val token : kotlin.String = token_example // kotlin.String | JWT token or API key for authorization
+            //val createSettingsRequest : CreateSettingsRequest = {"webhookUrl":"https://example.com/webhook","ackNotificationsOn":true} // CreateSettingsRequest | 
+            //val result : kotlin.collections.Map<kotlin.String, kotlin.Any> = apiInstance.createSettings(token, createSettingsRequest)
+            //result shouldBe ("TODO")
+        }
 
         // to test getConversationalAutomation
         should("test getConversationalAutomation") {
@@ -47,7 +59,15 @@ class ChannelApiTest : ShouldSpec() {
         should("test getStatus") {
             // uncomment below to test getStatus
             //val token : kotlin.String = token_example // kotlin.String | JWT token or API key for authorization
-            //val result : kotlin.collections.Map<kotlin.String, kotlin.Any> = apiInstance.getStatus(token)
+            //val result : GetStatus200Response = apiInstance.getStatus(token)
+            //result shouldBe ("TODO")
+        }
+
+        // to test listSettings
+        should("test listSettings") {
+            // uncomment below to test listSettings
+            //val token : kotlin.String = token_example // kotlin.String | JWT token or API key for authorization
+            //val result : ListSettings200Response = apiInstance.listSettings(token)
             //result shouldBe ("TODO")
         }
 

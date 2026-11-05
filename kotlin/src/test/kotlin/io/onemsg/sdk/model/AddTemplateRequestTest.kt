@@ -33,25 +33,25 @@ class AddTemplateRequestTest : ShouldSpec() {
         // uncomment below to create an instance of AddTemplateRequest
         //val modelInstance = AddTemplateRequest()
 
-        // to test the property `name`
+        // to test the property `name` - Template name
         should("test name") {
             // uncomment below to test the property
             //modelInstance.name shouldBe ("TODO")
         }
 
-        // to test the property `category`
+        // to test the property `category` - MARKETING, UTILITY, or AUTHENTICATION
         should("test category") {
             // uncomment below to test the property
             //modelInstance.category shouldBe ("TODO")
         }
 
-        // to test the property `language`
+        // to test the property `language` - Template language code (e.g. en_US)
         should("test language") {
             // uncomment below to test the property
             //modelInstance.language shouldBe ("TODO")
         }
 
-        // to test the property `components`
+        // to test the property `components` - Template components (HEADER, BODY, FOOTER, BUTTONS, CAROUSEL)
         should("test components") {
             // uncomment below to test the property
             //modelInstance.components shouldBe ("TODO")

@@ -27,6 +27,7 @@ import io.kotlintest.shouldBe
 import io.kotlintest.specs.ShouldSpec
 
 import io.onemsg.sdk.model.SendMessageRequest
+import io.onemsg.sdk.model.SendMessageRequestDirectSend
 
 class SendMessageRequestTest : ShouldSpec() {
     init {
@@ -45,7 +46,7 @@ class SendMessageRequestTest : ShouldSpec() {
             //modelInstance.quotedMsgId shouldBe ("TODO")
         }
 
-        // to test the property `chatId` - Chat ID in format: phone@c.us (individual) or phone@g.us (group)
+        // to test the property `chatId` - Recipient chat ID: phone@c.us, group@g.us, or BSUID@lid
         should("test chatId") {
             // uncomment below to test the property
             //modelInstance.chatId shouldBe ("TODO")
@@ -55,6 +56,18 @@ class SendMessageRequestTest : ShouldSpec() {
         should("test phone") {
             // uncomment below to test the property
             //modelInstance.phone shouldBe ("TODO")
+        }
+
+        // to test the property `category` - Optional Direct Send category. Direct Send is in beta: Meta has not enabled it on every business portfolio. `utility` or `authentication` enables it. `authentication` is part of that beta and is not recommended. Omit or `service` keeps a normal service message (and the marketing auto-template outside the 24-hour window). `marketing` is rejected. 
+        should("test category") {
+            // uncomment below to test the property
+            //modelInstance.category shouldBe ("TODO")
+        }
+
+        // to test the property `directSend`
+        should("test directSend") {
+            // uncomment below to test the property
+            //modelInstance.directSend shouldBe ("TODO")
         }
 
     }

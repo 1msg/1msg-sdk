@@ -27,6 +27,7 @@ import io.kotlintest.shouldBe
 import io.kotlintest.specs.ShouldSpec
 
 import io.onemsg.sdk.model.SendContactRequest
+import io.onemsg.sdk.model.SendContactRequestContact
 import io.onemsg.sdk.model.SendContactRequestContactsInner
 
 class SendContactRequestTest : ShouldSpec() {
@@ -34,10 +35,28 @@ class SendContactRequestTest : ShouldSpec() {
         // uncomment below to create an instance of SendContactRequest
         //val modelInstance = SendContactRequest()
 
-        // to test the property `phone`
+        // to test the property `phone` - Recipient phone with country code. Use phone or chatId.
         should("test phone") {
             // uncomment below to test the property
             //modelInstance.phone shouldBe ("TODO")
+        }
+
+        // to test the property `chatId` - Recipient chat ID (`phone@c.us`, group `@g.us`, or BSUID `@lid`). Use phone or chatId.
+        should("test chatId") {
+            // uncomment below to test the property
+            //modelInstance.chatId shouldBe ("TODO")
+        }
+
+        // to test the property `quotedMsgId`
+        should("test quotedMsgId") {
+            // uncomment below to test the property
+            //modelInstance.quotedMsgId shouldBe ("TODO")
+        }
+
+        // to test the property `contact`
+        should("test contact") {
+            // uncomment below to test the property
+            //modelInstance.contact shouldBe ("TODO")
         }
 
         // to test the property `contacts`

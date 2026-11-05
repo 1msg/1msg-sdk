@@ -29,6 +29,7 @@ import okhttp3.HttpUrl
 
 import io.onemsg.sdk.model.ErrorResponse
 import io.onemsg.sdk.model.ProfileInfo
+import io.onemsg.sdk.model.UpdateMe200Response
 import io.onemsg.sdk.model.UpdateMeRequest
 
 import com.squareup.moshi.Json
@@ -58,7 +59,7 @@ open class ProfileApi(basePath: kotlin.String = defaultBasePath, client: Call.Fa
     /**
      * GET /me
      * Get Profile Info
-     * Get WhatsApp Business Account profile information
+     * Return the WhatsApp Business profile for this channel: About, address, description, email, phone, websites, industry (&#x60;vertical&#x60;), and profile photo URL. 
      * @param token JWT token or API key for authorization
      * @return ProfileInfo
      * @throws IllegalStateException If the request is not correctly configured
@@ -90,7 +91,7 @@ open class ProfileApi(basePath: kotlin.String = defaultBasePath, client: Call.Fa
     /**
      * GET /me
      * Get Profile Info
-     * Get WhatsApp Business Account profile information
+     * Return the WhatsApp Business profile for this channel: About, address, description, email, phone, websites, industry (&#x60;vertical&#x60;), and profile photo URL. 
      * @param token JWT token or API key for authorization
      * @return ApiResponse<ProfileInfo?>
      * @throws IllegalStateException If the request is not correctly configured
@@ -136,8 +137,8 @@ open class ProfileApi(basePath: kotlin.String = defaultBasePath, client: Call.Fa
      * Update profile info
      * Update WhatsApp Business Account profile fields. At least one of about, description, email, photo, address, vertical, websites is required. Blocked when the channel subscription limit is exceeded. 
      * @param token JWT token or API key for authorization
-     * @param updateMeRequest  (optional)
-     * @return kotlin.collections.Map<kotlin.String, kotlin.Any>
+     * @param updateMeRequest 
+     * @return UpdateMe200Response
      * @throws IllegalStateException If the request is not correctly configured
      * @throws IOException Rethrows the OkHttp execute method exception
      * @throws UnsupportedOperationException If the API returns an informational or redirection response
@@ -146,11 +147,11 @@ open class ProfileApi(basePath: kotlin.String = defaultBasePath, client: Call.Fa
      */
     @Suppress("UNCHECKED_CAST")
     @Throws(IllegalStateException::class, IOException::class, UnsupportedOperationException::class, ClientException::class, ServerException::class)
-    fun updateMe(token: kotlin.String, updateMeRequest: UpdateMeRequest? = null) : kotlin.collections.Map<kotlin.String, kotlin.Any> {
+    fun updateMe(token: kotlin.String, updateMeRequest: UpdateMeRequest) : UpdateMe200Response {
         val localVarResponse = updateMeWithHttpInfo(token = token, updateMeRequest = updateMeRequest)
 
         return when (localVarResponse.responseType) {
-            ResponseType.Success -> (localVarResponse as Success<*>).data as kotlin.collections.Map<kotlin.String, kotlin.Any>
+            ResponseType.Success -> (localVarResponse as Success<*>).data as UpdateMe200Response
             ResponseType.Informational -> throw UnsupportedOperationException("Client does not support Informational responses.")
             ResponseType.Redirection -> throw UnsupportedOperationException("Client does not support Redirection responses.")
             ResponseType.ClientError -> {
@@ -169,17 +170,17 @@ open class ProfileApi(basePath: kotlin.String = defaultBasePath, client: Call.Fa
      * Update profile info
      * Update WhatsApp Business Account profile fields. At least one of about, description, email, photo, address, vertical, websites is required. Blocked when the channel subscription limit is exceeded. 
      * @param token JWT token or API key for authorization
-     * @param updateMeRequest  (optional)
-     * @return ApiResponse<kotlin.collections.Map<kotlin.String, kotlin.Any>?>
+     * @param updateMeRequest 
+     * @return ApiResponse<UpdateMe200Response?>
      * @throws IllegalStateException If the request is not correctly configured
      * @throws IOException Rethrows the OkHttp execute method exception
      */
     @Suppress("UNCHECKED_CAST")
     @Throws(IllegalStateException::class, IOException::class)
-    fun updateMeWithHttpInfo(token: kotlin.String, updateMeRequest: UpdateMeRequest?) : ApiResponse<kotlin.collections.Map<kotlin.String, kotlin.Any>?> {
+    fun updateMeWithHttpInfo(token: kotlin.String, updateMeRequest: UpdateMeRequest) : ApiResponse<UpdateMe200Response?> {
         val localVariableConfig = updateMeRequestConfig(token = token, updateMeRequest = updateMeRequest)
 
-        return request<UpdateMeRequest, kotlin.collections.Map<kotlin.String, kotlin.Any>>(
+        return request<UpdateMeRequest, UpdateMe200Response>(
             localVariableConfig
         )
     }
@@ -188,10 +189,10 @@ open class ProfileApi(basePath: kotlin.String = defaultBasePath, client: Call.Fa
      * To obtain the request config of the operation updateMe
      *
      * @param token JWT token or API key for authorization
-     * @param updateMeRequest  (optional)
+     * @param updateMeRequest 
      * @return RequestConfig
      */
-    fun updateMeRequestConfig(token: kotlin.String, updateMeRequest: UpdateMeRequest?) : RequestConfig<UpdateMeRequest> {
+    fun updateMeRequestConfig(token: kotlin.String, updateMeRequest: UpdateMeRequest) : RequestConfig<UpdateMeRequest> {
         val localVariableBody = updateMeRequest
         val localVariableQuery: MultiValueMap = mutableMapOf<kotlin.String, kotlin.collections.List<kotlin.String>>()
             .apply {

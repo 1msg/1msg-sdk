@@ -31,12 +31,14 @@ import com.squareup.moshi.JsonClass
 /**
  * 
  *
- * @param template 
+ * @param template Approved template name (template `name`, not the old HSM `element_name`)
  * @param language 
- * @param namespace 
- * @param params 
- * @param phone 
- * @param useMMlite Force Marketing Messages API (POST marketing_messages). If omitted: auto for MARKETING category when channel has mm_lite_enabled and mm_lite_available service settings. 
+ * @param namespace Template namespace from `list_templates`
+ * @param params Template components in WhatsApp Cloud API format. Each item is an object with `type` (`body`, `header`, `button`) and `parameters` (objects with `type` + `text` / media / action). Never a list of strings. Never HSM `localizable_params`. 
+ * @param phone Recipient phone with country code (use phone or chatId)
+ * @param chatId Recipient chat ID (`phone@c.us`, group `@g.us`, or BSUID `@lid`). Use phone or chatId.
+ * @param quotedMsgId Optional Cloud API wamid to quote
+ * @param useMMlite Force Marketing Messages API (POST marketing_messages). If omitted, and the channel has mm_lite_enabled and mm_lite_available: MARKETING templates and templates with an unknown category use marketing_messages. An unknown category falls back to messages (mmLiteFallback) when Meta rejects it. Known AUTHENTICATION and UTILITY templates stay on messages. useMMlite:false forces messages. 
  * @param messageActivitySharing Sets message_activity_sharing on WABA payload. Enables click tracking webhooks. Requires MM Lite path. Ignored on Cloud API fallback. 
  * @param messageSendTtlSeconds Template message TTL in seconds (message_send_ttl_seconds). MARKETING via MM Lite: 43200–2592000. AUTHENTICATION: 30–900. UTILITY: 30–43200. AUTH/UTILITY also accept -1 (30-day custom TTL). 
  */
@@ -44,22 +46,34 @@ import com.squareup.moshi.JsonClass
 
 data class SendTemplateRequest (
 
+    /* Approved template name (template `name`, not the old HSM `element_name`) */
     @Json(name = "template")
     val template: kotlin.String? = null,
 
     @Json(name = "language")
     val language: SendTemplateRequestLanguage? = null,
 
+    /* Template namespace from `list_templates` */
     @Json(name = "namespace")
     val namespace: kotlin.String? = null,
 
+    /* Template components in WhatsApp Cloud API format. Each item is an object with `type` (`body`, `header`, `button`) and `parameters` (objects with `type` + `text` / media / action). Never a list of strings. Never HSM `localizable_params`.  */
     @Json(name = "params")
-    val params: kotlin.collections.List<kotlin.Any>? = null,
+    val params: kotlin.collections.List<kotlin.collections.Map<kotlin.String, kotlin.Any>>? = null,
 
+    /* Recipient phone with country code (use phone or chatId) */
     @Json(name = "phone")
     val phone: kotlin.String? = null,
 
-    /* Force Marketing Messages API (POST marketing_messages). If omitted: auto for MARKETING category when channel has mm_lite_enabled and mm_lite_available service settings.  */
+    /* Recipient chat ID (`phone@c.us`, group `@g.us`, or BSUID `@lid`). Use phone or chatId. */
+    @Json(name = "chatId")
+    val chatId: kotlin.String? = null,
+
+    /* Optional Cloud API wamid to quote */
+    @Json(name = "quotedMsgId")
+    val quotedMsgId: kotlin.String? = null,
+
+    /* Force Marketing Messages API (POST marketing_messages). If omitted, and the channel has mm_lite_enabled and mm_lite_available: MARKETING templates and templates with an unknown category use marketing_messages. An unknown category falls back to messages (mmLiteFallback) when Meta rejects it. Known AUTHENTICATION and UTILITY templates stay on messages. useMMlite:false forces messages.  */
     @Json(name = "useMMlite")
     val useMMlite: kotlin.Boolean? = null,
 

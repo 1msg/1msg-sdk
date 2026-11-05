@@ -31,23 +31,44 @@ import com.squareup.moshi.JsonClass
 /**
  * 
  *
- * @param phone 
+ * @param phone Recipient phone with country code. Use phone or chatId.
+ * @param chatId Recipient chat ID (`phone@c.us`, group `@g.us`, or BSUID `@lid`). Use phone or chatId.
+ * @param quotedMsgId Optional Cloud API wamid to quote
  * @param body 
  * @param footer 
+ * @param header Optional interactive header (text/image/video/document)
+ * @param buttons Legacy alias for sections (`[{id,title}]`)
  * @param sections 
  */
 
 
 data class SendButtonRequest (
 
+    /* Recipient phone with country code. Use phone or chatId. */
     @Json(name = "phone")
     val phone: kotlin.String? = null,
+
+    /* Recipient chat ID (`phone@c.us`, group `@g.us`, or BSUID `@lid`). Use phone or chatId. */
+    @Json(name = "chatId")
+    val chatId: kotlin.String? = null,
+
+    /* Optional Cloud API wamid to quote */
+    @Json(name = "quotedMsgId")
+    val quotedMsgId: kotlin.String? = null,
 
     @Json(name = "body")
     val body: kotlin.String? = null,
 
     @Json(name = "footer")
     val footer: kotlin.String? = null,
+
+    /* Optional interactive header (text/image/video/document) */
+    @Json(name = "header")
+    val header: kotlin.collections.Map<kotlin.String, kotlin.Any>? = null,
+
+    /* Legacy alias for sections (`[{id,title}]`) */
+    @Json(name = "buttons")
+    val buttons: kotlin.collections.List<kotlin.Any>? = null,
 
     @Json(name = "sections")
     val sections: kotlin.collections.List<SendButtonRequestSectionsInner>? = null

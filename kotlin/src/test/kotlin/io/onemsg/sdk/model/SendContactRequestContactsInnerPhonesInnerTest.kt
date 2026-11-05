@@ -33,7 +33,7 @@ class SendContactRequestContactsInnerPhonesInnerTest : ShouldSpec() {
         // uncomment below to create an instance of SendContactRequestContactsInnerPhonesInner
         //val modelInstance = SendContactRequestContactsInnerPhonesInner()
 
-        // to test the property `phone`
+        // to test the property `phone` - E.164 phone (`+79181976551`). Not a timestamp.
         should("test phone") {
             // uncomment below to test the property
             //modelInstance.phone shouldBe ("TODO")

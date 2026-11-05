@@ -81,14 +81,14 @@ data class SendFileRequest (
     /**
      * Required when using mediaId
      *
-     * Values: image,video,audio,document
+     * Values: IMAGE,VIDEO,AUDIO,DOCUMENT
      */
     @JsonClass(generateAdapter = false)
     enum class MediaType(val value: kotlin.String) {
-        @Json(name = "image") image("image"),
-        @Json(name = "video") video("video"),
-        @Json(name = "audio") audio("audio"),
-        @Json(name = "document") document("document");
+        @Json(name = "image") IMAGE("image"),
+        @Json(name = "video") VIDEO("video"),
+        @Json(name = "audio") AUDIO("audio"),
+        @Json(name = "document") DOCUMENT("document");
     }
 
 }

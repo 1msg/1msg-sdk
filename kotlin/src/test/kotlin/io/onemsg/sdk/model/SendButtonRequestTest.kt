@@ -34,10 +34,22 @@ class SendButtonRequestTest : ShouldSpec() {
         // uncomment below to create an instance of SendButtonRequest
         //val modelInstance = SendButtonRequest()
 
-        // to test the property `phone`
+        // to test the property `phone` - Recipient phone with country code. Use phone or chatId.
         should("test phone") {
             // uncomment below to test the property
             //modelInstance.phone shouldBe ("TODO")
+        }
+
+        // to test the property `chatId` - Recipient chat ID (`phone@c.us`, group `@g.us`, or BSUID `@lid`). Use phone or chatId.
+        should("test chatId") {
+            // uncomment below to test the property
+            //modelInstance.chatId shouldBe ("TODO")
+        }
+
+        // to test the property `quotedMsgId` - Optional Cloud API wamid to quote
+        should("test quotedMsgId") {
+            // uncomment below to test the property
+            //modelInstance.quotedMsgId shouldBe ("TODO")
         }
 
         // to test the property `body`
@@ -50,6 +62,18 @@ class SendButtonRequestTest : ShouldSpec() {
         should("test footer") {
             // uncomment below to test the property
             //modelInstance.footer shouldBe ("TODO")
+        }
+
+        // to test the property `header` - Optional interactive header (text/image/video/document)
+        should("test header") {
+            // uncomment below to test the property
+            //modelInstance.header shouldBe ("TODO")
+        }
+
+        // to test the property `buttons` - Legacy alias for sections (`[{id,title}]`)
+        should("test buttons") {
+            // uncomment below to test the property
+            //modelInstance.buttons shouldBe ("TODO")
         }
 
         // to test the property `sections`

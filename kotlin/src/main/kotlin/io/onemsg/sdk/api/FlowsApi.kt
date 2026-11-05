@@ -28,6 +28,7 @@ import okhttp3.Call
 import okhttp3.HttpUrl
 
 import io.onemsg.sdk.model.CreateCommerce200Response
+import io.onemsg.sdk.model.CreateFlowsRequest
 import io.onemsg.sdk.model.CreateGroups200Response
 import io.onemsg.sdk.model.CreateReadMessage401Response
 import io.onemsg.sdk.model.DeleteFlowsFlowId200Response
@@ -35,6 +36,8 @@ import io.onemsg.sdk.model.ErrorResponse
 import io.onemsg.sdk.model.GetWhatsappBusinessEncryption200Response
 import io.onemsg.sdk.model.ListFlows200Response
 import io.onemsg.sdk.model.PatchFlowsFlowIdAssets200Response
+import io.onemsg.sdk.model.PatchFlowsFlowIdAssetsRequest
+import io.onemsg.sdk.model.PatchFlowsFlowIdMetadataRequest
 import io.onemsg.sdk.model.SetWhatsappBusinessEncryptionRequest
 
 import com.squareup.moshi.Json
@@ -64,8 +67,9 @@ open class FlowsApi(basePath: kotlin.String = defaultBasePath, client: Call.Fact
     /**
      * POST /flows
      * Create Flow
-     * 
+     * Create a WhatsApp Flow (&#x60;name&#x60; + &#x60;categories&#x60; required). Currently returns HTTP 501 until the Meta Graph Flows rewrite is available. 
      * @param token JWT token or API key for authorization
+     * @param createFlowsRequest 
      * @param wabaAccountId  (optional)
      * @return CreateGroups200Response
      * @throws IllegalStateException If the request is not correctly configured
@@ -76,8 +80,8 @@ open class FlowsApi(basePath: kotlin.String = defaultBasePath, client: Call.Fact
      */
     @Suppress("UNCHECKED_CAST")
     @Throws(IllegalStateException::class, IOException::class, UnsupportedOperationException::class, ClientException::class, ServerException::class)
-    fun createFlows(token: kotlin.String, wabaAccountId: kotlin.String? = null) : CreateGroups200Response {
-        val localVarResponse = createFlowsWithHttpInfo(token = token, wabaAccountId = wabaAccountId)
+    fun createFlows(token: kotlin.String, createFlowsRequest: CreateFlowsRequest, wabaAccountId: kotlin.String? = null) : CreateGroups200Response {
+        val localVarResponse = createFlowsWithHttpInfo(token = token, createFlowsRequest = createFlowsRequest, wabaAccountId = wabaAccountId)
 
         return when (localVarResponse.responseType) {
             ResponseType.Success -> (localVarResponse as Success<*>).data as CreateGroups200Response
@@ -97,8 +101,9 @@ open class FlowsApi(basePath: kotlin.String = defaultBasePath, client: Call.Fact
     /**
      * POST /flows
      * Create Flow
-     * 
+     * Create a WhatsApp Flow (&#x60;name&#x60; + &#x60;categories&#x60; required). Currently returns HTTP 501 until the Meta Graph Flows rewrite is available. 
      * @param token JWT token or API key for authorization
+     * @param createFlowsRequest 
      * @param wabaAccountId  (optional)
      * @return ApiResponse<CreateGroups200Response?>
      * @throws IllegalStateException If the request is not correctly configured
@@ -106,10 +111,10 @@ open class FlowsApi(basePath: kotlin.String = defaultBasePath, client: Call.Fact
      */
     @Suppress("UNCHECKED_CAST")
     @Throws(IllegalStateException::class, IOException::class)
-    fun createFlowsWithHttpInfo(token: kotlin.String, wabaAccountId: kotlin.String?) : ApiResponse<CreateGroups200Response?> {
-        val localVariableConfig = createFlowsRequestConfig(token = token, wabaAccountId = wabaAccountId)
+    fun createFlowsWithHttpInfo(token: kotlin.String, createFlowsRequest: CreateFlowsRequest, wabaAccountId: kotlin.String?) : ApiResponse<CreateGroups200Response?> {
+        val localVariableConfig = createFlowsRequestConfig(token = token, createFlowsRequest = createFlowsRequest, wabaAccountId = wabaAccountId)
 
-        return request<Unit, CreateGroups200Response>(
+        return request<CreateFlowsRequest, CreateGroups200Response>(
             localVariableConfig
         )
     }
@@ -118,11 +123,12 @@ open class FlowsApi(basePath: kotlin.String = defaultBasePath, client: Call.Fact
      * To obtain the request config of the operation createFlows
      *
      * @param token JWT token or API key for authorization
+     * @param createFlowsRequest 
      * @param wabaAccountId  (optional)
      * @return RequestConfig
      */
-    fun createFlowsRequestConfig(token: kotlin.String, wabaAccountId: kotlin.String?) : RequestConfig<Unit> {
-        val localVariableBody = null
+    fun createFlowsRequestConfig(token: kotlin.String, createFlowsRequest: CreateFlowsRequest, wabaAccountId: kotlin.String?) : RequestConfig<CreateFlowsRequest> {
+        val localVariableBody = createFlowsRequest
         val localVariableQuery: MultiValueMap = mutableMapOf<kotlin.String, kotlin.collections.List<kotlin.String>>()
             .apply {
                 put("token", listOf(token.toString()))
@@ -131,6 +137,7 @@ open class FlowsApi(basePath: kotlin.String = defaultBasePath, client: Call.Fact
                 }
             }
         val localVariableHeaders: MutableMap<String, String> = mutableMapOf()
+        localVariableHeaders["Content-Type"] = "application/json"
         localVariableHeaders["Accept"] = "application/json"
 
         return RequestConfig(
@@ -647,9 +654,10 @@ open class FlowsApi(basePath: kotlin.String = defaultBasePath, client: Call.Fact
     /**
      * GET /flows
      * List Flows
-     * 
+     * List WhatsApp Flows for the WABA. Currently returns HTTP 501 until the Meta Graph Flows rewrite is available. 
      * @param token JWT token or API key for authorization
      * @param wabaAccountId  (optional)
+     * @param fields Comma-separated Flow fields to return (optional)
      * @return ListFlows200Response
      * @throws IllegalStateException If the request is not correctly configured
      * @throws IOException Rethrows the OkHttp execute method exception
@@ -659,8 +667,8 @@ open class FlowsApi(basePath: kotlin.String = defaultBasePath, client: Call.Fact
      */
     @Suppress("UNCHECKED_CAST")
     @Throws(IllegalStateException::class, IOException::class, UnsupportedOperationException::class, ClientException::class, ServerException::class)
-    fun listFlows(token: kotlin.String, wabaAccountId: kotlin.String? = null) : ListFlows200Response {
-        val localVarResponse = listFlowsWithHttpInfo(token = token, wabaAccountId = wabaAccountId)
+    fun listFlows(token: kotlin.String, wabaAccountId: kotlin.String? = null, fields: kotlin.String? = null) : ListFlows200Response {
+        val localVarResponse = listFlowsWithHttpInfo(token = token, wabaAccountId = wabaAccountId, fields = fields)
 
         return when (localVarResponse.responseType) {
             ResponseType.Success -> (localVarResponse as Success<*>).data as ListFlows200Response
@@ -680,17 +688,18 @@ open class FlowsApi(basePath: kotlin.String = defaultBasePath, client: Call.Fact
     /**
      * GET /flows
      * List Flows
-     * 
+     * List WhatsApp Flows for the WABA. Currently returns HTTP 501 until the Meta Graph Flows rewrite is available. 
      * @param token JWT token or API key for authorization
      * @param wabaAccountId  (optional)
+     * @param fields Comma-separated Flow fields to return (optional)
      * @return ApiResponse<ListFlows200Response?>
      * @throws IllegalStateException If the request is not correctly configured
      * @throws IOException Rethrows the OkHttp execute method exception
      */
     @Suppress("UNCHECKED_CAST")
     @Throws(IllegalStateException::class, IOException::class)
-    fun listFlowsWithHttpInfo(token: kotlin.String, wabaAccountId: kotlin.String?) : ApiResponse<ListFlows200Response?> {
-        val localVariableConfig = listFlowsRequestConfig(token = token, wabaAccountId = wabaAccountId)
+    fun listFlowsWithHttpInfo(token: kotlin.String, wabaAccountId: kotlin.String?, fields: kotlin.String?) : ApiResponse<ListFlows200Response?> {
+        val localVariableConfig = listFlowsRequestConfig(token = token, wabaAccountId = wabaAccountId, fields = fields)
 
         return request<Unit, ListFlows200Response>(
             localVariableConfig
@@ -702,15 +711,19 @@ open class FlowsApi(basePath: kotlin.String = defaultBasePath, client: Call.Fact
      *
      * @param token JWT token or API key for authorization
      * @param wabaAccountId  (optional)
+     * @param fields Comma-separated Flow fields to return (optional)
      * @return RequestConfig
      */
-    fun listFlowsRequestConfig(token: kotlin.String, wabaAccountId: kotlin.String?) : RequestConfig<Unit> {
+    fun listFlowsRequestConfig(token: kotlin.String, wabaAccountId: kotlin.String?, fields: kotlin.String?) : RequestConfig<Unit> {
         val localVariableBody = null
         val localVariableQuery: MultiValueMap = mutableMapOf<kotlin.String, kotlin.collections.List<kotlin.String>>()
             .apply {
                 put("token", listOf(token.toString()))
                 if (wabaAccountId != null) {
                     put("wabaAccountId", listOf(wabaAccountId.toString()))
+                }
+                if (fields != null) {
+                    put("fields", listOf(fields.toString()))
                 }
             }
         val localVariableHeaders: MutableMap<String, String> = mutableMapOf()
@@ -729,9 +742,10 @@ open class FlowsApi(basePath: kotlin.String = defaultBasePath, client: Call.Fact
     /**
      * PATCH /flows/{flowId}/assets
      * Update Flow Structure
-     * 
+     * Replace the Flow JSON document (&#x60;flowJson&#x60;). Currently returns HTTP 501 until the Meta Graph Flows rewrite is available. 
      * @param flowId Flow ID
      * @param token JWT token or API key for authorization
+     * @param patchFlowsFlowIdAssetsRequest 
      * @param wabaAccountId  (optional)
      * @return PatchFlowsFlowIdAssets200Response
      * @throws IllegalStateException If the request is not correctly configured
@@ -742,8 +756,8 @@ open class FlowsApi(basePath: kotlin.String = defaultBasePath, client: Call.Fact
      */
     @Suppress("UNCHECKED_CAST")
     @Throws(IllegalStateException::class, IOException::class, UnsupportedOperationException::class, ClientException::class, ServerException::class)
-    fun patchFlowsFlowIdAssets(flowId: kotlin.String, token: kotlin.String, wabaAccountId: kotlin.String? = null) : PatchFlowsFlowIdAssets200Response {
-        val localVarResponse = patchFlowsFlowIdAssetsWithHttpInfo(flowId = flowId, token = token, wabaAccountId = wabaAccountId)
+    fun patchFlowsFlowIdAssets(flowId: kotlin.String, token: kotlin.String, patchFlowsFlowIdAssetsRequest: PatchFlowsFlowIdAssetsRequest, wabaAccountId: kotlin.String? = null) : PatchFlowsFlowIdAssets200Response {
+        val localVarResponse = patchFlowsFlowIdAssetsWithHttpInfo(flowId = flowId, token = token, patchFlowsFlowIdAssetsRequest = patchFlowsFlowIdAssetsRequest, wabaAccountId = wabaAccountId)
 
         return when (localVarResponse.responseType) {
             ResponseType.Success -> (localVarResponse as Success<*>).data as PatchFlowsFlowIdAssets200Response
@@ -763,9 +777,10 @@ open class FlowsApi(basePath: kotlin.String = defaultBasePath, client: Call.Fact
     /**
      * PATCH /flows/{flowId}/assets
      * Update Flow Structure
-     * 
+     * Replace the Flow JSON document (&#x60;flowJson&#x60;). Currently returns HTTP 501 until the Meta Graph Flows rewrite is available. 
      * @param flowId Flow ID
      * @param token JWT token or API key for authorization
+     * @param patchFlowsFlowIdAssetsRequest 
      * @param wabaAccountId  (optional)
      * @return ApiResponse<PatchFlowsFlowIdAssets200Response?>
      * @throws IllegalStateException If the request is not correctly configured
@@ -773,10 +788,10 @@ open class FlowsApi(basePath: kotlin.String = defaultBasePath, client: Call.Fact
      */
     @Suppress("UNCHECKED_CAST")
     @Throws(IllegalStateException::class, IOException::class)
-    fun patchFlowsFlowIdAssetsWithHttpInfo(flowId: kotlin.String, token: kotlin.String, wabaAccountId: kotlin.String?) : ApiResponse<PatchFlowsFlowIdAssets200Response?> {
-        val localVariableConfig = patchFlowsFlowIdAssetsRequestConfig(flowId = flowId, token = token, wabaAccountId = wabaAccountId)
+    fun patchFlowsFlowIdAssetsWithHttpInfo(flowId: kotlin.String, token: kotlin.String, patchFlowsFlowIdAssetsRequest: PatchFlowsFlowIdAssetsRequest, wabaAccountId: kotlin.String?) : ApiResponse<PatchFlowsFlowIdAssets200Response?> {
+        val localVariableConfig = patchFlowsFlowIdAssetsRequestConfig(flowId = flowId, token = token, patchFlowsFlowIdAssetsRequest = patchFlowsFlowIdAssetsRequest, wabaAccountId = wabaAccountId)
 
-        return request<Unit, PatchFlowsFlowIdAssets200Response>(
+        return request<PatchFlowsFlowIdAssetsRequest, PatchFlowsFlowIdAssets200Response>(
             localVariableConfig
         )
     }
@@ -786,11 +801,12 @@ open class FlowsApi(basePath: kotlin.String = defaultBasePath, client: Call.Fact
      *
      * @param flowId Flow ID
      * @param token JWT token or API key for authorization
+     * @param patchFlowsFlowIdAssetsRequest 
      * @param wabaAccountId  (optional)
      * @return RequestConfig
      */
-    fun patchFlowsFlowIdAssetsRequestConfig(flowId: kotlin.String, token: kotlin.String, wabaAccountId: kotlin.String?) : RequestConfig<Unit> {
-        val localVariableBody = null
+    fun patchFlowsFlowIdAssetsRequestConfig(flowId: kotlin.String, token: kotlin.String, patchFlowsFlowIdAssetsRequest: PatchFlowsFlowIdAssetsRequest, wabaAccountId: kotlin.String?) : RequestConfig<PatchFlowsFlowIdAssetsRequest> {
+        val localVariableBody = patchFlowsFlowIdAssetsRequest
         val localVariableQuery: MultiValueMap = mutableMapOf<kotlin.String, kotlin.collections.List<kotlin.String>>()
             .apply {
                 put("token", listOf(token.toString()))
@@ -799,6 +815,7 @@ open class FlowsApi(basePath: kotlin.String = defaultBasePath, client: Call.Fact
                 }
             }
         val localVariableHeaders: MutableMap<String, String> = mutableMapOf()
+        localVariableHeaders["Content-Type"] = "application/json"
         localVariableHeaders["Accept"] = "application/json"
 
         return RequestConfig(
@@ -814,9 +831,10 @@ open class FlowsApi(basePath: kotlin.String = defaultBasePath, client: Call.Fact
     /**
      * PATCH /flows/{flowId}/metadata
      * Update Flow Metadata
-     * 
+     * Update Flow &#x60;name&#x60;, &#x60;categories&#x60;, and/or &#x60;endpointUri&#x60;. Currently returns HTTP 501 until the Meta Graph Flows rewrite is available. 
      * @param flowId Flow ID
      * @param token JWT token or API key for authorization
+     * @param patchFlowsFlowIdMetadataRequest 
      * @param wabaAccountId  (optional)
      * @return kotlin.collections.Map<kotlin.String, kotlin.Any>
      * @throws IllegalStateException If the request is not correctly configured
@@ -827,8 +845,8 @@ open class FlowsApi(basePath: kotlin.String = defaultBasePath, client: Call.Fact
      */
     @Suppress("UNCHECKED_CAST")
     @Throws(IllegalStateException::class, IOException::class, UnsupportedOperationException::class, ClientException::class, ServerException::class)
-    fun patchFlowsFlowIdMetadata(flowId: kotlin.String, token: kotlin.String, wabaAccountId: kotlin.String? = null) : kotlin.collections.Map<kotlin.String, kotlin.Any> {
-        val localVarResponse = patchFlowsFlowIdMetadataWithHttpInfo(flowId = flowId, token = token, wabaAccountId = wabaAccountId)
+    fun patchFlowsFlowIdMetadata(flowId: kotlin.String, token: kotlin.String, patchFlowsFlowIdMetadataRequest: PatchFlowsFlowIdMetadataRequest, wabaAccountId: kotlin.String? = null) : kotlin.collections.Map<kotlin.String, kotlin.Any> {
+        val localVarResponse = patchFlowsFlowIdMetadataWithHttpInfo(flowId = flowId, token = token, patchFlowsFlowIdMetadataRequest = patchFlowsFlowIdMetadataRequest, wabaAccountId = wabaAccountId)
 
         return when (localVarResponse.responseType) {
             ResponseType.Success -> (localVarResponse as Success<*>).data as kotlin.collections.Map<kotlin.String, kotlin.Any>
@@ -848,9 +866,10 @@ open class FlowsApi(basePath: kotlin.String = defaultBasePath, client: Call.Fact
     /**
      * PATCH /flows/{flowId}/metadata
      * Update Flow Metadata
-     * 
+     * Update Flow &#x60;name&#x60;, &#x60;categories&#x60;, and/or &#x60;endpointUri&#x60;. Currently returns HTTP 501 until the Meta Graph Flows rewrite is available. 
      * @param flowId Flow ID
      * @param token JWT token or API key for authorization
+     * @param patchFlowsFlowIdMetadataRequest 
      * @param wabaAccountId  (optional)
      * @return ApiResponse<kotlin.collections.Map<kotlin.String, kotlin.Any>?>
      * @throws IllegalStateException If the request is not correctly configured
@@ -858,10 +877,10 @@ open class FlowsApi(basePath: kotlin.String = defaultBasePath, client: Call.Fact
      */
     @Suppress("UNCHECKED_CAST")
     @Throws(IllegalStateException::class, IOException::class)
-    fun patchFlowsFlowIdMetadataWithHttpInfo(flowId: kotlin.String, token: kotlin.String, wabaAccountId: kotlin.String?) : ApiResponse<kotlin.collections.Map<kotlin.String, kotlin.Any>?> {
-        val localVariableConfig = patchFlowsFlowIdMetadataRequestConfig(flowId = flowId, token = token, wabaAccountId = wabaAccountId)
+    fun patchFlowsFlowIdMetadataWithHttpInfo(flowId: kotlin.String, token: kotlin.String, patchFlowsFlowIdMetadataRequest: PatchFlowsFlowIdMetadataRequest, wabaAccountId: kotlin.String?) : ApiResponse<kotlin.collections.Map<kotlin.String, kotlin.Any>?> {
+        val localVariableConfig = patchFlowsFlowIdMetadataRequestConfig(flowId = flowId, token = token, patchFlowsFlowIdMetadataRequest = patchFlowsFlowIdMetadataRequest, wabaAccountId = wabaAccountId)
 
-        return request<Unit, kotlin.collections.Map<kotlin.String, kotlin.Any>>(
+        return request<PatchFlowsFlowIdMetadataRequest, kotlin.collections.Map<kotlin.String, kotlin.Any>>(
             localVariableConfig
         )
     }
@@ -871,11 +890,12 @@ open class FlowsApi(basePath: kotlin.String = defaultBasePath, client: Call.Fact
      *
      * @param flowId Flow ID
      * @param token JWT token or API key for authorization
+     * @param patchFlowsFlowIdMetadataRequest 
      * @param wabaAccountId  (optional)
      * @return RequestConfig
      */
-    fun patchFlowsFlowIdMetadataRequestConfig(flowId: kotlin.String, token: kotlin.String, wabaAccountId: kotlin.String?) : RequestConfig<Unit> {
-        val localVariableBody = null
+    fun patchFlowsFlowIdMetadataRequestConfig(flowId: kotlin.String, token: kotlin.String, patchFlowsFlowIdMetadataRequest: PatchFlowsFlowIdMetadataRequest, wabaAccountId: kotlin.String?) : RequestConfig<PatchFlowsFlowIdMetadataRequest> {
+        val localVariableBody = patchFlowsFlowIdMetadataRequest
         val localVariableQuery: MultiValueMap = mutableMapOf<kotlin.String, kotlin.collections.List<kotlin.String>>()
             .apply {
                 put("token", listOf(token.toString()))
@@ -884,6 +904,7 @@ open class FlowsApi(basePath: kotlin.String = defaultBasePath, client: Call.Fact
                 }
             }
         val localVariableHeaders: MutableMap<String, String> = mutableMapOf()
+        localVariableHeaders["Content-Type"] = "application/json"
         localVariableHeaders["Accept"] = "application/json"
 
         return RequestConfig(

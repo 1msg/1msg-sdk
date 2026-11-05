@@ -30,15 +30,25 @@ import com.squareup.moshi.JsonClass
 /**
  * 
  *
- * @param phone 
+ * @param phone Recipient phone with country code. Use phone or chatId.
+ * @param chatId Recipient chat ID (`phone@c.us`, group `@g.us`, or BSUID `@lid`). Use phone or chatId.
+ * @param quotedMsgId 
  * @param body 
  */
 
 
 data class SendLocationRequestRequest (
 
+    /* Recipient phone with country code. Use phone or chatId. */
     @Json(name = "phone")
     val phone: kotlin.String? = null,
+
+    /* Recipient chat ID (`phone@c.us`, group `@g.us`, or BSUID `@lid`). Use phone or chatId. */
+    @Json(name = "chatId")
+    val chatId: kotlin.String? = null,
+
+    @Json(name = "quotedMsgId")
+    val quotedMsgId: kotlin.String? = null,
 
     @Json(name = "body")
     val body: kotlin.String? = null

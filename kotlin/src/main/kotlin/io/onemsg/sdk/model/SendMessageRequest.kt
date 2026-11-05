@@ -23,6 +23,7 @@
 
 package io.onemsg.sdk.model
 
+import io.onemsg.sdk.model.SendMessageRequestDirectSend
 
 import com.squareup.moshi.Json
 import com.squareup.moshi.JsonClass
@@ -32,8 +33,10 @@ import com.squareup.moshi.JsonClass
  *
  * @param body Message text, UTF-8 or UTF-16 string with emoji
  * @param quotedMsgId Message ID to quote/reply to (Cloud API wamid)
- * @param chatId Chat ID in format: phone@c.us (individual) or phone@g.us (group)
+ * @param chatId Recipient chat ID: phone@c.us, group@g.us, or BSUID@lid
  * @param phone Phone number starting with country code (alternative to chatId)
+ * @param category Optional Direct Send category. Direct Send is in beta: Meta has not enabled it on every business portfolio. `utility` or `authentication` enables it. `authentication` is part of that beta and is not recommended. Omit or `service` keeps a normal service message (and the marketing auto-template outside the 24-hour window). `marketing` is rejected. 
+ * @param directSend 
  */
 
 
@@ -47,16 +50,34 @@ data class SendMessageRequest (
     @Json(name = "quotedMsgId")
     val quotedMsgId: kotlin.String? = null,
 
-    /* Chat ID in format: phone@c.us (individual) or phone@g.us (group) */
+    /* Recipient chat ID: phone@c.us, group@g.us, or BSUID@lid */
     @Json(name = "chatId")
     val chatId: kotlin.String? = null,
 
     /* Phone number starting with country code (alternative to chatId) */
     @Json(name = "phone")
-    val phone: kotlin.Int? = null
+    val phone: kotlin.Int? = null,
+
+    /* Optional Direct Send category. Direct Send is in beta: Meta has not enabled it on every business portfolio. `utility` or `authentication` enables it. `authentication` is part of that beta and is not recommended. Omit or `service` keeps a normal service message (and the marketing auto-template outside the 24-hour window). `marketing` is rejected.  */
+    @Json(name = "category")
+    val category: SendMessageRequest.Category? = null,
+
+    @Json(name = "directSend")
+    val directSend: SendMessageRequestDirectSend? = null
 
 ) {
 
+    /**
+     * Optional Direct Send category. Direct Send is in beta: Meta has not enabled it on every business portfolio. `utility` or `authentication` enables it. `authentication` is part of that beta and is not recommended. Omit or `service` keeps a normal service message (and the marketing auto-template outside the 24-hour window). `marketing` is rejected. 
+     *
+     * Values: UTILITY,AUTHENTICATION,SERVICE
+     */
+    @JsonClass(generateAdapter = false)
+    enum class Category(val value: kotlin.String) {
+        @Json(name = "utility") UTILITY("utility"),
+        @Json(name = "authentication") AUTHENTICATION("authentication"),
+        @Json(name = "service") SERVICE("service");
+    }
 
 }
 

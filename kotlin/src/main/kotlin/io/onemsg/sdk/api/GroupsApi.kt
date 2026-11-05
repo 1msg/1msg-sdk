@@ -28,6 +28,8 @@ import okhttp3.Call
 import okhttp3.HttpUrl
 
 import io.onemsg.sdk.model.CreateGroups200Response
+import io.onemsg.sdk.model.CreateGroupsGroupIdRequest
+import io.onemsg.sdk.model.CreateGroupsRequest
 import io.onemsg.sdk.model.DeleteGroupsGroupId200Response
 
 import com.squareup.moshi.Json
@@ -59,6 +61,7 @@ open class GroupsApi(basePath: kotlin.String = defaultBasePath, client: Call.Fac
      * Create Group
      * 
      * @param token JWT token or API key for authorization
+     * @param createGroupsRequest 
      * @return CreateGroups200Response
      * @throws IllegalStateException If the request is not correctly configured
      * @throws IOException Rethrows the OkHttp execute method exception
@@ -68,8 +71,8 @@ open class GroupsApi(basePath: kotlin.String = defaultBasePath, client: Call.Fac
      */
     @Suppress("UNCHECKED_CAST")
     @Throws(IllegalStateException::class, IOException::class, UnsupportedOperationException::class, ClientException::class, ServerException::class)
-    fun createGroups(token: kotlin.String) : CreateGroups200Response {
-        val localVarResponse = createGroupsWithHttpInfo(token = token)
+    fun createGroups(token: kotlin.String, createGroupsRequest: CreateGroupsRequest) : CreateGroups200Response {
+        val localVarResponse = createGroupsWithHttpInfo(token = token, createGroupsRequest = createGroupsRequest)
 
         return when (localVarResponse.responseType) {
             ResponseType.Success -> (localVarResponse as Success<*>).data as CreateGroups200Response
@@ -91,16 +94,17 @@ open class GroupsApi(basePath: kotlin.String = defaultBasePath, client: Call.Fac
      * Create Group
      * 
      * @param token JWT token or API key for authorization
+     * @param createGroupsRequest 
      * @return ApiResponse<CreateGroups200Response?>
      * @throws IllegalStateException If the request is not correctly configured
      * @throws IOException Rethrows the OkHttp execute method exception
      */
     @Suppress("UNCHECKED_CAST")
     @Throws(IllegalStateException::class, IOException::class)
-    fun createGroupsWithHttpInfo(token: kotlin.String) : ApiResponse<CreateGroups200Response?> {
-        val localVariableConfig = createGroupsRequestConfig(token = token)
+    fun createGroupsWithHttpInfo(token: kotlin.String, createGroupsRequest: CreateGroupsRequest) : ApiResponse<CreateGroups200Response?> {
+        val localVariableConfig = createGroupsRequestConfig(token = token, createGroupsRequest = createGroupsRequest)
 
-        return request<Unit, CreateGroups200Response>(
+        return request<CreateGroupsRequest, CreateGroups200Response>(
             localVariableConfig
         )
     }
@@ -109,15 +113,17 @@ open class GroupsApi(basePath: kotlin.String = defaultBasePath, client: Call.Fac
      * To obtain the request config of the operation createGroups
      *
      * @param token JWT token or API key for authorization
+     * @param createGroupsRequest 
      * @return RequestConfig
      */
-    fun createGroupsRequestConfig(token: kotlin.String) : RequestConfig<Unit> {
-        val localVariableBody = null
+    fun createGroupsRequestConfig(token: kotlin.String, createGroupsRequest: CreateGroupsRequest) : RequestConfig<CreateGroupsRequest> {
+        val localVariableBody = createGroupsRequest
         val localVariableQuery: MultiValueMap = mutableMapOf<kotlin.String, kotlin.collections.List<kotlin.String>>()
             .apply {
                 put("token", listOf(token.toString()))
             }
         val localVariableHeaders: MutableMap<String, String> = mutableMapOf()
+        localVariableHeaders["Content-Type"] = "application/json"
         localVariableHeaders["Accept"] = "application/json"
 
         return RequestConfig(
@@ -133,9 +139,10 @@ open class GroupsApi(basePath: kotlin.String = defaultBasePath, client: Call.Fac
     /**
      * POST /groups/{groupId}
      * Update Group Info
-     * 
+     * Update group subject, description, and/or profile picture. Path &#x60;groupId&#x60; is the WABA group id (without &#x60;@g.us&#x60;). 
      * @param groupId 
      * @param token JWT token or API key for authorization
+     * @param createGroupsGroupIdRequest 
      * @return kotlin.collections.Map<kotlin.String, kotlin.Any>
      * @throws IllegalStateException If the request is not correctly configured
      * @throws IOException Rethrows the OkHttp execute method exception
@@ -145,8 +152,8 @@ open class GroupsApi(basePath: kotlin.String = defaultBasePath, client: Call.Fac
      */
     @Suppress("UNCHECKED_CAST")
     @Throws(IllegalStateException::class, IOException::class, UnsupportedOperationException::class, ClientException::class, ServerException::class)
-    fun createGroupsGroupId(groupId: kotlin.String, token: kotlin.String) : kotlin.collections.Map<kotlin.String, kotlin.Any> {
-        val localVarResponse = createGroupsGroupIdWithHttpInfo(groupId = groupId, token = token)
+    fun createGroupsGroupId(groupId: kotlin.String, token: kotlin.String, createGroupsGroupIdRequest: CreateGroupsGroupIdRequest) : kotlin.collections.Map<kotlin.String, kotlin.Any> {
+        val localVarResponse = createGroupsGroupIdWithHttpInfo(groupId = groupId, token = token, createGroupsGroupIdRequest = createGroupsGroupIdRequest)
 
         return when (localVarResponse.responseType) {
             ResponseType.Success -> (localVarResponse as Success<*>).data as kotlin.collections.Map<kotlin.String, kotlin.Any>
@@ -166,19 +173,20 @@ open class GroupsApi(basePath: kotlin.String = defaultBasePath, client: Call.Fac
     /**
      * POST /groups/{groupId}
      * Update Group Info
-     * 
+     * Update group subject, description, and/or profile picture. Path &#x60;groupId&#x60; is the WABA group id (without &#x60;@g.us&#x60;). 
      * @param groupId 
      * @param token JWT token or API key for authorization
+     * @param createGroupsGroupIdRequest 
      * @return ApiResponse<kotlin.collections.Map<kotlin.String, kotlin.Any>?>
      * @throws IllegalStateException If the request is not correctly configured
      * @throws IOException Rethrows the OkHttp execute method exception
      */
     @Suppress("UNCHECKED_CAST")
     @Throws(IllegalStateException::class, IOException::class)
-    fun createGroupsGroupIdWithHttpInfo(groupId: kotlin.String, token: kotlin.String) : ApiResponse<kotlin.collections.Map<kotlin.String, kotlin.Any>?> {
-        val localVariableConfig = createGroupsGroupIdRequestConfig(groupId = groupId, token = token)
+    fun createGroupsGroupIdWithHttpInfo(groupId: kotlin.String, token: kotlin.String, createGroupsGroupIdRequest: CreateGroupsGroupIdRequest) : ApiResponse<kotlin.collections.Map<kotlin.String, kotlin.Any>?> {
+        val localVariableConfig = createGroupsGroupIdRequestConfig(groupId = groupId, token = token, createGroupsGroupIdRequest = createGroupsGroupIdRequest)
 
-        return request<Unit, kotlin.collections.Map<kotlin.String, kotlin.Any>>(
+        return request<CreateGroupsGroupIdRequest, kotlin.collections.Map<kotlin.String, kotlin.Any>>(
             localVariableConfig
         )
     }
@@ -188,15 +196,17 @@ open class GroupsApi(basePath: kotlin.String = defaultBasePath, client: Call.Fac
      *
      * @param groupId 
      * @param token JWT token or API key for authorization
+     * @param createGroupsGroupIdRequest 
      * @return RequestConfig
      */
-    fun createGroupsGroupIdRequestConfig(groupId: kotlin.String, token: kotlin.String) : RequestConfig<Unit> {
-        val localVariableBody = null
+    fun createGroupsGroupIdRequestConfig(groupId: kotlin.String, token: kotlin.String, createGroupsGroupIdRequest: CreateGroupsGroupIdRequest) : RequestConfig<CreateGroupsGroupIdRequest> {
+        val localVariableBody = createGroupsGroupIdRequest
         val localVariableQuery: MultiValueMap = mutableMapOf<kotlin.String, kotlin.collections.List<kotlin.String>>()
             .apply {
                 put("token", listOf(token.toString()))
             }
         val localVariableHeaders: MutableMap<String, String> = mutableMapOf()
+        localVariableHeaders["Content-Type"] = "application/json"
         localVariableHeaders["Accept"] = "application/json"
 
         return RequestConfig(
@@ -373,6 +383,7 @@ open class GroupsApi(basePath: kotlin.String = defaultBasePath, client: Call.Fac
      * 
      * @param groupId 
      * @param token JWT token or API key for authorization
+     * @param fields Comma-separated group fields to return (optional)
      * @return kotlin.collections.Map<kotlin.String, kotlin.Any>
      * @throws IllegalStateException If the request is not correctly configured
      * @throws IOException Rethrows the OkHttp execute method exception
@@ -382,8 +393,8 @@ open class GroupsApi(basePath: kotlin.String = defaultBasePath, client: Call.Fac
      */
     @Suppress("UNCHECKED_CAST")
     @Throws(IllegalStateException::class, IOException::class, UnsupportedOperationException::class, ClientException::class, ServerException::class)
-    fun getGroupsGroupId(groupId: kotlin.String, token: kotlin.String) : kotlin.collections.Map<kotlin.String, kotlin.Any> {
-        val localVarResponse = getGroupsGroupIdWithHttpInfo(groupId = groupId, token = token)
+    fun getGroupsGroupId(groupId: kotlin.String, token: kotlin.String, fields: kotlin.String? = null) : kotlin.collections.Map<kotlin.String, kotlin.Any> {
+        val localVarResponse = getGroupsGroupIdWithHttpInfo(groupId = groupId, token = token, fields = fields)
 
         return when (localVarResponse.responseType) {
             ResponseType.Success -> (localVarResponse as Success<*>).data as kotlin.collections.Map<kotlin.String, kotlin.Any>
@@ -406,14 +417,15 @@ open class GroupsApi(basePath: kotlin.String = defaultBasePath, client: Call.Fac
      * 
      * @param groupId 
      * @param token JWT token or API key for authorization
+     * @param fields Comma-separated group fields to return (optional)
      * @return ApiResponse<kotlin.collections.Map<kotlin.String, kotlin.Any>?>
      * @throws IllegalStateException If the request is not correctly configured
      * @throws IOException Rethrows the OkHttp execute method exception
      */
     @Suppress("UNCHECKED_CAST")
     @Throws(IllegalStateException::class, IOException::class)
-    fun getGroupsGroupIdWithHttpInfo(groupId: kotlin.String, token: kotlin.String) : ApiResponse<kotlin.collections.Map<kotlin.String, kotlin.Any>?> {
-        val localVariableConfig = getGroupsGroupIdRequestConfig(groupId = groupId, token = token)
+    fun getGroupsGroupIdWithHttpInfo(groupId: kotlin.String, token: kotlin.String, fields: kotlin.String?) : ApiResponse<kotlin.collections.Map<kotlin.String, kotlin.Any>?> {
+        val localVariableConfig = getGroupsGroupIdRequestConfig(groupId = groupId, token = token, fields = fields)
 
         return request<Unit, kotlin.collections.Map<kotlin.String, kotlin.Any>>(
             localVariableConfig
@@ -425,13 +437,17 @@ open class GroupsApi(basePath: kotlin.String = defaultBasePath, client: Call.Fac
      *
      * @param groupId 
      * @param token JWT token or API key for authorization
+     * @param fields Comma-separated group fields to return (optional)
      * @return RequestConfig
      */
-    fun getGroupsGroupIdRequestConfig(groupId: kotlin.String, token: kotlin.String) : RequestConfig<Unit> {
+    fun getGroupsGroupIdRequestConfig(groupId: kotlin.String, token: kotlin.String, fields: kotlin.String?) : RequestConfig<Unit> {
         val localVariableBody = null
         val localVariableQuery: MultiValueMap = mutableMapOf<kotlin.String, kotlin.collections.List<kotlin.String>>()
             .apply {
                 put("token", listOf(token.toString()))
+                if (fields != null) {
+                    put("fields", listOf(fields.toString()))
+                }
             }
         val localVariableHeaders: MutableMap<String, String> = mutableMapOf()
         localVariableHeaders["Accept"] = "application/json"
@@ -528,8 +544,11 @@ open class GroupsApi(basePath: kotlin.String = defaultBasePath, client: Call.Fac
     /**
      * GET /groups
      * Get Groups List
-     * 
+     * List WhatsApp groups for this channel. Paginate with &#x60;limit&#x60;, &#x60;before&#x60;, and &#x60;after&#x60;.
      * @param token JWT token or API key for authorization
+     * @param limit Max groups to return (optional)
+     * @param before Cursor for the previous page (optional)
+     * @param after Cursor for the next page (optional)
      * @return kotlin.collections.Map<kotlin.String, kotlin.Any>
      * @throws IllegalStateException If the request is not correctly configured
      * @throws IOException Rethrows the OkHttp execute method exception
@@ -539,8 +558,8 @@ open class GroupsApi(basePath: kotlin.String = defaultBasePath, client: Call.Fac
      */
     @Suppress("UNCHECKED_CAST")
     @Throws(IllegalStateException::class, IOException::class, UnsupportedOperationException::class, ClientException::class, ServerException::class)
-    fun listGroups(token: kotlin.String) : kotlin.collections.Map<kotlin.String, kotlin.Any> {
-        val localVarResponse = listGroupsWithHttpInfo(token = token)
+    fun listGroups(token: kotlin.String, limit: kotlin.Int? = null, before: kotlin.String? = null, after: kotlin.String? = null) : kotlin.collections.Map<kotlin.String, kotlin.Any> {
+        val localVarResponse = listGroupsWithHttpInfo(token = token, limit = limit, before = before, after = after)
 
         return when (localVarResponse.responseType) {
             ResponseType.Success -> (localVarResponse as Success<*>).data as kotlin.collections.Map<kotlin.String, kotlin.Any>
@@ -560,16 +579,19 @@ open class GroupsApi(basePath: kotlin.String = defaultBasePath, client: Call.Fac
     /**
      * GET /groups
      * Get Groups List
-     * 
+     * List WhatsApp groups for this channel. Paginate with &#x60;limit&#x60;, &#x60;before&#x60;, and &#x60;after&#x60;.
      * @param token JWT token or API key for authorization
+     * @param limit Max groups to return (optional)
+     * @param before Cursor for the previous page (optional)
+     * @param after Cursor for the next page (optional)
      * @return ApiResponse<kotlin.collections.Map<kotlin.String, kotlin.Any>?>
      * @throws IllegalStateException If the request is not correctly configured
      * @throws IOException Rethrows the OkHttp execute method exception
      */
     @Suppress("UNCHECKED_CAST")
     @Throws(IllegalStateException::class, IOException::class)
-    fun listGroupsWithHttpInfo(token: kotlin.String) : ApiResponse<kotlin.collections.Map<kotlin.String, kotlin.Any>?> {
-        val localVariableConfig = listGroupsRequestConfig(token = token)
+    fun listGroupsWithHttpInfo(token: kotlin.String, limit: kotlin.Int?, before: kotlin.String?, after: kotlin.String?) : ApiResponse<kotlin.collections.Map<kotlin.String, kotlin.Any>?> {
+        val localVariableConfig = listGroupsRequestConfig(token = token, limit = limit, before = before, after = after)
 
         return request<Unit, kotlin.collections.Map<kotlin.String, kotlin.Any>>(
             localVariableConfig
@@ -580,13 +602,25 @@ open class GroupsApi(basePath: kotlin.String = defaultBasePath, client: Call.Fac
      * To obtain the request config of the operation listGroups
      *
      * @param token JWT token or API key for authorization
+     * @param limit Max groups to return (optional)
+     * @param before Cursor for the previous page (optional)
+     * @param after Cursor for the next page (optional)
      * @return RequestConfig
      */
-    fun listGroupsRequestConfig(token: kotlin.String) : RequestConfig<Unit> {
+    fun listGroupsRequestConfig(token: kotlin.String, limit: kotlin.Int?, before: kotlin.String?, after: kotlin.String?) : RequestConfig<Unit> {
         val localVariableBody = null
         val localVariableQuery: MultiValueMap = mutableMapOf<kotlin.String, kotlin.collections.List<kotlin.String>>()
             .apply {
                 put("token", listOf(token.toString()))
+                if (limit != null) {
+                    put("limit", listOf(limit.toString()))
+                }
+                if (before != null) {
+                    put("before", listOf(before.toString()))
+                }
+                if (after != null) {
+                    put("after", listOf(after.toString()))
+                }
             }
         val localVariableHeaders: MutableMap<String, String> = mutableMapOf()
         localVariableHeaders["Accept"] = "application/json"

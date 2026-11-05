@@ -27,6 +27,8 @@ import io.kotlintest.shouldBe
 import io.kotlintest.specs.ShouldSpec
 
 import io.onemsg.sdk.model.GetWebhook200Response
+import io.onemsg.sdk.model.GetWebhook200ResponseWebhookUrl
+import io.onemsg.sdk.model.WebhookUrlStatus
 
 class GetWebhook200ResponseTest : ShouldSpec() {
     init {
@@ -37,6 +39,72 @@ class GetWebhook200ResponseTest : ShouldSpec() {
         should("test webhookUrl") {
             // uncomment below to test the property
             //modelInstance.webhookUrl shouldBe ("TODO")
+        }
+
+        // to test the property `haveDisabledWebhooks` - `true` when at least one URL in `webhookUrl` is sticky auto-disabled. Not \"the channel is dead\": other configured URLs still receive events. Send/receive are unaffected. 
+        should("test haveDisabledWebhooks") {
+            // uncomment below to test the property
+            //modelInstance.haveDisabledWebhooks shouldBe ("TODO")
+        }
+
+        // to test the property `circuitState` - Compatibility scalar for **one** URL (first sticky-disabled, else first configured). Not the channel as a whole. Prefer `webhookStatuses[].circuitState`. 
+        should("test circuitState") {
+            // uncomment below to test the property
+            //modelInstance.circuitState shouldBe ("TODO")
+        }
+
+        // to test the property `reason` - Last qualifying fail reason of the summary URL (same URL as `circuitState`)
+        should("test reason") {
+            // uncomment below to test the property
+            //modelInstance.reason shouldBe ("TODO")
+        }
+
+        // to test the property `fails` - Diagnostic only (summary URL). Qualifying failures in the rolling ~10 minute breaker window — not lifetime and not customer retries. Prefer `webhookStatuses` / `disabledWebhooks`. 
+        should("test fails") {
+            // uncomment below to test the property
+            //modelInstance.fails shouldBe ("TODO")
+        }
+
+        // to test the property `trips` - Diagnostic only (summary URL). Failed recovery probes (≈15 min → 1 h → 6 h). Sticky disable after 3. Not a blind unblock timer. 
+        should("test trips") {
+            // uncomment below to test the property
+            //modelInstance.trips shouldBe ("TODO")
+        }
+
+        // to test the property `disabledAt` - Epoch milliseconds when the summary URL became sticky-disabled
+        should("test disabledAt") {
+            // uncomment below to test the property
+            //modelInstance.disabledAt shouldBe ("TODO")
+        }
+
+        // to test the property `firstFailAt` - Diagnostic only (summary URL). Epoch ms of the first fail in the current ~10 minute window (pairs with `fails`). 
+        should("test firstFailAt") {
+            // uncomment below to test the property
+            //modelInstance.firstFailAt shouldBe ("TODO")
+        }
+
+        // to test the property `lastStatus` - Last HTTP status from the summary URL, when known
+        should("test lastStatus") {
+            // uncomment below to test the property
+            //modelInstance.lastStatus shouldBe ("TODO")
+        }
+
+        // to test the property `nextProbeAt` - Epoch milliseconds of the next half-open probe for the summary URL, if any
+        should("test nextProbeAt") {
+            // uncomment below to test the property
+            //modelInstance.nextProbeAt shouldBe ("TODO")
+        }
+
+        // to test the property `disabledWebhooks` - Currently configured URLs that are sticky auto-disabled (subset of `webhookUrl`). Does not include leftover URLs that are no longer configured. 
+        should("test disabledWebhooks") {
+            // uncomment below to test the property
+            //modelInstance.disabledWebhooks shouldBe ("TODO")
+        }
+
+        // to test the property `webhookStatuses` - One entry per currently configured URL. Prefer this over top-level `haveDisabledWebhooks` / `circuitState` when more than one webhook is set. 
+        should("test webhookStatuses") {
+            // uncomment below to test the property
+            //modelInstance.webhookStatuses shouldBe ("TODO")
         }
 
     }

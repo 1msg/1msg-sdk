@@ -29,6 +29,7 @@ import io.kotlintest.specs.ShouldSpec
 import io.onemsg.sdk.api.ProfileApi
 import io.onemsg.sdk.model.ErrorResponse
 import io.onemsg.sdk.model.ProfileInfo
+import io.onemsg.sdk.model.UpdateMe200Response
 import io.onemsg.sdk.model.UpdateMeRequest
 
 class ProfileApiTest : ShouldSpec() {
@@ -48,8 +49,8 @@ class ProfileApiTest : ShouldSpec() {
         should("test updateMe") {
             // uncomment below to test updateMe
             //val token : kotlin.String = token_example // kotlin.String | JWT token or API key for authorization
-            //val updateMeRequest : UpdateMeRequest =  // UpdateMeRequest | 
-            //val result : kotlin.collections.Map<kotlin.String, kotlin.Any> = apiInstance.updateMe(token, updateMeRequest)
+            //val updateMeRequest : UpdateMeRequest = {"about":"Available 9–18","email":"support@example.com"} // UpdateMeRequest | 
+            //val result : UpdateMe200Response = apiInstance.updateMe(token, updateMeRequest)
             //result shouldBe ("TODO")
         }
 

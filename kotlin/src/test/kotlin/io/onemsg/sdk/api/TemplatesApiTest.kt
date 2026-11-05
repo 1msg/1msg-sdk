@@ -27,9 +27,11 @@ import io.kotlintest.shouldBe
 import io.kotlintest.specs.ShouldSpec
 
 import io.onemsg.sdk.api.TemplatesApi
+import io.onemsg.sdk.model.AddTemplate200Response
 import io.onemsg.sdk.model.AddTemplateRequest
 import io.onemsg.sdk.model.ErrorResponse
 import io.onemsg.sdk.model.ListTemplates200Response
+import io.onemsg.sdk.model.RemoveTemplateRequest
 import io.onemsg.sdk.model.SendTemplateRequest
 
 class TemplatesApiTest : ShouldSpec() {
@@ -41,8 +43,8 @@ class TemplatesApiTest : ShouldSpec() {
         should("test addTemplate") {
             // uncomment below to test addTemplate
             //val token : kotlin.String = token_example // kotlin.String | JWT token or API key for authorization
-            //val addTemplateRequest : AddTemplateRequest =  // AddTemplateRequest | 
-            //val result : kotlin.collections.Map<kotlin.String, kotlin.Any> = apiInstance.addTemplate(token, addTemplateRequest)
+            //val addTemplateRequest : AddTemplateRequest = {"name":"hello_world","category":"UTILITY","language":"en_US","components":[{"type":"BODY","text":"Hello {{1}}"}]} // AddTemplateRequest | 
+            //val result : AddTemplate200Response = apiInstance.addTemplate(token, addTemplateRequest)
             //result shouldBe ("TODO")
         }
 
@@ -50,7 +52,10 @@ class TemplatesApiTest : ShouldSpec() {
         should("test listTemplates") {
             // uncomment below to test listTemplates
             //val token : kotlin.String = token_example // kotlin.String | JWT token or API key for authorization
-            //val result : ListTemplates200Response = apiInstance.listTemplates(token)
+            //val limit : kotlin.Int = 56 // kotlin.Int | 
+            //val offset : kotlin.Int = 56 // kotlin.Int | 
+            //val sort : kotlin.String = sort_example // kotlin.String | Sort field (`id`, `name`, or `status`)
+            //val result : ListTemplates200Response = apiInstance.listTemplates(token, limit, offset, sort)
             //result shouldBe ("TODO")
         }
 
@@ -58,8 +63,8 @@ class TemplatesApiTest : ShouldSpec() {
         should("test removeTemplate") {
             // uncomment below to test removeTemplate
             //val token : kotlin.String = token_example // kotlin.String | JWT token or API key for authorization
-            //val requestBody : kotlin.collections.Map<kotlin.String, kotlin.Any> = Object // kotlin.collections.Map<kotlin.String, kotlin.Any> | 
-            //val result : kotlin.collections.Map<kotlin.String, kotlin.Any> = apiInstance.removeTemplate(token, requestBody)
+            //val removeTemplateRequest : RemoveTemplateRequest = {"name":"hello_world"} // RemoveTemplateRequest | 
+            //val result : kotlin.collections.Map<kotlin.String, kotlin.Any> = apiInstance.removeTemplate(token, removeTemplateRequest)
             //result shouldBe ("TODO")
         }
 
@@ -67,7 +72,7 @@ class TemplatesApiTest : ShouldSpec() {
         should("test sendTemplate") {
             // uncomment below to test sendTemplate
             //val token : kotlin.String = token_example // kotlin.String | JWT token or API key for authorization
-            //val sendTemplateRequest : SendTemplateRequest = {"template":"test_buttons_2","language":{"policy":"deterministic","code":"ru"},"namespace":"41123797_e45e_4f06_a2fa_443b27c6f5ec","params":[],"phone":"{{testPhone}}"} // SendTemplateRequest | 
+            //val sendTemplateRequest : SendTemplateRequest = {"template":"test_buttons_2","language":{"policy":"deterministic","code":"ru"},"namespace":"41123797_e45e_4f06_a2fa_443b27c6f5ec","phone":"{{testPhone}}","params":[{"type":"body","parameters":[{"type":"text","text":"Ivan"}]}]} // SendTemplateRequest | 
             //val result : kotlin.collections.Map<kotlin.String, kotlin.Any> = apiInstance.sendTemplate(token, sendTemplateRequest)
             //result shouldBe ("TODO")
         }

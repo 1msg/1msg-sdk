@@ -28,6 +28,8 @@ import io.kotlintest.specs.ShouldSpec
 
 import io.onemsg.sdk.api.GroupsApi
 import io.onemsg.sdk.model.CreateGroups200Response
+import io.onemsg.sdk.model.CreateGroupsGroupIdRequest
+import io.onemsg.sdk.model.CreateGroupsRequest
 import io.onemsg.sdk.model.DeleteGroupsGroupId200Response
 
 class GroupsApiTest : ShouldSpec() {
@@ -39,7 +41,8 @@ class GroupsApiTest : ShouldSpec() {
         should("test createGroups") {
             // uncomment below to test createGroups
             //val token : kotlin.String = token_example // kotlin.String | JWT token or API key for authorization
-            //val result : CreateGroups200Response = apiInstance.createGroups(token)
+            //val createGroupsRequest : CreateGroupsRequest =  // CreateGroupsRequest | 
+            //val result : CreateGroups200Response = apiInstance.createGroups(token, createGroupsRequest)
             //result shouldBe ("TODO")
         }
 
@@ -48,7 +51,8 @@ class GroupsApiTest : ShouldSpec() {
             // uncomment below to test createGroupsGroupId
             //val groupId : kotlin.String = {{createdGroupId}} // kotlin.String | 
             //val token : kotlin.String = token_example // kotlin.String | JWT token or API key for authorization
-            //val result : kotlin.collections.Map<kotlin.String, kotlin.Any> = apiInstance.createGroupsGroupId(groupId, token)
+            //val createGroupsGroupIdRequest : CreateGroupsGroupIdRequest = {"subject":"Support team","description":"Customer support"} // CreateGroupsGroupIdRequest | 
+            //val result : kotlin.collections.Map<kotlin.String, kotlin.Any> = apiInstance.createGroupsGroupId(groupId, token, createGroupsGroupIdRequest)
             //result shouldBe ("TODO")
         }
 
@@ -75,7 +79,8 @@ class GroupsApiTest : ShouldSpec() {
             // uncomment below to test getGroupsGroupId
             //val groupId : kotlin.String = {{createdGroupId}} // kotlin.String | 
             //val token : kotlin.String = token_example // kotlin.String | JWT token or API key for authorization
-            //val result : kotlin.collections.Map<kotlin.String, kotlin.Any> = apiInstance.getGroupsGroupId(groupId, token)
+            //val fields : kotlin.String = fields_example // kotlin.String | Comma-separated group fields to return
+            //val result : kotlin.collections.Map<kotlin.String, kotlin.Any> = apiInstance.getGroupsGroupId(groupId, token, fields)
             //result shouldBe ("TODO")
         }
 
@@ -92,7 +97,10 @@ class GroupsApiTest : ShouldSpec() {
         should("test listGroups") {
             // uncomment below to test listGroups
             //val token : kotlin.String = token_example // kotlin.String | JWT token or API key for authorization
-            //val result : kotlin.collections.Map<kotlin.String, kotlin.Any> = apiInstance.listGroups(token)
+            //val limit : kotlin.Int = 56 // kotlin.Int | Max groups to return
+            //val before : kotlin.String = before_example // kotlin.String | Cursor for the previous page
+            //val after : kotlin.String = after_example // kotlin.String | Cursor for the next page
+            //val result : kotlin.collections.Map<kotlin.String, kotlin.Any> = apiInstance.listGroups(token, limit, before, after)
             //result shouldBe ("TODO")
         }
 

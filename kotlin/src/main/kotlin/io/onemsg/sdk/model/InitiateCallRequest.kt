@@ -70,24 +70,24 @@ data class InitiateCallRequest (
     /**
      * Must be `whatsapp`
      *
-     * Values: whatsapp
+     * Values: WHATSAPP
      */
     @JsonClass(generateAdapter = false)
     enum class MessagingProduct(val value: kotlin.String) {
-        @Json(name = "whatsapp") whatsapp("whatsapp");
+        @Json(name = "whatsapp") WHATSAPP("whatsapp");
     }
     /**
      * Call control action
      *
-     * Values: connect,pre_accept,accept,reject,terminate
+     * Values: CONNECT,PRE_ACCEPT,ACCEPT,REJECT,TERMINATE
      */
     @JsonClass(generateAdapter = false)
     enum class Action(val value: kotlin.String) {
-        @Json(name = "connect") connect("connect"),
-        @Json(name = "pre_accept") pre_accept("pre_accept"),
-        @Json(name = "accept") accept("accept"),
-        @Json(name = "reject") reject("reject"),
-        @Json(name = "terminate") terminate("terminate");
+        @Json(name = "connect") CONNECT("connect"),
+        @Json(name = "pre_accept") PRE_ACCEPT("pre_accept"),
+        @Json(name = "accept") ACCEPT("accept"),
+        @Json(name = "reject") REJECT("reject"),
+        @Json(name = "terminate") TERMINATE("terminate");
     }
 
 }

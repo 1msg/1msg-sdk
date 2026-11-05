@@ -101,22 +101,22 @@ data class SendFlowRequest1 (
     /**
      * 
      *
-     * Values: navigate,data_exchange
+     * Values: NAVIGATE,DATA_EXCHANGE
      */
     @JsonClass(generateAdapter = false)
     enum class FlowAction(val value: kotlin.String) {
-        @Json(name = "navigate") navigate("navigate"),
-        @Json(name = "data_exchange") data_exchange("data_exchange");
+        @Json(name = "navigate") NAVIGATE("navigate"),
+        @Json(name = "data_exchange") DATA_EXCHANGE("data_exchange");
     }
     /**
      * 
      *
-     * Values: draft,published
+     * Values: DRAFT,PUBLISHED
      */
     @JsonClass(generateAdapter = false)
     enum class Mode(val value: kotlin.String) {
-        @Json(name = "draft") draft("draft"),
-        @Json(name = "published") published("published");
+        @Json(name = "draft") DRAFT("draft"),
+        @Json(name = "published") PUBLISHED("published");
     }
 
 }

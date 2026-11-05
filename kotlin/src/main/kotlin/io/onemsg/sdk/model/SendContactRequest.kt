@@ -23,6 +23,7 @@
 
 package io.onemsg.sdk.model
 
+import io.onemsg.sdk.model.SendContactRequestContact
 import io.onemsg.sdk.model.SendContactRequestContactsInner
 
 import com.squareup.moshi.Json
@@ -31,15 +32,29 @@ import com.squareup.moshi.JsonClass
 /**
  * 
  *
- * @param phone 
+ * @param phone Recipient phone with country code. Use phone or chatId.
+ * @param chatId Recipient chat ID (`phone@c.us`, group `@g.us`, or BSUID `@lid`). Use phone or chatId.
+ * @param quotedMsgId 
+ * @param contact 
  * @param contacts 
  */
 
 
 data class SendContactRequest (
 
+    /* Recipient phone with country code. Use phone or chatId. */
     @Json(name = "phone")
     val phone: kotlin.String? = null,
+
+    /* Recipient chat ID (`phone@c.us`, group `@g.us`, or BSUID `@lid`). Use phone or chatId. */
+    @Json(name = "chatId")
+    val chatId: kotlin.String? = null,
+
+    @Json(name = "quotedMsgId")
+    val quotedMsgId: kotlin.String? = null,
+
+    @Json(name = "contact")
+    val contact: SendContactRequestContact? = null,
 
     @Json(name = "contacts")
     val contacts: kotlin.collections.List<SendContactRequestContactsInner>? = null

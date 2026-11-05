@@ -33,7 +33,7 @@ class SendTemplateRequestLanguageTest : ShouldSpec() {
         // uncomment below to create an instance of SendTemplateRequestLanguage
         //val modelInstance = SendTemplateRequestLanguage()
 
-        // to test the property `policy`
+        // to test the property `policy` - Must be `deterministic`
         should("test policy") {
             // uncomment below to test the property
             //modelInstance.policy shouldBe ("TODO")

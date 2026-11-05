@@ -29,6 +29,8 @@ import io.kotlintest.specs.ShouldSpec
 import io.onemsg.sdk.api.MessagingApi
 import io.onemsg.sdk.model.CreateReadMessage200Response
 import io.onemsg.sdk.model.CreateReadMessage401Response
+import io.onemsg.sdk.model.CreateUploadMedia200Response
+import io.onemsg.sdk.model.CreateUploadMediaRequest
 import io.onemsg.sdk.model.DeleteMediaLegacyRequest
 import io.onemsg.sdk.model.ErrorResponse
 import io.onemsg.sdk.model.GetMmLiteStatus200Response
@@ -37,13 +39,16 @@ import io.onemsg.sdk.model.MessageSentResponse
 import io.onemsg.sdk.model.RetrieveMedia200Response
 import io.onemsg.sdk.model.SendAddressMessageRequest
 import io.onemsg.sdk.model.SendButtonRequest
+import io.onemsg.sdk.model.SendContactInfoRequest
 import io.onemsg.sdk.model.SendContactRequest
 import io.onemsg.sdk.model.SendCtaUrlRequest
 import io.onemsg.sdk.model.SendFlowRequestHeader
 import io.onemsg.sdk.model.SendListRequest
 import io.onemsg.sdk.model.SendLocationRequestRequest
+import io.onemsg.sdk.model.SendMessageRequestDirectSend
 import io.onemsg.sdk.model.SendOrderDetailsRequest
 import io.onemsg.sdk.model.SendPaymentRequestRequest
+import io.onemsg.sdk.model.SendProductRequest
 import io.onemsg.sdk.model.SendReactionRequest
 import io.onemsg.sdk.model.SendStickerRequest
 import io.onemsg.sdk.model.SuccessResponse
@@ -68,8 +73,9 @@ class MessagingApiTest : ShouldSpec() {
         should("test createUploadMedia") {
             // uncomment below to test createUploadMedia
             //val token : kotlin.String = token_example // kotlin.String | JWT token or API key for authorization
-            //val requestBody : kotlin.collections.Map<kotlin.String, kotlin.Any> = Object // kotlin.collections.Map<kotlin.String, kotlin.Any> | 
-            //apiInstance.createUploadMedia(token, requestBody)
+            //val createUploadMediaRequest : CreateUploadMediaRequest = {"body":"https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.pdf"} // CreateUploadMediaRequest | 
+            //val result : CreateUploadMedia200Response = apiInstance.createUploadMedia(token, createUploadMediaRequest)
+            //result shouldBe ("TODO")
         }
 
         // to test deleteMedia
@@ -102,7 +108,15 @@ class MessagingApiTest : ShouldSpec() {
         should("test listMessages") {
             // uncomment below to test listMessages
             //val token : kotlin.String = token_example // kotlin.String | JWT token or API key for authorization
-            //val result : ListMessages200Response = apiInstance.listMessages(token)
+            //val chatId : kotlin.String = chatId_example // kotlin.String | Filter messages for one chat (`phone@c.us`, group `@g.us`, or BSUID `@lid`)
+            //val limit : kotlin.Int = 56 // kotlin.Int | Max rows to return (default 100)
+            //val last : kotlin.Boolean = true // kotlin.Boolean | If true, return the latest messages (DESC). Default false.
+            //val lastMessageNumber : kotlin.Int = 56 // kotlin.Int | 
+            //val firstMessageNumber : kotlin.Int = 56 // kotlin.Int | 
+            //val minTime : kotlin.Int = 56 // kotlin.Int | Unix timestamp lower bound
+            //val maxTime : kotlin.Int = 56 // kotlin.Int | Unix timestamp upper bound
+            //val msgId : kotlin.String = msgId_example // kotlin.String | Filter by stored message id
+            //val result : ListMessages200Response = apiInstance.listMessages(token, chatId, limit, last, lastMessageNumber, firstMessageNumber, minTime, maxTime, msgId)
             //result shouldBe ("TODO")
         }
 
@@ -137,12 +151,13 @@ class MessagingApiTest : ShouldSpec() {
         should("test sendCarousel") {
             // uncomment below to test sendCarousel
             //val token : kotlin.String = token_example // kotlin.String | JWT token or API key for authorization
-            //val params : kotlin.collections.List<kotlin.Any> =  // kotlin.collections.List<kotlin.Any> | Required. Template-like structure (same as sendTemplate params). Must include a CAROUSEL component and its cards.  Structure: - params[] item with type CAROUSEL and cards (2..10) - cards[] item:   - components[] items:     - header: parameters[0] with type image/video/product       - image: {\\\"image\\\": {\\\"link\\\": \\\"https://...\\\"}}       - video: {\\\"video\\\": {\\\"link\\\": \\\"https://...\\\"}}       - product: {\\\"product\\\": {\\\"catalog_id\\\": \\\"...\\\", \\\"product_retailer_id\\\": \\\"...\\\"}}     - button: sub_type url or quick_reply       - url: parameters {\\\"text\\\": \\\"Button\\\", \\\"url\\\": \\\"https://...\\\"}       - quick_reply: parameters[] of {\\\"id\\\": \\\"...\\\", \\\"text\\\": \\\"...\\\"} 
             //val body : kotlin.String = body_example // kotlin.String | Text shown above the carousel. Optional. If omitted and params include a body component, the body will be taken from params.
+            //val cards : kotlin.collections.List<kotlin.collections.Map<kotlin.String, kotlin.Any>> =  // kotlin.collections.List<kotlin.collections.Map<kotlin.String, kotlin.Any>> | Preferred. 2–10 carousel cards (header + body + CTA or quick replies).
+            //val params : kotlin.collections.List<kotlin.Any> =  // kotlin.collections.List<kotlin.Any> | Required. Template-like structure (same as sendTemplate params). Must include a CAROUSEL component and its cards.  Structure: - params[] item with type CAROUSEL and cards (2..10) - cards[] item:   - components[] items:     - header: parameters[0] with type image/video/product       - image: {\\\"image\\\": {\\\"link\\\": \\\"https://...\\\"}}       - video: {\\\"video\\\": {\\\"link\\\": \\\"https://...\\\"}}       - product: {\\\"product\\\": {\\\"catalog_id\\\": \\\"...\\\", \\\"product_retailer_id\\\": \\\"...\\\"}}     - button: sub_type url or quick_reply       - url: parameters {\\\"text\\\": \\\"Button\\\", \\\"url\\\": \\\"https://...\\\"}       - quick_reply: parameters[] of {\\\"id\\\": \\\"...\\\", \\\"text\\\": \\\"...\\\"} 
             //val quotedMsgId : kotlin.String = quotedMsgId_example // kotlin.String | Quoted message ID (Cloud API)
             //val chatId : kotlin.String = chatId_example // kotlin.String | Required if phone is not set. Chat ID from the message list. Examples: 12020721369@c.us or 120363046942338209@g.us(group)
             //val phone : kotlin.Int = 56 // kotlin.Int | Required if chatId is not set. A phone number starting with the country code. USA example: 12020721369.
-            //val result : MessageSentResponse = apiInstance.sendCarousel(token, params, body, quotedMsgId, chatId, phone)
+            //val result : MessageSentResponse = apiInstance.sendCarousel(token, body, cards, params, quotedMsgId, chatId, phone)
             //result shouldBe ("TODO")
         }
 
@@ -150,8 +165,17 @@ class MessagingApiTest : ShouldSpec() {
         should("test sendContact") {
             // uncomment below to test sendContact
             //val token : kotlin.String = token_example // kotlin.String | JWT token or API key for authorization
-            //val sendContactRequest : SendContactRequest = {"phone":"{{testPhone}}","contacts":[{"name":{"formatted_name":"John Doe","first_name":"John","last_name":"Doe","middle_name":"","suffix":"","prefix":""},"birthday":"","addresses":[],"emails":[],"org":{"company":"","department":"","title":""},"phones":[{"phone":"+1234567890","type":"HOME","wa_id":""}],"urls":[]}]} // SendContactRequest | 
+            //val sendContactRequest : SendContactRequest = {"phone":"{{testPhone}}","contact":{"name":"John Doe","phone":"+1234567890"}} // SendContactRequest | 
             //val result : MessageSentResponse = apiInstance.sendContact(token, sendContactRequest)
+            //result shouldBe ("TODO")
+        }
+
+        // to test sendContactInfo
+        should("test sendContactInfo") {
+            // uncomment below to test sendContactInfo
+            //val token : kotlin.String = token_example // kotlin.String | JWT token or API key for authorization
+            //val sendContactInfoRequest : SendContactInfoRequest = {"bsuid":"US.13491208655302741918","body":"Please share your phone number so we can reach you."} // SendContactInfoRequest | 
+            //val result : MessageSentResponse = apiInstance.sendContactInfo(token, sendContactInfoRequest)
             //result shouldBe ("TODO")
         }
 
@@ -243,9 +267,11 @@ class MessagingApiTest : ShouldSpec() {
             //val token : kotlin.String = token_example // kotlin.String | JWT token or API key for authorization
             //val body : kotlin.String = body_example // kotlin.String | Message text, UTF-8 or UTF-16 string with emoji
             //val quotedMsgId : kotlin.String = quotedMsgId_example // kotlin.String | Message ID to quote/reply to (Cloud API wamid)
-            //val chatId : kotlin.String = chatId_example // kotlin.String | Chat ID in format: phone@c.us (individual) or phone@g.us (group)
+            //val chatId : kotlin.String = chatId_example // kotlin.String | Recipient chat ID: phone@c.us, group@g.us, or BSUID@lid
             //val phone : kotlin.Int = 56 // kotlin.Int | Phone number starting with country code (alternative to chatId)
-            //val result : MessageSentResponse = apiInstance.sendMessage(token, body, quotedMsgId, chatId, phone)
+            //val category : kotlin.String = category_example // kotlin.String | Optional Direct Send category. Direct Send is in beta: Meta has not enabled it on every business portfolio. `utility` or `authentication` enables it. `authentication` is part of that beta and is not recommended. Omit or `service` keeps a normal service message (and the marketing auto-template outside the 24-hour window). `marketing` is rejected. 
+            //val directSend : SendMessageRequestDirectSend =  // SendMessageRequestDirectSend | 
+            //val result : MessageSentResponse = apiInstance.sendMessage(token, body, quotedMsgId, chatId, phone, category, directSend)
             //result shouldBe ("TODO")
         }
 
@@ -271,8 +297,8 @@ class MessagingApiTest : ShouldSpec() {
         should("test sendProduct") {
             // uncomment below to test sendProduct
             //val token : kotlin.String = token_example // kotlin.String | JWT token or API key for authorization
-            //val requestBody : kotlin.collections.Map<kotlin.String, kotlin.Any> = Object // kotlin.collections.Map<kotlin.String, kotlin.Any> | 
-            //val result : MessageSentResponse = apiInstance.sendProduct(token, requestBody)
+            //val sendProductRequest : SendProductRequest = {"chatId":"12020721369@c.us","body":"Have a look","action":{"catalog_id":"448008021021719","product_retailer_id":"0001"}} // SendProductRequest | 
+            //val result : MessageSentResponse = apiInstance.sendProduct(token, sendProductRequest)
             //result shouldBe ("TODO")
         }
 

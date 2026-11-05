@@ -29,6 +29,8 @@ import io.kotlintest.specs.ShouldSpec
 import io.onemsg.sdk.api.WebhooksApi
 import io.onemsg.sdk.model.ErrorResponse
 import io.onemsg.sdk.model.GetWebhook200Response
+import io.onemsg.sdk.model.SetWebhook200Response
+import io.onemsg.sdk.model.SetWebhookRequest
 
 class WebhooksApiTest : ShouldSpec() {
     init {
@@ -47,8 +49,8 @@ class WebhooksApiTest : ShouldSpec() {
         should("test setWebhook") {
             // uncomment below to test setWebhook
             //val token : kotlin.String = token_example // kotlin.String | JWT token or API key for authorization
-            //val getWebhook200Response : GetWebhook200Response =  // GetWebhook200Response | 
-            //val result : kotlin.collections.Map<kotlin.String, kotlin.Any> = apiInstance.setWebhook(token, getWebhook200Response)
+            //val setWebhookRequest : SetWebhookRequest = {"webhookUrl":"https://example.com/webhook"} // SetWebhookRequest | 
+            //val result : SetWebhook200Response = apiInstance.setWebhook(token, setWebhookRequest)
             //result shouldBe ("TODO")
         }
 

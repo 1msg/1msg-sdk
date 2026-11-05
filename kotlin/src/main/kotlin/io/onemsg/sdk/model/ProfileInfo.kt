@@ -79,27 +79,27 @@ data class ProfileInfo (
     /**
      * Industry of the business
      *
-     * Values: Automotive,BeautyComma_Spa_and_Salon,Clothing_and_Apparel,Education,Entertainment,Event_Planning_and_Service,Finance_and_Banking,Food_and_Grocery,Public_Service,Hotel_and_Lodging,Medical_and_Health,NonMinusProfit,Professional_Services,Shopping_and_Retail,Travel_and_Transportation,Restaurant,Other
+     * Values: AUTOMOTIVE,BEAUTY_COMMA_SPA_AND_SALON,CLOTHING_AND_APPAREL,EDUCATION,ENTERTAINMENT,EVENT_PLANNING_AND_SERVICE,FINANCE_AND_BANKING,FOOD_AND_GROCERY,PUBLIC_SERVICE,HOTEL_AND_LODGING,MEDICAL_AND_HEALTH,NON_PROFIT,PROFESSIONAL_SERVICES,SHOPPING_AND_RETAIL,TRAVEL_AND_TRANSPORTATION,RESTAURANT,OTHER
      */
     @JsonClass(generateAdapter = false)
     enum class Vertical(val value: kotlin.String) {
-        @Json(name = "Automotive") Automotive("Automotive"),
-        @Json(name = "Beauty, Spa and Salon") BeautyComma_Spa_and_Salon("Beauty, Spa and Salon"),
-        @Json(name = "Clothing and Apparel") Clothing_and_Apparel("Clothing and Apparel"),
-        @Json(name = "Education") Education("Education"),
-        @Json(name = "Entertainment") Entertainment("Entertainment"),
-        @Json(name = "Event Planning and Service") Event_Planning_and_Service("Event Planning and Service"),
-        @Json(name = "Finance and Banking") Finance_and_Banking("Finance and Banking"),
-        @Json(name = "Food and Grocery") Food_and_Grocery("Food and Grocery"),
-        @Json(name = "Public Service") Public_Service("Public Service"),
-        @Json(name = "Hotel and Lodging") Hotel_and_Lodging("Hotel and Lodging"),
-        @Json(name = "Medical and Health") Medical_and_Health("Medical and Health"),
-        @Json(name = "Non-profit") NonMinusProfit("Non-profit"),
-        @Json(name = "Professional Services") Professional_Services("Professional Services"),
-        @Json(name = "Shopping and Retail") Shopping_and_Retail("Shopping and Retail"),
-        @Json(name = "Travel and Transportation") Travel_and_Transportation("Travel and Transportation"),
-        @Json(name = "Restaurant") Restaurant("Restaurant"),
-        @Json(name = "Other") Other("Other");
+        @Json(name = "Automotive") AUTOMOTIVE("Automotive"),
+        @Json(name = "Beauty, Spa and Salon") BEAUTY_COMMA_SPA_AND_SALON("Beauty, Spa and Salon"),
+        @Json(name = "Clothing and Apparel") CLOTHING_AND_APPAREL("Clothing and Apparel"),
+        @Json(name = "Education") EDUCATION("Education"),
+        @Json(name = "Entertainment") ENTERTAINMENT("Entertainment"),
+        @Json(name = "Event Planning and Service") EVENT_PLANNING_AND_SERVICE("Event Planning and Service"),
+        @Json(name = "Finance and Banking") FINANCE_AND_BANKING("Finance and Banking"),
+        @Json(name = "Food and Grocery") FOOD_AND_GROCERY("Food and Grocery"),
+        @Json(name = "Public Service") PUBLIC_SERVICE("Public Service"),
+        @Json(name = "Hotel and Lodging") HOTEL_AND_LODGING("Hotel and Lodging"),
+        @Json(name = "Medical and Health") MEDICAL_AND_HEALTH("Medical and Health"),
+        @Json(name = "Non-profit") NON_PROFIT("Non-profit"),
+        @Json(name = "Professional Services") PROFESSIONAL_SERVICES("Professional Services"),
+        @Json(name = "Shopping and Retail") SHOPPING_AND_RETAIL("Shopping and Retail"),
+        @Json(name = "Travel and Transportation") TRAVEL_AND_TRANSPORTATION("Travel and Transportation"),
+        @Json(name = "Restaurant") RESTAURANT("Restaurant"),
+        @Json(name = "Other") OTHER("Other");
     }
 
 }

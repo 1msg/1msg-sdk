@@ -28,6 +28,7 @@ import io.kotlintest.specs.ShouldSpec
 
 import io.onemsg.sdk.api.FlowsApi
 import io.onemsg.sdk.model.CreateCommerce200Response
+import io.onemsg.sdk.model.CreateFlowsRequest
 import io.onemsg.sdk.model.CreateGroups200Response
 import io.onemsg.sdk.model.CreateReadMessage401Response
 import io.onemsg.sdk.model.DeleteFlowsFlowId200Response
@@ -35,6 +36,8 @@ import io.onemsg.sdk.model.ErrorResponse
 import io.onemsg.sdk.model.GetWhatsappBusinessEncryption200Response
 import io.onemsg.sdk.model.ListFlows200Response
 import io.onemsg.sdk.model.PatchFlowsFlowIdAssets200Response
+import io.onemsg.sdk.model.PatchFlowsFlowIdAssetsRequest
+import io.onemsg.sdk.model.PatchFlowsFlowIdMetadataRequest
 import io.onemsg.sdk.model.SetWhatsappBusinessEncryptionRequest
 
 class FlowsApiTest : ShouldSpec() {
@@ -46,8 +49,9 @@ class FlowsApiTest : ShouldSpec() {
         should("test createFlows") {
             // uncomment below to test createFlows
             //val token : kotlin.String = token_example // kotlin.String | JWT token or API key for authorization
+            //val createFlowsRequest : CreateFlowsRequest = {"name":"lead_form","categories":["LEAD_GENERATION"],"publish":false} // CreateFlowsRequest | 
             //val wabaAccountId : kotlin.String = {{wabaAccountId}} // kotlin.String | 
-            //val result : CreateGroups200Response = apiInstance.createFlows(token, wabaAccountId)
+            //val result : CreateGroups200Response = apiInstance.createFlows(token, createFlowsRequest, wabaAccountId)
             //result shouldBe ("TODO")
         }
 
@@ -114,7 +118,8 @@ class FlowsApiTest : ShouldSpec() {
             // uncomment below to test listFlows
             //val token : kotlin.String = token_example // kotlin.String | JWT token or API key for authorization
             //val wabaAccountId : kotlin.String = {{wabaAccountId}} // kotlin.String | 
-            //val result : ListFlows200Response = apiInstance.listFlows(token, wabaAccountId)
+            //val fields : kotlin.String = fields_example // kotlin.String | Comma-separated Flow fields to return
+            //val result : ListFlows200Response = apiInstance.listFlows(token, wabaAccountId, fields)
             //result shouldBe ("TODO")
         }
 
@@ -123,8 +128,9 @@ class FlowsApiTest : ShouldSpec() {
             // uncomment below to test patchFlowsFlowIdAssets
             //val flowId : kotlin.String = flowId_example // kotlin.String | Flow ID
             //val token : kotlin.String = token_example // kotlin.String | JWT token or API key for authorization
+            //val patchFlowsFlowIdAssetsRequest : PatchFlowsFlowIdAssetsRequest =  // PatchFlowsFlowIdAssetsRequest | 
             //val wabaAccountId : kotlin.String = {{wabaAccountId}} // kotlin.String | 
-            //val result : PatchFlowsFlowIdAssets200Response = apiInstance.patchFlowsFlowIdAssets(flowId, token, wabaAccountId)
+            //val result : PatchFlowsFlowIdAssets200Response = apiInstance.patchFlowsFlowIdAssets(flowId, token, patchFlowsFlowIdAssetsRequest, wabaAccountId)
             //result shouldBe ("TODO")
         }
 
@@ -133,8 +139,9 @@ class FlowsApiTest : ShouldSpec() {
             // uncomment below to test patchFlowsFlowIdMetadata
             //val flowId : kotlin.String = flowId_example // kotlin.String | Flow ID
             //val token : kotlin.String = token_example // kotlin.String | JWT token or API key for authorization
+            //val patchFlowsFlowIdMetadataRequest : PatchFlowsFlowIdMetadataRequest =  // PatchFlowsFlowIdMetadataRequest | 
             //val wabaAccountId : kotlin.String = {{wabaAccountId}} // kotlin.String | 
-            //val result : kotlin.collections.Map<kotlin.String, kotlin.Any> = apiInstance.patchFlowsFlowIdMetadata(flowId, token, wabaAccountId)
+            //val result : kotlin.collections.Map<kotlin.String, kotlin.Any> = apiInstance.patchFlowsFlowIdMetadata(flowId, token, patchFlowsFlowIdMetadataRequest, wabaAccountId)
             //result shouldBe ("TODO")
         }
 

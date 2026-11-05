@@ -33,13 +33,13 @@ class UpdateMeRequestTest : ShouldSpec() {
         // uncomment below to create an instance of UpdateMeRequest
         //val modelInstance = UpdateMeRequest()
 
-        // to test the property `about` - Profile About section
+        // to test the property `about` - Profile About section (WhatsApp status text)
         should("test about") {
             // uncomment below to test the property
             //modelInstance.about shouldBe ("TODO")
         }
 
-        // to test the property `address`
+        // to test the property `address` - Business address shown on the profile
         should("test address") {
             // uncomment below to test the property
             //modelInstance.address shouldBe ("TODO")
@@ -51,7 +51,7 @@ class UpdateMeRequestTest : ShouldSpec() {
             //modelInstance.description shouldBe ("TODO")
         }
 
-        // to test the property `email`
+        // to test the property `email` - Business email shown on the profile
         should("test email") {
             // uncomment below to test the property
             //modelInstance.email shouldBe ("TODO")
@@ -69,7 +69,7 @@ class UpdateMeRequestTest : ShouldSpec() {
             //modelInstance.photo shouldBe ("TODO")
         }
 
-        // to test the property `websites`
+        // to test the property `websites` - Business website URLs
         should("test websites") {
             // uncomment below to test the property
             //modelInstance.websites shouldBe ("TODO")

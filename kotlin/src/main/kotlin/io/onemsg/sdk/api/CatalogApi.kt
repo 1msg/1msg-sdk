@@ -139,7 +139,7 @@ open class CatalogApi(basePath: kotlin.String = defaultBasePath, client: Call.Fa
     /**
      * GET /commerce
      * Get Commerce Settings
-     * Returns catalog/cart commerce settings for the channel.  - &#x60;is_catalog_visible&#x60; — show catalog storefront icon (&#x60;true&#x60;) or hide it (&#x60;false&#x60;). - &#x60;is_cart_enabled&#x60; — enable cart (&#x60;true&#x60;) or disable it (&#x60;false&#x60;). 
+     * Returns catalog/cart commerce settings for the channel.  Fails with a provider error when the WABA has no catalog linked — that is an API/account limitation, not an MCP schema bug.  - &#x60;is_catalog_visible&#x60; — show catalog storefront icon (&#x60;true&#x60;) or hide it (&#x60;false&#x60;). - &#x60;is_cart_enabled&#x60; — enable cart (&#x60;true&#x60;) or disable it (&#x60;false&#x60;). 
      * @param token JWT token or API key for authorization
      * @return kotlin.collections.List<GetCommerce200ResponseInner>
      * @throws IllegalStateException If the request is not correctly configured
@@ -171,7 +171,7 @@ open class CatalogApi(basePath: kotlin.String = defaultBasePath, client: Call.Fa
     /**
      * GET /commerce
      * Get Commerce Settings
-     * Returns catalog/cart commerce settings for the channel.  - &#x60;is_catalog_visible&#x60; — show catalog storefront icon (&#x60;true&#x60;) or hide it (&#x60;false&#x60;). - &#x60;is_cart_enabled&#x60; — enable cart (&#x60;true&#x60;) or disable it (&#x60;false&#x60;). 
+     * Returns catalog/cart commerce settings for the channel.  Fails with a provider error when the WABA has no catalog linked — that is an API/account limitation, not an MCP schema bug.  - &#x60;is_catalog_visible&#x60; — show catalog storefront icon (&#x60;true&#x60;) or hide it (&#x60;false&#x60;). - &#x60;is_cart_enabled&#x60; — enable cart (&#x60;true&#x60;) or disable it (&#x60;false&#x60;). 
      * @param token JWT token or API key for authorization
      * @return ApiResponse<kotlin.collections.List<GetCommerce200ResponseInner>?>
      * @throws IllegalStateException If the request is not correctly configured

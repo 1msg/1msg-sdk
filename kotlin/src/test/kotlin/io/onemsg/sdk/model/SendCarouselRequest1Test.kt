@@ -33,16 +33,22 @@ class SendCarouselRequest1Test : ShouldSpec() {
         // uncomment below to create an instance of SendCarouselRequest1
         //val modelInstance = SendCarouselRequest1()
 
-        // to test the property `params`
-        should("test params") {
-            // uncomment below to test the property
-            //modelInstance.params shouldBe ("TODO")
-        }
-
-        // to test the property `body`
+        // to test the property `body` - Text shown above the carousel
         should("test body") {
             // uncomment below to test the property
             //modelInstance.body shouldBe ("TODO")
+        }
+
+        // to test the property `cards` - Preferred. 2–10 carousel cards.
+        should("test cards") {
+            // uncomment below to test the property
+            //modelInstance.cards shouldBe ("TODO")
+        }
+
+        // to test the property `params` - Template-like alternative — include a CAROUSEL component with cards
+        should("test params") {
+            // uncomment below to test the property
+            //modelInstance.params shouldBe ("TODO")
         }
 
         // to test the property `quotedMsgId`

@@ -29,6 +29,8 @@ import okhttp3.HttpUrl
 
 import io.onemsg.sdk.model.CreateReadMessage200Response
 import io.onemsg.sdk.model.CreateReadMessage401Response
+import io.onemsg.sdk.model.CreateUploadMedia200Response
+import io.onemsg.sdk.model.CreateUploadMediaRequest
 import io.onemsg.sdk.model.DeleteMediaLegacyRequest
 import io.onemsg.sdk.model.ErrorResponse
 import io.onemsg.sdk.model.GetMmLiteStatus200Response
@@ -37,13 +39,16 @@ import io.onemsg.sdk.model.MessageSentResponse
 import io.onemsg.sdk.model.RetrieveMedia200Response
 import io.onemsg.sdk.model.SendAddressMessageRequest
 import io.onemsg.sdk.model.SendButtonRequest
+import io.onemsg.sdk.model.SendContactInfoRequest
 import io.onemsg.sdk.model.SendContactRequest
 import io.onemsg.sdk.model.SendCtaUrlRequest
 import io.onemsg.sdk.model.SendFlowRequestHeader
 import io.onemsg.sdk.model.SendListRequest
 import io.onemsg.sdk.model.SendLocationRequestRequest
+import io.onemsg.sdk.model.SendMessageRequestDirectSend
 import io.onemsg.sdk.model.SendOrderDetailsRequest
 import io.onemsg.sdk.model.SendPaymentRequestRequest
+import io.onemsg.sdk.model.SendProductRequest
 import io.onemsg.sdk.model.SendReactionRequest
 import io.onemsg.sdk.model.SendStickerRequest
 import io.onemsg.sdk.model.SuccessResponse
@@ -163,22 +168,23 @@ open class MessagingApi(basePath: kotlin.String = defaultBasePath, client: Call.
     /**
      * POST /uploadMedia
      * Upload media
-     * 
+     * Upload a file to WhatsApp media storage and get a numeric &#x60;mediaId&#x60; for later use with &#x60;send_file&#x60; / &#x60;send_sticker&#x60; (&#x60;mediaId&#x60; field, not &#x60;body&#x60;).  Pass the file as &#x60;body&#x60; **or** &#x60;url&#x60; — an HTTP(S) URL or a base64 data URI. The &#x60;mediaId&#x60; in the response is a numeric string (keep it as a string). 
      * @param token JWT token or API key for authorization
-     * @param requestBody  (optional)
-     * @return void
+     * @param createUploadMediaRequest 
+     * @return CreateUploadMedia200Response
      * @throws IllegalStateException If the request is not correctly configured
      * @throws IOException Rethrows the OkHttp execute method exception
      * @throws UnsupportedOperationException If the API returns an informational or redirection response
      * @throws ClientException If the API returns a client error response
      * @throws ServerException If the API returns a server error response
      */
+    @Suppress("UNCHECKED_CAST")
     @Throws(IllegalStateException::class, IOException::class, UnsupportedOperationException::class, ClientException::class, ServerException::class)
-    fun createUploadMedia(token: kotlin.String, requestBody: kotlin.collections.Map<kotlin.String, kotlin.Any>? = null) : Unit {
-        val localVarResponse = createUploadMediaWithHttpInfo(token = token, requestBody = requestBody)
+    fun createUploadMedia(token: kotlin.String, createUploadMediaRequest: CreateUploadMediaRequest) : CreateUploadMedia200Response {
+        val localVarResponse = createUploadMediaWithHttpInfo(token = token, createUploadMediaRequest = createUploadMediaRequest)
 
         return when (localVarResponse.responseType) {
-            ResponseType.Success -> Unit
+            ResponseType.Success -> (localVarResponse as Success<*>).data as CreateUploadMedia200Response
             ResponseType.Informational -> throw UnsupportedOperationException("Client does not support Informational responses.")
             ResponseType.Redirection -> throw UnsupportedOperationException("Client does not support Redirection responses.")
             ResponseType.ClientError -> {
@@ -195,18 +201,19 @@ open class MessagingApi(basePath: kotlin.String = defaultBasePath, client: Call.
     /**
      * POST /uploadMedia
      * Upload media
-     * 
+     * Upload a file to WhatsApp media storage and get a numeric &#x60;mediaId&#x60; for later use with &#x60;send_file&#x60; / &#x60;send_sticker&#x60; (&#x60;mediaId&#x60; field, not &#x60;body&#x60;).  Pass the file as &#x60;body&#x60; **or** &#x60;url&#x60; — an HTTP(S) URL or a base64 data URI. The &#x60;mediaId&#x60; in the response is a numeric string (keep it as a string). 
      * @param token JWT token or API key for authorization
-     * @param requestBody  (optional)
-     * @return ApiResponse<Unit?>
+     * @param createUploadMediaRequest 
+     * @return ApiResponse<CreateUploadMedia200Response?>
      * @throws IllegalStateException If the request is not correctly configured
      * @throws IOException Rethrows the OkHttp execute method exception
      */
+    @Suppress("UNCHECKED_CAST")
     @Throws(IllegalStateException::class, IOException::class)
-    fun createUploadMediaWithHttpInfo(token: kotlin.String, requestBody: kotlin.collections.Map<kotlin.String, kotlin.Any>?) : ApiResponse<Unit?> {
-        val localVariableConfig = createUploadMediaRequestConfig(token = token, requestBody = requestBody)
+    fun createUploadMediaWithHttpInfo(token: kotlin.String, createUploadMediaRequest: CreateUploadMediaRequest) : ApiResponse<CreateUploadMedia200Response?> {
+        val localVariableConfig = createUploadMediaRequestConfig(token = token, createUploadMediaRequest = createUploadMediaRequest)
 
-        return request<kotlin.collections.Map<kotlin.String, kotlin.Any>, Unit>(
+        return request<CreateUploadMediaRequest, CreateUploadMedia200Response>(
             localVariableConfig
         )
     }
@@ -215,18 +222,19 @@ open class MessagingApi(basePath: kotlin.String = defaultBasePath, client: Call.
      * To obtain the request config of the operation createUploadMedia
      *
      * @param token JWT token or API key for authorization
-     * @param requestBody  (optional)
+     * @param createUploadMediaRequest 
      * @return RequestConfig
      */
-    fun createUploadMediaRequestConfig(token: kotlin.String, requestBody: kotlin.collections.Map<kotlin.String, kotlin.Any>?) : RequestConfig<kotlin.collections.Map<kotlin.String, kotlin.Any>> {
-        val localVariableBody = requestBody
+    fun createUploadMediaRequestConfig(token: kotlin.String, createUploadMediaRequest: CreateUploadMediaRequest) : RequestConfig<CreateUploadMediaRequest> {
+        val localVariableBody = createUploadMediaRequest
         val localVariableQuery: MultiValueMap = mutableMapOf<kotlin.String, kotlin.collections.List<kotlin.String>>()
             .apply {
                 put("token", listOf(token.toString()))
             }
         val localVariableHeaders: MutableMap<String, String> = mutableMapOf()
         localVariableHeaders["Content-Type"] = "application/json"
-        
+        localVariableHeaders["Accept"] = "application/json"
+
         return RequestConfig(
             method = RequestMethod.POST,
             path = "/uploadMedia",
@@ -480,8 +488,16 @@ open class MessagingApi(basePath: kotlin.String = defaultBasePath, client: Call.
     /**
      * GET /messages
      * Get messages list
-     * 
+     * List stored chat history for this channel (requires history storage). Filter with &#x60;chatId&#x60;, &#x60;limit&#x60;, &#x60;last&#x60;, message numbers, or time bounds. 
      * @param token JWT token or API key for authorization
+     * @param chatId Filter messages for one chat (&#x60;phone@c.us&#x60;, group &#x60;@g.us&#x60;, or BSUID &#x60;@lid&#x60;) (optional)
+     * @param limit Max rows to return (default 100) (optional)
+     * @param last If true, return the latest messages (DESC). Default false. (optional)
+     * @param lastMessageNumber  (optional)
+     * @param firstMessageNumber  (optional)
+     * @param minTime Unix timestamp lower bound (optional)
+     * @param maxTime Unix timestamp upper bound (optional)
+     * @param msgId Filter by stored message id (optional)
      * @return ListMessages200Response
      * @throws IllegalStateException If the request is not correctly configured
      * @throws IOException Rethrows the OkHttp execute method exception
@@ -491,8 +507,8 @@ open class MessagingApi(basePath: kotlin.String = defaultBasePath, client: Call.
      */
     @Suppress("UNCHECKED_CAST")
     @Throws(IllegalStateException::class, IOException::class, UnsupportedOperationException::class, ClientException::class, ServerException::class)
-    fun listMessages(token: kotlin.String) : ListMessages200Response {
-        val localVarResponse = listMessagesWithHttpInfo(token = token)
+    fun listMessages(token: kotlin.String, chatId: kotlin.String? = null, limit: kotlin.Int? = null, last: kotlin.Boolean? = null, lastMessageNumber: kotlin.Int? = null, firstMessageNumber: kotlin.Int? = null, minTime: kotlin.Int? = null, maxTime: kotlin.Int? = null, msgId: kotlin.String? = null) : ListMessages200Response {
+        val localVarResponse = listMessagesWithHttpInfo(token = token, chatId = chatId, limit = limit, last = last, lastMessageNumber = lastMessageNumber, firstMessageNumber = firstMessageNumber, minTime = minTime, maxTime = maxTime, msgId = msgId)
 
         return when (localVarResponse.responseType) {
             ResponseType.Success -> (localVarResponse as Success<*>).data as ListMessages200Response
@@ -512,16 +528,24 @@ open class MessagingApi(basePath: kotlin.String = defaultBasePath, client: Call.
     /**
      * GET /messages
      * Get messages list
-     * 
+     * List stored chat history for this channel (requires history storage). Filter with &#x60;chatId&#x60;, &#x60;limit&#x60;, &#x60;last&#x60;, message numbers, or time bounds. 
      * @param token JWT token or API key for authorization
+     * @param chatId Filter messages for one chat (&#x60;phone@c.us&#x60;, group &#x60;@g.us&#x60;, or BSUID &#x60;@lid&#x60;) (optional)
+     * @param limit Max rows to return (default 100) (optional)
+     * @param last If true, return the latest messages (DESC). Default false. (optional)
+     * @param lastMessageNumber  (optional)
+     * @param firstMessageNumber  (optional)
+     * @param minTime Unix timestamp lower bound (optional)
+     * @param maxTime Unix timestamp upper bound (optional)
+     * @param msgId Filter by stored message id (optional)
      * @return ApiResponse<ListMessages200Response?>
      * @throws IllegalStateException If the request is not correctly configured
      * @throws IOException Rethrows the OkHttp execute method exception
      */
     @Suppress("UNCHECKED_CAST")
     @Throws(IllegalStateException::class, IOException::class)
-    fun listMessagesWithHttpInfo(token: kotlin.String) : ApiResponse<ListMessages200Response?> {
-        val localVariableConfig = listMessagesRequestConfig(token = token)
+    fun listMessagesWithHttpInfo(token: kotlin.String, chatId: kotlin.String?, limit: kotlin.Int?, last: kotlin.Boolean?, lastMessageNumber: kotlin.Int?, firstMessageNumber: kotlin.Int?, minTime: kotlin.Int?, maxTime: kotlin.Int?, msgId: kotlin.String?) : ApiResponse<ListMessages200Response?> {
+        val localVariableConfig = listMessagesRequestConfig(token = token, chatId = chatId, limit = limit, last = last, lastMessageNumber = lastMessageNumber, firstMessageNumber = firstMessageNumber, minTime = minTime, maxTime = maxTime, msgId = msgId)
 
         return request<Unit, ListMessages200Response>(
             localVariableConfig
@@ -532,13 +556,45 @@ open class MessagingApi(basePath: kotlin.String = defaultBasePath, client: Call.
      * To obtain the request config of the operation listMessages
      *
      * @param token JWT token or API key for authorization
+     * @param chatId Filter messages for one chat (&#x60;phone@c.us&#x60;, group &#x60;@g.us&#x60;, or BSUID &#x60;@lid&#x60;) (optional)
+     * @param limit Max rows to return (default 100) (optional)
+     * @param last If true, return the latest messages (DESC). Default false. (optional)
+     * @param lastMessageNumber  (optional)
+     * @param firstMessageNumber  (optional)
+     * @param minTime Unix timestamp lower bound (optional)
+     * @param maxTime Unix timestamp upper bound (optional)
+     * @param msgId Filter by stored message id (optional)
      * @return RequestConfig
      */
-    fun listMessagesRequestConfig(token: kotlin.String) : RequestConfig<Unit> {
+    fun listMessagesRequestConfig(token: kotlin.String, chatId: kotlin.String?, limit: kotlin.Int?, last: kotlin.Boolean?, lastMessageNumber: kotlin.Int?, firstMessageNumber: kotlin.Int?, minTime: kotlin.Int?, maxTime: kotlin.Int?, msgId: kotlin.String?) : RequestConfig<Unit> {
         val localVariableBody = null
         val localVariableQuery: MultiValueMap = mutableMapOf<kotlin.String, kotlin.collections.List<kotlin.String>>()
             .apply {
                 put("token", listOf(token.toString()))
+                if (chatId != null) {
+                    put("chatId", listOf(chatId.toString()))
+                }
+                if (limit != null) {
+                    put("limit", listOf(limit.toString()))
+                }
+                if (last != null) {
+                    put("last", listOf(last.toString()))
+                }
+                if (lastMessageNumber != null) {
+                    put("lastMessageNumber", listOf(lastMessageNumber.toString()))
+                }
+                if (firstMessageNumber != null) {
+                    put("firstMessageNumber", listOf(firstMessageNumber.toString()))
+                }
+                if (minTime != null) {
+                    put("min_time", listOf(minTime.toString()))
+                }
+                if (maxTime != null) {
+                    put("max_time", listOf(maxTime.toString()))
+                }
+                if (msgId != null) {
+                    put("msgId", listOf(msgId.toString()))
+                }
             }
         val localVariableHeaders: MutableMap<String, String> = mutableMapOf()
         localVariableHeaders["Accept"] = "application/json"
@@ -796,10 +852,11 @@ open class MessagingApi(basePath: kotlin.String = defaultBasePath, client: Call.
     /**
      * POST /sendCarousel
      * Send Carousel
-     * You can send product cards via Carousel in two ways:  Template messages: do not require a 24-hour customer service window between you and the recipient. Use sendTemplate.  Free-form messages: can be sent only when a customer service window is open between you and the recipient. Use sendCarousel.  The message structure in /sendCarousel is largely similar to sending a template. However, in this case you must  explicitly specify all elements that are created in advance when working with templates. This is because the message  is sent without using a template.  In /sendCarousel, for sending a Catalog Carousel there can be either 1 URL button or one or more quick reply buttons. 
+     * You can send product cards via Carousel in two ways:  Template messages: do not require a 24-hour customer service window between you and the recipient. Use sendTemplate.  Free-form messages: can be sent only when a customer service window is open between you and the recipient. Use sendCarousel.  The message structure in /sendCarousel is largely similar to sending a template. However, in this case you must  explicitly specify all elements that are created in advance when working with templates. This is because the message  is sent without using a template.  In /sendCarousel, for a Catalog Carousel there can be either 1 URL button or one or more quick reply buttons.  Prefer the simple &#x60;cards&#x60; array (2–10 cards). Each card needs a header media/product plus a CTA URL or quick-reply buttons. Example:  &#x60;&#x60;&#x60;json {   \&quot;phone\&quot;: \&quot;79001234567\&quot;,   \&quot;body\&quot;: \&quot;Pick a product\&quot;,   \&quot;cards\&quot;: [     {       \&quot;header\&quot;: { \&quot;type\&quot;: \&quot;image\&quot;, \&quot;image\&quot;: { \&quot;link\&quot;: \&quot;https://example.com/1.jpg\&quot; } },       \&quot;body\&quot;: { \&quot;text\&quot;: \&quot;Card one\&quot; },       \&quot;type\&quot;: \&quot;cta_url\&quot;,       \&quot;action\&quot;: { \&quot;name\&quot;: \&quot;cta_url\&quot;, \&quot;parameters\&quot;: { \&quot;url\&quot;: \&quot;https://example.com/p1\&quot;, \&quot;display_text\&quot;: \&quot;Open\&quot; } }     },     {       \&quot;header\&quot;: { \&quot;type\&quot;: \&quot;image\&quot;, \&quot;image\&quot;: { \&quot;link\&quot;: \&quot;https://example.com/2.jpg\&quot; } },       \&quot;body\&quot;: { \&quot;text\&quot;: \&quot;Card two\&quot; },       \&quot;type\&quot;: \&quot;cta_url\&quot;,       \&quot;action\&quot;: { \&quot;name\&quot;: \&quot;cta_url\&quot;, \&quot;parameters\&quot;: { \&quot;url\&quot;: \&quot;https://example.com/p2\&quot;, \&quot;display_text\&quot;: \&quot;Open\&quot; } }     }   ] } &#x60;&#x60;&#x60;  &#x60;params&#x60; with a &#x60;CAROUSEL&#x60; component is the template-like alternative. 
      * @param token JWT token or API key for authorization
-     * @param params Required. Template-like structure (same as sendTemplate params). Must include a CAROUSEL component and its cards.  Structure: - params[] item with type CAROUSEL and cards (2..10) - cards[] item:   - components[] items:     - header: parameters[0] with type image/video/product       - image: {\\\&quot;image\\\&quot;: {\\\&quot;link\\\&quot;: \\\&quot;https://...\\\&quot;}}       - video: {\\\&quot;video\\\&quot;: {\\\&quot;link\\\&quot;: \\\&quot;https://...\\\&quot;}}       - product: {\\\&quot;product\\\&quot;: {\\\&quot;catalog_id\\\&quot;: \\\&quot;...\\\&quot;, \\\&quot;product_retailer_id\\\&quot;: \\\&quot;...\\\&quot;}}     - button: sub_type url or quick_reply       - url: parameters {\\\&quot;text\\\&quot;: \\\&quot;Button\\\&quot;, \\\&quot;url\\\&quot;: \\\&quot;https://...\\\&quot;}       - quick_reply: parameters[] of {\\\&quot;id\\\&quot;: \\\&quot;...\\\&quot;, \\\&quot;text\\\&quot;: \\\&quot;...\\\&quot;} 
      * @param body Text shown above the carousel. Optional. If omitted and params include a body component, the body will be taken from params. (optional)
+     * @param cards Preferred. 2–10 carousel cards (header + body + CTA or quick replies). (optional)
+     * @param params Required. Template-like structure (same as sendTemplate params). Must include a CAROUSEL component and its cards.  Structure: - params[] item with type CAROUSEL and cards (2..10) - cards[] item:   - components[] items:     - header: parameters[0] with type image/video/product       - image: {\\\&quot;image\\\&quot;: {\\\&quot;link\\\&quot;: \\\&quot;https://...\\\&quot;}}       - video: {\\\&quot;video\\\&quot;: {\\\&quot;link\\\&quot;: \\\&quot;https://...\\\&quot;}}       - product: {\\\&quot;product\\\&quot;: {\\\&quot;catalog_id\\\&quot;: \\\&quot;...\\\&quot;, \\\&quot;product_retailer_id\\\&quot;: \\\&quot;...\\\&quot;}}     - button: sub_type url or quick_reply       - url: parameters {\\\&quot;text\\\&quot;: \\\&quot;Button\\\&quot;, \\\&quot;url\\\&quot;: \\\&quot;https://...\\\&quot;}       - quick_reply: parameters[] of {\\\&quot;id\\\&quot;: \\\&quot;...\\\&quot;, \\\&quot;text\\\&quot;: \\\&quot;...\\\&quot;}  (optional)
      * @param quotedMsgId Quoted message ID (Cloud API) (optional)
      * @param chatId Required if phone is not set. Chat ID from the message list. Examples: 12020721369@c.us or 120363046942338209@g.us(group) (optional)
      * @param phone Required if chatId is not set. A phone number starting with the country code. USA example: 12020721369. (optional)
@@ -812,8 +869,8 @@ open class MessagingApi(basePath: kotlin.String = defaultBasePath, client: Call.
      */
     @Suppress("UNCHECKED_CAST")
     @Throws(IllegalStateException::class, IOException::class, UnsupportedOperationException::class, ClientException::class, ServerException::class)
-    fun sendCarousel(token: kotlin.String, params: kotlin.collections.List<kotlin.Any>, body: kotlin.String? = null, quotedMsgId: kotlin.String? = null, chatId: kotlin.String? = null, phone: kotlin.Int? = null) : MessageSentResponse {
-        val localVarResponse = sendCarouselWithHttpInfo(token = token, params = params, body = body, quotedMsgId = quotedMsgId, chatId = chatId, phone = phone)
+    fun sendCarousel(token: kotlin.String, body: kotlin.String? = null, cards: kotlin.collections.List<kotlin.collections.Map<kotlin.String, kotlin.Any>>? = null, params: kotlin.collections.List<kotlin.Any>? = null, quotedMsgId: kotlin.String? = null, chatId: kotlin.String? = null, phone: kotlin.Int? = null) : MessageSentResponse {
+        val localVarResponse = sendCarouselWithHttpInfo(token = token, body = body, cards = cards, params = params, quotedMsgId = quotedMsgId, chatId = chatId, phone = phone)
 
         return when (localVarResponse.responseType) {
             ResponseType.Success -> (localVarResponse as Success<*>).data as MessageSentResponse
@@ -833,10 +890,11 @@ open class MessagingApi(basePath: kotlin.String = defaultBasePath, client: Call.
     /**
      * POST /sendCarousel
      * Send Carousel
-     * You can send product cards via Carousel in two ways:  Template messages: do not require a 24-hour customer service window between you and the recipient. Use sendTemplate.  Free-form messages: can be sent only when a customer service window is open between you and the recipient. Use sendCarousel.  The message structure in /sendCarousel is largely similar to sending a template. However, in this case you must  explicitly specify all elements that are created in advance when working with templates. This is because the message  is sent without using a template.  In /sendCarousel, for sending a Catalog Carousel there can be either 1 URL button or one or more quick reply buttons. 
+     * You can send product cards via Carousel in two ways:  Template messages: do not require a 24-hour customer service window between you and the recipient. Use sendTemplate.  Free-form messages: can be sent only when a customer service window is open between you and the recipient. Use sendCarousel.  The message structure in /sendCarousel is largely similar to sending a template. However, in this case you must  explicitly specify all elements that are created in advance when working with templates. This is because the message  is sent without using a template.  In /sendCarousel, for a Catalog Carousel there can be either 1 URL button or one or more quick reply buttons.  Prefer the simple &#x60;cards&#x60; array (2–10 cards). Each card needs a header media/product plus a CTA URL or quick-reply buttons. Example:  &#x60;&#x60;&#x60;json {   \&quot;phone\&quot;: \&quot;79001234567\&quot;,   \&quot;body\&quot;: \&quot;Pick a product\&quot;,   \&quot;cards\&quot;: [     {       \&quot;header\&quot;: { \&quot;type\&quot;: \&quot;image\&quot;, \&quot;image\&quot;: { \&quot;link\&quot;: \&quot;https://example.com/1.jpg\&quot; } },       \&quot;body\&quot;: { \&quot;text\&quot;: \&quot;Card one\&quot; },       \&quot;type\&quot;: \&quot;cta_url\&quot;,       \&quot;action\&quot;: { \&quot;name\&quot;: \&quot;cta_url\&quot;, \&quot;parameters\&quot;: { \&quot;url\&quot;: \&quot;https://example.com/p1\&quot;, \&quot;display_text\&quot;: \&quot;Open\&quot; } }     },     {       \&quot;header\&quot;: { \&quot;type\&quot;: \&quot;image\&quot;, \&quot;image\&quot;: { \&quot;link\&quot;: \&quot;https://example.com/2.jpg\&quot; } },       \&quot;body\&quot;: { \&quot;text\&quot;: \&quot;Card two\&quot; },       \&quot;type\&quot;: \&quot;cta_url\&quot;,       \&quot;action\&quot;: { \&quot;name\&quot;: \&quot;cta_url\&quot;, \&quot;parameters\&quot;: { \&quot;url\&quot;: \&quot;https://example.com/p2\&quot;, \&quot;display_text\&quot;: \&quot;Open\&quot; } }     }   ] } &#x60;&#x60;&#x60;  &#x60;params&#x60; with a &#x60;CAROUSEL&#x60; component is the template-like alternative. 
      * @param token JWT token or API key for authorization
-     * @param params Required. Template-like structure (same as sendTemplate params). Must include a CAROUSEL component and its cards.  Structure: - params[] item with type CAROUSEL and cards (2..10) - cards[] item:   - components[] items:     - header: parameters[0] with type image/video/product       - image: {\\\&quot;image\\\&quot;: {\\\&quot;link\\\&quot;: \\\&quot;https://...\\\&quot;}}       - video: {\\\&quot;video\\\&quot;: {\\\&quot;link\\\&quot;: \\\&quot;https://...\\\&quot;}}       - product: {\\\&quot;product\\\&quot;: {\\\&quot;catalog_id\\\&quot;: \\\&quot;...\\\&quot;, \\\&quot;product_retailer_id\\\&quot;: \\\&quot;...\\\&quot;}}     - button: sub_type url or quick_reply       - url: parameters {\\\&quot;text\\\&quot;: \\\&quot;Button\\\&quot;, \\\&quot;url\\\&quot;: \\\&quot;https://...\\\&quot;}       - quick_reply: parameters[] of {\\\&quot;id\\\&quot;: \\\&quot;...\\\&quot;, \\\&quot;text\\\&quot;: \\\&quot;...\\\&quot;} 
      * @param body Text shown above the carousel. Optional. If omitted and params include a body component, the body will be taken from params. (optional)
+     * @param cards Preferred. 2–10 carousel cards (header + body + CTA or quick replies). (optional)
+     * @param params Required. Template-like structure (same as sendTemplate params). Must include a CAROUSEL component and its cards.  Structure: - params[] item with type CAROUSEL and cards (2..10) - cards[] item:   - components[] items:     - header: parameters[0] with type image/video/product       - image: {\\\&quot;image\\\&quot;: {\\\&quot;link\\\&quot;: \\\&quot;https://...\\\&quot;}}       - video: {\\\&quot;video\\\&quot;: {\\\&quot;link\\\&quot;: \\\&quot;https://...\\\&quot;}}       - product: {\\\&quot;product\\\&quot;: {\\\&quot;catalog_id\\\&quot;: \\\&quot;...\\\&quot;, \\\&quot;product_retailer_id\\\&quot;: \\\&quot;...\\\&quot;}}     - button: sub_type url or quick_reply       - url: parameters {\\\&quot;text\\\&quot;: \\\&quot;Button\\\&quot;, \\\&quot;url\\\&quot;: \\\&quot;https://...\\\&quot;}       - quick_reply: parameters[] of {\\\&quot;id\\\&quot;: \\\&quot;...\\\&quot;, \\\&quot;text\\\&quot;: \\\&quot;...\\\&quot;}  (optional)
      * @param quotedMsgId Quoted message ID (Cloud API) (optional)
      * @param chatId Required if phone is not set. Chat ID from the message list. Examples: 12020721369@c.us or 120363046942338209@g.us(group) (optional)
      * @param phone Required if chatId is not set. A phone number starting with the country code. USA example: 12020721369. (optional)
@@ -846,8 +904,8 @@ open class MessagingApi(basePath: kotlin.String = defaultBasePath, client: Call.
      */
     @Suppress("UNCHECKED_CAST")
     @Throws(IllegalStateException::class, IOException::class)
-    fun sendCarouselWithHttpInfo(token: kotlin.String, params: kotlin.collections.List<kotlin.Any>, body: kotlin.String?, quotedMsgId: kotlin.String?, chatId: kotlin.String?, phone: kotlin.Int?) : ApiResponse<MessageSentResponse?> {
-        val localVariableConfig = sendCarouselRequestConfig(token = token, params = params, body = body, quotedMsgId = quotedMsgId, chatId = chatId, phone = phone)
+    fun sendCarouselWithHttpInfo(token: kotlin.String, body: kotlin.String?, cards: kotlin.collections.List<kotlin.collections.Map<kotlin.String, kotlin.Any>>?, params: kotlin.collections.List<kotlin.Any>?, quotedMsgId: kotlin.String?, chatId: kotlin.String?, phone: kotlin.Int?) : ApiResponse<MessageSentResponse?> {
+        val localVariableConfig = sendCarouselRequestConfig(token = token, body = body, cards = cards, params = params, quotedMsgId = quotedMsgId, chatId = chatId, phone = phone)
 
         return request<Map<String, PartConfig<*>>, MessageSentResponse>(
             localVariableConfig
@@ -858,16 +916,18 @@ open class MessagingApi(basePath: kotlin.String = defaultBasePath, client: Call.
      * To obtain the request config of the operation sendCarousel
      *
      * @param token JWT token or API key for authorization
-     * @param params Required. Template-like structure (same as sendTemplate params). Must include a CAROUSEL component and its cards.  Structure: - params[] item with type CAROUSEL and cards (2..10) - cards[] item:   - components[] items:     - header: parameters[0] with type image/video/product       - image: {\\\&quot;image\\\&quot;: {\\\&quot;link\\\&quot;: \\\&quot;https://...\\\&quot;}}       - video: {\\\&quot;video\\\&quot;: {\\\&quot;link\\\&quot;: \\\&quot;https://...\\\&quot;}}       - product: {\\\&quot;product\\\&quot;: {\\\&quot;catalog_id\\\&quot;: \\\&quot;...\\\&quot;, \\\&quot;product_retailer_id\\\&quot;: \\\&quot;...\\\&quot;}}     - button: sub_type url or quick_reply       - url: parameters {\\\&quot;text\\\&quot;: \\\&quot;Button\\\&quot;, \\\&quot;url\\\&quot;: \\\&quot;https://...\\\&quot;}       - quick_reply: parameters[] of {\\\&quot;id\\\&quot;: \\\&quot;...\\\&quot;, \\\&quot;text\\\&quot;: \\\&quot;...\\\&quot;} 
      * @param body Text shown above the carousel. Optional. If omitted and params include a body component, the body will be taken from params. (optional)
+     * @param cards Preferred. 2–10 carousel cards (header + body + CTA or quick replies). (optional)
+     * @param params Required. Template-like structure (same as sendTemplate params). Must include a CAROUSEL component and its cards.  Structure: - params[] item with type CAROUSEL and cards (2..10) - cards[] item:   - components[] items:     - header: parameters[0] with type image/video/product       - image: {\\\&quot;image\\\&quot;: {\\\&quot;link\\\&quot;: \\\&quot;https://...\\\&quot;}}       - video: {\\\&quot;video\\\&quot;: {\\\&quot;link\\\&quot;: \\\&quot;https://...\\\&quot;}}       - product: {\\\&quot;product\\\&quot;: {\\\&quot;catalog_id\\\&quot;: \\\&quot;...\\\&quot;, \\\&quot;product_retailer_id\\\&quot;: \\\&quot;...\\\&quot;}}     - button: sub_type url or quick_reply       - url: parameters {\\\&quot;text\\\&quot;: \\\&quot;Button\\\&quot;, \\\&quot;url\\\&quot;: \\\&quot;https://...\\\&quot;}       - quick_reply: parameters[] of {\\\&quot;id\\\&quot;: \\\&quot;...\\\&quot;, \\\&quot;text\\\&quot;: \\\&quot;...\\\&quot;}  (optional)
      * @param quotedMsgId Quoted message ID (Cloud API) (optional)
      * @param chatId Required if phone is not set. Chat ID from the message list. Examples: 12020721369@c.us or 120363046942338209@g.us(group) (optional)
      * @param phone Required if chatId is not set. A phone number starting with the country code. USA example: 12020721369. (optional)
      * @return RequestConfig
      */
-    fun sendCarouselRequestConfig(token: kotlin.String, params: kotlin.collections.List<kotlin.Any>, body: kotlin.String?, quotedMsgId: kotlin.String?, chatId: kotlin.String?, phone: kotlin.Int?) : RequestConfig<Map<String, PartConfig<*>>> {
+    fun sendCarouselRequestConfig(token: kotlin.String, body: kotlin.String?, cards: kotlin.collections.List<kotlin.collections.Map<kotlin.String, kotlin.Any>>?, params: kotlin.collections.List<kotlin.Any>?, quotedMsgId: kotlin.String?, chatId: kotlin.String?, phone: kotlin.Int?) : RequestConfig<Map<String, PartConfig<*>>> {
         val localVariableBody = mapOf(
             "body" to PartConfig(body = body, headers = mutableMapOf()),
+            "cards" to PartConfig(body = cards, headers = mutableMapOf()),
             "params" to PartConfig(body = params, headers = mutableMapOf()),
             "quotedMsgId" to PartConfig(body = quotedMsgId, headers = mutableMapOf()),
             "chatId" to PartConfig(body = chatId, headers = mutableMapOf()),
@@ -892,7 +952,7 @@ open class MessagingApi(basePath: kotlin.String = defaultBasePath, client: Call.
     /**
      * POST /sendContact
      * Send a Contact
-     * 
+     * Send a WhatsApp contact card.  Preferred simple body (legacy-compatible):  &#x60;&#x60;&#x60;json {   \&quot;phone\&quot;: \&quot;79001234567\&quot;,   \&quot;contact\&quot;: { \&quot;name\&quot;: \&quot;Lida\&quot;, \&quot;phone\&quot;: \&quot;+79181976551\&quot; } } &#x60;&#x60;&#x60;  Cloud API shape also works: &#x60;contacts&#x60; is an array of objects with &#x60;name.formatted_name&#x60; and &#x60;phones[].phone&#x60; (E.164 string, **not** a timestamp). 
      * @param token JWT token or API key for authorization
      * @param sendContactRequest  (optional)
      * @return MessageSentResponse
@@ -925,7 +985,7 @@ open class MessagingApi(basePath: kotlin.String = defaultBasePath, client: Call.
     /**
      * POST /sendContact
      * Send a Contact
-     * 
+     * Send a WhatsApp contact card.  Preferred simple body (legacy-compatible):  &#x60;&#x60;&#x60;json {   \&quot;phone\&quot;: \&quot;79001234567\&quot;,   \&quot;contact\&quot;: { \&quot;name\&quot;: \&quot;Lida\&quot;, \&quot;phone\&quot;: \&quot;+79181976551\&quot; } } &#x60;&#x60;&#x60;  Cloud API shape also works: &#x60;contacts&#x60; is an array of objects with &#x60;name.formatted_name&#x60; and &#x60;phones[].phone&#x60; (E.164 string, **not** a timestamp). 
      * @param token JWT token or API key for authorization
      * @param sendContactRequest  (optional)
      * @return ApiResponse<MessageSentResponse?>
@@ -962,6 +1022,86 @@ open class MessagingApi(basePath: kotlin.String = defaultBasePath, client: Call.
         return RequestConfig(
             method = RequestMethod.POST,
             path = "/sendContact",
+            query = localVariableQuery,
+            headers = localVariableHeaders,
+            requiresAuthentication = true,
+            body = localVariableBody
+        )
+    }
+
+    /**
+     * POST /sendContactInfo
+     * Request the user&#39;s phone number
+     * Send a service-window interactive message that asks the WhatsApp user to share their phone number (&#x60;request_contact_info&#x60;).  Use this when you only know the user by BSUID (WhatsApp username) and the 24-hour customer service window is open. Outside that window, create a UTILITY or MARKETING template with a &#x60;REQUEST_CONTACT_INFO&#x60; button (&#x60;POST /addTemplate&#x60;) and send it with &#x60;POST /sendTemplate&#x60;.  &#x60;body&#x60; is the text shown above the button (1–1024 characters). WhatsApp chooses the button label. This method has no button-text field — do not send one.  &#x60;&#x60;&#x60;json {   \&quot;bsuid\&quot;: \&quot;US.13491208655302741918\&quot;,   \&quot;body\&quot;: \&quot;Please share your phone number so we can reach you.\&quot; } &#x60;&#x60;&#x60;  &#x60;phone&#x60;, &#x60;chatId&#x60; (&#x60;…@c.us&#x60;, &#x60;…@lid&#x60;, &#x60;…@username&#x60;), or &#x60;bsuid&#x60; identifies the recipient. One of them is enough.  After Meta accepts the send, the outgoing webhook and stored history message use this same text as &#x60;messages[].body&#x60; (&#x60;type: interactive&#x60;).  When the user taps the button, Meta sends an inbound &#x60;contacts&#x60; message. The sender stays the BSUID. The shared number is on the card with &#x60;origin: contact_request&#x60;. We write that phone onto the existing BSUID contact automatically — there is no separate “link phone” call.  &#x60;&#x60;&#x60;json {   \&quot;contacts\&quot;: [     {       \&quot;profile\&quot;: { \&quot;name\&quot;: \&quot;Ada\&quot;, \&quot;username\&quot;: \&quot;ada\&quot; },       \&quot;user_id\&quot;: \&quot;US.13491208655302741918\&quot;     }   ],   \&quot;messages\&quot;: [     {       \&quot;from_user_id\&quot;: \&quot;US.13491208655302741918\&quot;,       \&quot;type\&quot;: \&quot;contacts\&quot;,       \&quot;contacts\&quot;: [         {           \&quot;origin\&quot;: \&quot;contact_request\&quot;,           \&quot;phones\&quot;: [{ \&quot;phone\&quot;: \&quot;+1 202-555-0123\&quot;, \&quot;wa_id\&quot;: \&quot;12025550123\&quot; }]         }       ]     }   ] } &#x60;&#x60;&#x60;  The stored inbound message body is the digits (&#x60;12025550123&#x60;).  If Meta later includes a phone on an ordinary message or status for that same BSUID (&#x60;wa_id&#x60;, &#x60;from&#x60;, or &#x60;recipient_id&#x60;, together with &#x60;user_id&#x60; / &#x60;recipient_user_id&#x60;), that phone is merged onto the same contact. A contact card the user forwards (&#x60;origin&#x60; other than &#x60;contact_request&#x60;) is someone else&#39;s number and is not stored as this sender&#39;s phone. 
+     * @param token JWT token or API key for authorization
+     * @param sendContactInfoRequest  (optional)
+     * @return MessageSentResponse
+     * @throws IllegalStateException If the request is not correctly configured
+     * @throws IOException Rethrows the OkHttp execute method exception
+     * @throws UnsupportedOperationException If the API returns an informational or redirection response
+     * @throws ClientException If the API returns a client error response
+     * @throws ServerException If the API returns a server error response
+     */
+    @Suppress("UNCHECKED_CAST")
+    @Throws(IllegalStateException::class, IOException::class, UnsupportedOperationException::class, ClientException::class, ServerException::class)
+    fun sendContactInfo(token: kotlin.String, sendContactInfoRequest: SendContactInfoRequest? = null) : MessageSentResponse {
+        val localVarResponse = sendContactInfoWithHttpInfo(token = token, sendContactInfoRequest = sendContactInfoRequest)
+
+        return when (localVarResponse.responseType) {
+            ResponseType.Success -> (localVarResponse as Success<*>).data as MessageSentResponse
+            ResponseType.Informational -> throw UnsupportedOperationException("Client does not support Informational responses.")
+            ResponseType.Redirection -> throw UnsupportedOperationException("Client does not support Redirection responses.")
+            ResponseType.ClientError -> {
+                val localVarError = localVarResponse as ClientError<*>
+                throw ClientException("Client error : ${localVarError.statusCode} ${localVarError.message.orEmpty()}", localVarError.statusCode, localVarResponse)
+            }
+            ResponseType.ServerError -> {
+                val localVarError = localVarResponse as ServerError<*>
+                throw ServerException("Server error : ${localVarError.statusCode} ${localVarError.message.orEmpty()} ${localVarError.body}", localVarError.statusCode, localVarResponse)
+            }
+        }
+    }
+
+    /**
+     * POST /sendContactInfo
+     * Request the user&#39;s phone number
+     * Send a service-window interactive message that asks the WhatsApp user to share their phone number (&#x60;request_contact_info&#x60;).  Use this when you only know the user by BSUID (WhatsApp username) and the 24-hour customer service window is open. Outside that window, create a UTILITY or MARKETING template with a &#x60;REQUEST_CONTACT_INFO&#x60; button (&#x60;POST /addTemplate&#x60;) and send it with &#x60;POST /sendTemplate&#x60;.  &#x60;body&#x60; is the text shown above the button (1–1024 characters). WhatsApp chooses the button label. This method has no button-text field — do not send one.  &#x60;&#x60;&#x60;json {   \&quot;bsuid\&quot;: \&quot;US.13491208655302741918\&quot;,   \&quot;body\&quot;: \&quot;Please share your phone number so we can reach you.\&quot; } &#x60;&#x60;&#x60;  &#x60;phone&#x60;, &#x60;chatId&#x60; (&#x60;…@c.us&#x60;, &#x60;…@lid&#x60;, &#x60;…@username&#x60;), or &#x60;bsuid&#x60; identifies the recipient. One of them is enough.  After Meta accepts the send, the outgoing webhook and stored history message use this same text as &#x60;messages[].body&#x60; (&#x60;type: interactive&#x60;).  When the user taps the button, Meta sends an inbound &#x60;contacts&#x60; message. The sender stays the BSUID. The shared number is on the card with &#x60;origin: contact_request&#x60;. We write that phone onto the existing BSUID contact automatically — there is no separate “link phone” call.  &#x60;&#x60;&#x60;json {   \&quot;contacts\&quot;: [     {       \&quot;profile\&quot;: { \&quot;name\&quot;: \&quot;Ada\&quot;, \&quot;username\&quot;: \&quot;ada\&quot; },       \&quot;user_id\&quot;: \&quot;US.13491208655302741918\&quot;     }   ],   \&quot;messages\&quot;: [     {       \&quot;from_user_id\&quot;: \&quot;US.13491208655302741918\&quot;,       \&quot;type\&quot;: \&quot;contacts\&quot;,       \&quot;contacts\&quot;: [         {           \&quot;origin\&quot;: \&quot;contact_request\&quot;,           \&quot;phones\&quot;: [{ \&quot;phone\&quot;: \&quot;+1 202-555-0123\&quot;, \&quot;wa_id\&quot;: \&quot;12025550123\&quot; }]         }       ]     }   ] } &#x60;&#x60;&#x60;  The stored inbound message body is the digits (&#x60;12025550123&#x60;).  If Meta later includes a phone on an ordinary message or status for that same BSUID (&#x60;wa_id&#x60;, &#x60;from&#x60;, or &#x60;recipient_id&#x60;, together with &#x60;user_id&#x60; / &#x60;recipient_user_id&#x60;), that phone is merged onto the same contact. A contact card the user forwards (&#x60;origin&#x60; other than &#x60;contact_request&#x60;) is someone else&#39;s number and is not stored as this sender&#39;s phone. 
+     * @param token JWT token or API key for authorization
+     * @param sendContactInfoRequest  (optional)
+     * @return ApiResponse<MessageSentResponse?>
+     * @throws IllegalStateException If the request is not correctly configured
+     * @throws IOException Rethrows the OkHttp execute method exception
+     */
+    @Suppress("UNCHECKED_CAST")
+    @Throws(IllegalStateException::class, IOException::class)
+    fun sendContactInfoWithHttpInfo(token: kotlin.String, sendContactInfoRequest: SendContactInfoRequest?) : ApiResponse<MessageSentResponse?> {
+        val localVariableConfig = sendContactInfoRequestConfig(token = token, sendContactInfoRequest = sendContactInfoRequest)
+
+        return request<SendContactInfoRequest, MessageSentResponse>(
+            localVariableConfig
+        )
+    }
+
+    /**
+     * To obtain the request config of the operation sendContactInfo
+     *
+     * @param token JWT token or API key for authorization
+     * @param sendContactInfoRequest  (optional)
+     * @return RequestConfig
+     */
+    fun sendContactInfoRequestConfig(token: kotlin.String, sendContactInfoRequest: SendContactInfoRequest?) : RequestConfig<SendContactInfoRequest> {
+        val localVariableBody = sendContactInfoRequest
+        val localVariableQuery: MultiValueMap = mutableMapOf<kotlin.String, kotlin.collections.List<kotlin.String>>()
+            .apply {
+                put("token", listOf(token.toString()))
+            }
+        val localVariableHeaders: MutableMap<String, String> = mutableMapOf()
+        localVariableHeaders["Content-Type"] = "application/json"
+        localVariableHeaders["Accept"] = "application/json"
+
+        return RequestConfig(
+            method = RequestMethod.POST,
+            path = "/sendContactInfo",
             query = localVariableQuery,
             headers = localVariableHeaders,
             requiresAuthentication = true,
@@ -1053,10 +1193,10 @@ open class MessagingApi(basePath: kotlin.String = defaultBasePath, client: Call.
      * enum for parameter mediaType
      */
      enum class MediaTypeSendFile(val value: kotlin.String) {
-         @Json(name = "image") image("image"),
-         @Json(name = "video") video("video"),
-         @Json(name = "audio") audio("audio"),
-         @Json(name = "document") document("document");
+         @Json(name = "image") IMAGE("image"),
+         @Json(name = "video") VIDEO("video"),
+         @Json(name = "audio") AUDIO("audio"),
+         @Json(name = "document") DOCUMENT("document");
 
         /**
          * Override [toString()] to avoid using the enum variable name as the value, and instead use
@@ -1184,8 +1324,8 @@ open class MessagingApi(basePath: kotlin.String = defaultBasePath, client: Call.
      * enum for parameter flowAction
      */
      enum class FlowActionSendFlow(val value: kotlin.String) {
-         @Json(name = "navigate") navigate("navigate"),
-         @Json(name = "data_exchange") data_exchange("data_exchange");
+         @Json(name = "navigate") NAVIGATE("navigate"),
+         @Json(name = "data_exchange") DATA_EXCHANGE("data_exchange");
 
         /**
          * Override [toString()] to avoid using the enum variable name as the value, and instead use
@@ -1201,8 +1341,8 @@ open class MessagingApi(basePath: kotlin.String = defaultBasePath, client: Call.
      * enum for parameter mode
      */
      enum class ModeSendFlow(val value: kotlin.String) {
-         @Json(name = "draft") draft("draft"),
-         @Json(name = "published") published("published");
+         @Json(name = "draft") DRAFT("draft"),
+         @Json(name = "published") PUBLISHED("published");
 
         /**
          * Override [toString()] to avoid using the enum variable name as the value, and instead use
@@ -1615,14 +1755,34 @@ open class MessagingApi(basePath: kotlin.String = defaultBasePath, client: Call.
     }
 
     /**
+     * enum for parameter category
+     */
+     enum class CategorySendMessage(val value: kotlin.String) {
+         @Json(name = "utility") UTILITY("utility"),
+         @Json(name = "authentication") AUTHENTICATION("authentication"),
+         @Json(name = "service") SERVICE("service");
+
+        /**
+         * Override [toString()] to avoid using the enum variable name as the value, and instead use
+         * the actual value defined in the API spec file.
+         *
+         * This solves a problem when the variable name and its value are different, and ensures that
+         * the client sends the correct enum values to the server always.
+         */
+        override fun toString(): kotlin.String = "$value"
+     }
+
+    /**
      * POST /sendMessage
      * Send a Message
-     * Send a message to an existing chat. (Only if the dialogue has an Open Session).  The message will be added to the queue for sending and delivered even if the phone  is disconnected from the Internet or authorization is not passed.  Only one of two parameters is needed to determine the destination - chatId or phone. 
+     * Send a message to an existing chat. (Only if the dialogue has an Open Session).  The message will be added to the queue for sending and delivered even if the phone  is disconnected from the Internet or authorization is not passed.  Only one of two parameters is needed to determine the destination - chatId or phone.  Direct Send is in beta. Meta has not enabled it on every business portfolio, so &#x60;category&#x60; and &#x60;directSend&#x60; are a beta option: watch delivery errors before relying on them.  Set &#x60;category&#x60; to &#x60;utility&#x60; or &#x60;authentication&#x60; to send outside the 24-hour window as a Meta Direct Send template instead of the 1MSG marketing auto-template. &#x60;authentication&#x60; is part of that beta and is not recommended. &#x60;directSend.serviceFirst: true&#x60; tries a free service message first and uses Direct Send only when Meta rejects it because the window is closed (131047). &#x60;directSend.templateName&#x60; is only valid with &#x60;utility&#x60; (&#x60;^[a-z0-9_]+$&#x60;, max 512). Direct Send text is limited to 1024 characters. Without &#x60;templateName&#x60;, the first unseen phrase may be delivered as Meta&#39;s onboarding template. A named template does not guarantee delivery — wait for webhook errors 131000 or 132021. An open 24-hour window is still billed as utility when &#x60;category&#x60; is set and &#x60;serviceFirst&#x60; is not true. 
      * @param token JWT token or API key for authorization
      * @param body Message text, UTF-8 or UTF-16 string with emoji
      * @param quotedMsgId Message ID to quote/reply to (Cloud API wamid) (optional)
-     * @param chatId Chat ID in format: phone@c.us (individual) or phone@g.us (group) (optional)
+     * @param chatId Recipient chat ID: phone@c.us, group@g.us, or BSUID@lid (optional)
      * @param phone Phone number starting with country code (alternative to chatId) (optional)
+     * @param category Optional Direct Send category. Direct Send is in beta: Meta has not enabled it on every business portfolio. &#x60;utility&#x60; or &#x60;authentication&#x60; enables it. &#x60;authentication&#x60; is part of that beta and is not recommended. Omit or &#x60;service&#x60; keeps a normal service message (and the marketing auto-template outside the 24-hour window). &#x60;marketing&#x60; is rejected.  (optional)
+     * @param directSend  (optional)
      * @return MessageSentResponse
      * @throws IllegalStateException If the request is not correctly configured
      * @throws IOException Rethrows the OkHttp execute method exception
@@ -1632,8 +1792,8 @@ open class MessagingApi(basePath: kotlin.String = defaultBasePath, client: Call.
      */
     @Suppress("UNCHECKED_CAST")
     @Throws(IllegalStateException::class, IOException::class, UnsupportedOperationException::class, ClientException::class, ServerException::class)
-    fun sendMessage(token: kotlin.String, body: kotlin.String, quotedMsgId: kotlin.String? = null, chatId: kotlin.String? = null, phone: kotlin.Int? = null) : MessageSentResponse {
-        val localVarResponse = sendMessageWithHttpInfo(token = token, body = body, quotedMsgId = quotedMsgId, chatId = chatId, phone = phone)
+    fun sendMessage(token: kotlin.String, body: kotlin.String, quotedMsgId: kotlin.String? = null, chatId: kotlin.String? = null, phone: kotlin.Int? = null, category: CategorySendMessage? = null, directSend: SendMessageRequestDirectSend? = null) : MessageSentResponse {
+        val localVarResponse = sendMessageWithHttpInfo(token = token, body = body, quotedMsgId = quotedMsgId, chatId = chatId, phone = phone, category = category, directSend = directSend)
 
         return when (localVarResponse.responseType) {
             ResponseType.Success -> (localVarResponse as Success<*>).data as MessageSentResponse
@@ -1653,20 +1813,22 @@ open class MessagingApi(basePath: kotlin.String = defaultBasePath, client: Call.
     /**
      * POST /sendMessage
      * Send a Message
-     * Send a message to an existing chat. (Only if the dialogue has an Open Session).  The message will be added to the queue for sending and delivered even if the phone  is disconnected from the Internet or authorization is not passed.  Only one of two parameters is needed to determine the destination - chatId or phone. 
+     * Send a message to an existing chat. (Only if the dialogue has an Open Session).  The message will be added to the queue for sending and delivered even if the phone  is disconnected from the Internet or authorization is not passed.  Only one of two parameters is needed to determine the destination - chatId or phone.  Direct Send is in beta. Meta has not enabled it on every business portfolio, so &#x60;category&#x60; and &#x60;directSend&#x60; are a beta option: watch delivery errors before relying on them.  Set &#x60;category&#x60; to &#x60;utility&#x60; or &#x60;authentication&#x60; to send outside the 24-hour window as a Meta Direct Send template instead of the 1MSG marketing auto-template. &#x60;authentication&#x60; is part of that beta and is not recommended. &#x60;directSend.serviceFirst: true&#x60; tries a free service message first and uses Direct Send only when Meta rejects it because the window is closed (131047). &#x60;directSend.templateName&#x60; is only valid with &#x60;utility&#x60; (&#x60;^[a-z0-9_]+$&#x60;, max 512). Direct Send text is limited to 1024 characters. Without &#x60;templateName&#x60;, the first unseen phrase may be delivered as Meta&#39;s onboarding template. A named template does not guarantee delivery — wait for webhook errors 131000 or 132021. An open 24-hour window is still billed as utility when &#x60;category&#x60; is set and &#x60;serviceFirst&#x60; is not true. 
      * @param token JWT token or API key for authorization
      * @param body Message text, UTF-8 or UTF-16 string with emoji
      * @param quotedMsgId Message ID to quote/reply to (Cloud API wamid) (optional)
-     * @param chatId Chat ID in format: phone@c.us (individual) or phone@g.us (group) (optional)
+     * @param chatId Recipient chat ID: phone@c.us, group@g.us, or BSUID@lid (optional)
      * @param phone Phone number starting with country code (alternative to chatId) (optional)
+     * @param category Optional Direct Send category. Direct Send is in beta: Meta has not enabled it on every business portfolio. &#x60;utility&#x60; or &#x60;authentication&#x60; enables it. &#x60;authentication&#x60; is part of that beta and is not recommended. Omit or &#x60;service&#x60; keeps a normal service message (and the marketing auto-template outside the 24-hour window). &#x60;marketing&#x60; is rejected.  (optional)
+     * @param directSend  (optional)
      * @return ApiResponse<MessageSentResponse?>
      * @throws IllegalStateException If the request is not correctly configured
      * @throws IOException Rethrows the OkHttp execute method exception
      */
     @Suppress("UNCHECKED_CAST")
     @Throws(IllegalStateException::class, IOException::class)
-    fun sendMessageWithHttpInfo(token: kotlin.String, body: kotlin.String, quotedMsgId: kotlin.String?, chatId: kotlin.String?, phone: kotlin.Int?) : ApiResponse<MessageSentResponse?> {
-        val localVariableConfig = sendMessageRequestConfig(token = token, body = body, quotedMsgId = quotedMsgId, chatId = chatId, phone = phone)
+    fun sendMessageWithHttpInfo(token: kotlin.String, body: kotlin.String, quotedMsgId: kotlin.String?, chatId: kotlin.String?, phone: kotlin.Int?, category: CategorySendMessage?, directSend: SendMessageRequestDirectSend?) : ApiResponse<MessageSentResponse?> {
+        val localVariableConfig = sendMessageRequestConfig(token = token, body = body, quotedMsgId = quotedMsgId, chatId = chatId, phone = phone, category = category, directSend = directSend)
 
         return request<Map<String, PartConfig<*>>, MessageSentResponse>(
             localVariableConfig
@@ -1679,16 +1841,20 @@ open class MessagingApi(basePath: kotlin.String = defaultBasePath, client: Call.
      * @param token JWT token or API key for authorization
      * @param body Message text, UTF-8 or UTF-16 string with emoji
      * @param quotedMsgId Message ID to quote/reply to (Cloud API wamid) (optional)
-     * @param chatId Chat ID in format: phone@c.us (individual) or phone@g.us (group) (optional)
+     * @param chatId Recipient chat ID: phone@c.us, group@g.us, or BSUID@lid (optional)
      * @param phone Phone number starting with country code (alternative to chatId) (optional)
+     * @param category Optional Direct Send category. Direct Send is in beta: Meta has not enabled it on every business portfolio. &#x60;utility&#x60; or &#x60;authentication&#x60; enables it. &#x60;authentication&#x60; is part of that beta and is not recommended. Omit or &#x60;service&#x60; keeps a normal service message (and the marketing auto-template outside the 24-hour window). &#x60;marketing&#x60; is rejected.  (optional)
+     * @param directSend  (optional)
      * @return RequestConfig
      */
-    fun sendMessageRequestConfig(token: kotlin.String, body: kotlin.String, quotedMsgId: kotlin.String?, chatId: kotlin.String?, phone: kotlin.Int?) : RequestConfig<Map<String, PartConfig<*>>> {
+    fun sendMessageRequestConfig(token: kotlin.String, body: kotlin.String, quotedMsgId: kotlin.String?, chatId: kotlin.String?, phone: kotlin.Int?, category: CategorySendMessage?, directSend: SendMessageRequestDirectSend?) : RequestConfig<Map<String, PartConfig<*>>> {
         val localVariableBody = mapOf(
             "body" to PartConfig(body = body, headers = mutableMapOf()),
             "quotedMsgId" to PartConfig(body = quotedMsgId, headers = mutableMapOf()),
             "chatId" to PartConfig(body = chatId, headers = mutableMapOf()),
-            "phone" to PartConfig(body = phone, headers = mutableMapOf()),)
+            "phone" to PartConfig(body = phone, headers = mutableMapOf()),
+            "category" to PartConfig(body = category?.value, headers = mutableMapOf()),
+            "directSend" to PartConfig(body = directSend, headers = mutableMapOf()),)
         val localVariableQuery: MultiValueMap = mutableMapOf<kotlin.String, kotlin.collections.List<kotlin.String>>()
             .apply {
                 put("token", listOf(token.toString()))
@@ -1869,9 +2035,9 @@ open class MessagingApi(basePath: kotlin.String = defaultBasePath, client: Call.
     /**
      * POST /sendProduct
      * Send a Product
-     * 
+     * Send a single catalog product or a product list. Destination is &#x60;chatId&#x60; or &#x60;phone&#x60;. &#x60;action&#x60; is required: - single product: &#x60;{ \&quot;catalog_id\&quot;: \&quot;...\&quot;, \&quot;product_retailer_id\&quot;: \&quot;...\&quot; }&#x60; - product list: &#x60;{ \&quot;catalog_id\&quot;: \&quot;...\&quot;, \&quot;sections\&quot;: [{ \&quot;title\&quot;: \&quot;...\&quot;, \&quot;product_items\&quot;: [{ \&quot;product_retailer_id\&quot;: \&quot;...\&quot; }] }] }&#x60; 
      * @param token JWT token or API key for authorization
-     * @param requestBody  (optional)
+     * @param sendProductRequest 
      * @return MessageSentResponse
      * @throws IllegalStateException If the request is not correctly configured
      * @throws IOException Rethrows the OkHttp execute method exception
@@ -1881,8 +2047,8 @@ open class MessagingApi(basePath: kotlin.String = defaultBasePath, client: Call.
      */
     @Suppress("UNCHECKED_CAST")
     @Throws(IllegalStateException::class, IOException::class, UnsupportedOperationException::class, ClientException::class, ServerException::class)
-    fun sendProduct(token: kotlin.String, requestBody: kotlin.collections.Map<kotlin.String, kotlin.Any>? = null) : MessageSentResponse {
-        val localVarResponse = sendProductWithHttpInfo(token = token, requestBody = requestBody)
+    fun sendProduct(token: kotlin.String, sendProductRequest: SendProductRequest) : MessageSentResponse {
+        val localVarResponse = sendProductWithHttpInfo(token = token, sendProductRequest = sendProductRequest)
 
         return when (localVarResponse.responseType) {
             ResponseType.Success -> (localVarResponse as Success<*>).data as MessageSentResponse
@@ -1902,19 +2068,19 @@ open class MessagingApi(basePath: kotlin.String = defaultBasePath, client: Call.
     /**
      * POST /sendProduct
      * Send a Product
-     * 
+     * Send a single catalog product or a product list. Destination is &#x60;chatId&#x60; or &#x60;phone&#x60;. &#x60;action&#x60; is required: - single product: &#x60;{ \&quot;catalog_id\&quot;: \&quot;...\&quot;, \&quot;product_retailer_id\&quot;: \&quot;...\&quot; }&#x60; - product list: &#x60;{ \&quot;catalog_id\&quot;: \&quot;...\&quot;, \&quot;sections\&quot;: [{ \&quot;title\&quot;: \&quot;...\&quot;, \&quot;product_items\&quot;: [{ \&quot;product_retailer_id\&quot;: \&quot;...\&quot; }] }] }&#x60; 
      * @param token JWT token or API key for authorization
-     * @param requestBody  (optional)
+     * @param sendProductRequest 
      * @return ApiResponse<MessageSentResponse?>
      * @throws IllegalStateException If the request is not correctly configured
      * @throws IOException Rethrows the OkHttp execute method exception
      */
     @Suppress("UNCHECKED_CAST")
     @Throws(IllegalStateException::class, IOException::class)
-    fun sendProductWithHttpInfo(token: kotlin.String, requestBody: kotlin.collections.Map<kotlin.String, kotlin.Any>?) : ApiResponse<MessageSentResponse?> {
-        val localVariableConfig = sendProductRequestConfig(token = token, requestBody = requestBody)
+    fun sendProductWithHttpInfo(token: kotlin.String, sendProductRequest: SendProductRequest) : ApiResponse<MessageSentResponse?> {
+        val localVariableConfig = sendProductRequestConfig(token = token, sendProductRequest = sendProductRequest)
 
-        return request<kotlin.collections.Map<kotlin.String, kotlin.Any>, MessageSentResponse>(
+        return request<SendProductRequest, MessageSentResponse>(
             localVariableConfig
         )
     }
@@ -1923,11 +2089,11 @@ open class MessagingApi(basePath: kotlin.String = defaultBasePath, client: Call.
      * To obtain the request config of the operation sendProduct
      *
      * @param token JWT token or API key for authorization
-     * @param requestBody  (optional)
+     * @param sendProductRequest 
      * @return RequestConfig
      */
-    fun sendProductRequestConfig(token: kotlin.String, requestBody: kotlin.collections.Map<kotlin.String, kotlin.Any>?) : RequestConfig<kotlin.collections.Map<kotlin.String, kotlin.Any>> {
-        val localVariableBody = requestBody
+    fun sendProductRequestConfig(token: kotlin.String, sendProductRequest: SendProductRequest) : RequestConfig<SendProductRequest> {
+        val localVariableBody = sendProductRequest
         val localVariableQuery: MultiValueMap = mutableMapOf<kotlin.String, kotlin.collections.List<kotlin.String>>()
             .apply {
                 put("token", listOf(token.toString()))

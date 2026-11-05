@@ -27,9 +27,11 @@ import java.io.IOException
 import okhttp3.Call
 import okhttp3.HttpUrl
 
+import io.onemsg.sdk.model.AddTemplate200Response
 import io.onemsg.sdk.model.AddTemplateRequest
 import io.onemsg.sdk.model.ErrorResponse
 import io.onemsg.sdk.model.ListTemplates200Response
+import io.onemsg.sdk.model.RemoveTemplateRequest
 import io.onemsg.sdk.model.SendTemplateRequest
 
 import com.squareup.moshi.Json
@@ -59,10 +61,10 @@ open class TemplatesApi(basePath: kotlin.String = defaultBasePath, client: Call.
     /**
      * POST /addTemplate
      * Create message template
-     * 
+     * Create a WABA message template (&#x60;name&#x60;, &#x60;category&#x60;, &#x60;language&#x60;, &#x60;components&#x60;). After create, Meta reviews the template; list it with &#x60;GET /templates&#x60;.  Authentication OTP templates (&#x60;category: AUTHENTICATION&#x60;, copy-code / OTP button) can later be sent only to a phone number. Meta does not accept a BSUID recipient for them (error 131062). If the recipient is known only by BSUID — for example they use a username and their phone number is not in your Business Portfolio — that template cannot be sent.  To ask a BSUID user for their phone number, add a &#x60;REQUEST_CONTACT_INFO&#x60; button on a &#x60;UTILITY&#x60; or &#x60;MARKETING&#x60; template. Do not send &#x60;text&#x60; on that button — WhatsApp sets the label (and rejects a custom one). The button also has no send-time parameters: &#x60;POST /sendTemplate&#x60; does not take a button component for it. Inside an open 24-hour window, call &#x60;POST /sendContactInfo&#x60; instead of a template.  When the user shares the number, the inbound webhook is a &#x60;contacts&#x60; message with &#x60;origin: contact_request&#x60;. The phone is stored on that BSUID automatically. See &#x60;POST /sendContactInfo&#x60;.  &#x60;&#x60;&#x60;json {   \&quot;name\&quot;: \&quot;request_phone\&quot;,   \&quot;category\&quot;: \&quot;UTILITY\&quot;,   \&quot;language\&quot;: \&quot;en_US\&quot;,   \&quot;components\&quot;: [     {       \&quot;type\&quot;: \&quot;BODY\&quot;,       \&quot;text\&quot;: \&quot;Please share your phone number so we can continue.\&quot;     },     {       \&quot;type\&quot;: \&quot;BUTTONS\&quot;,       \&quot;buttons\&quot;: [{ \&quot;type\&quot;: \&quot;REQUEST_CONTACT_INFO\&quot; }]     }   ] } &#x60;&#x60;&#x60; 
      * @param token JWT token or API key for authorization
      * @param addTemplateRequest  (optional)
-     * @return kotlin.collections.Map<kotlin.String, kotlin.Any>
+     * @return AddTemplate200Response
      * @throws IllegalStateException If the request is not correctly configured
      * @throws IOException Rethrows the OkHttp execute method exception
      * @throws UnsupportedOperationException If the API returns an informational or redirection response
@@ -71,11 +73,11 @@ open class TemplatesApi(basePath: kotlin.String = defaultBasePath, client: Call.
      */
     @Suppress("UNCHECKED_CAST")
     @Throws(IllegalStateException::class, IOException::class, UnsupportedOperationException::class, ClientException::class, ServerException::class)
-    fun addTemplate(token: kotlin.String, addTemplateRequest: AddTemplateRequest? = null) : kotlin.collections.Map<kotlin.String, kotlin.Any> {
+    fun addTemplate(token: kotlin.String, addTemplateRequest: AddTemplateRequest? = null) : AddTemplate200Response {
         val localVarResponse = addTemplateWithHttpInfo(token = token, addTemplateRequest = addTemplateRequest)
 
         return when (localVarResponse.responseType) {
-            ResponseType.Success -> (localVarResponse as Success<*>).data as kotlin.collections.Map<kotlin.String, kotlin.Any>
+            ResponseType.Success -> (localVarResponse as Success<*>).data as AddTemplate200Response
             ResponseType.Informational -> throw UnsupportedOperationException("Client does not support Informational responses.")
             ResponseType.Redirection -> throw UnsupportedOperationException("Client does not support Redirection responses.")
             ResponseType.ClientError -> {
@@ -92,19 +94,19 @@ open class TemplatesApi(basePath: kotlin.String = defaultBasePath, client: Call.
     /**
      * POST /addTemplate
      * Create message template
-     * 
+     * Create a WABA message template (&#x60;name&#x60;, &#x60;category&#x60;, &#x60;language&#x60;, &#x60;components&#x60;). After create, Meta reviews the template; list it with &#x60;GET /templates&#x60;.  Authentication OTP templates (&#x60;category: AUTHENTICATION&#x60;, copy-code / OTP button) can later be sent only to a phone number. Meta does not accept a BSUID recipient for them (error 131062). If the recipient is known only by BSUID — for example they use a username and their phone number is not in your Business Portfolio — that template cannot be sent.  To ask a BSUID user for their phone number, add a &#x60;REQUEST_CONTACT_INFO&#x60; button on a &#x60;UTILITY&#x60; or &#x60;MARKETING&#x60; template. Do not send &#x60;text&#x60; on that button — WhatsApp sets the label (and rejects a custom one). The button also has no send-time parameters: &#x60;POST /sendTemplate&#x60; does not take a button component for it. Inside an open 24-hour window, call &#x60;POST /sendContactInfo&#x60; instead of a template.  When the user shares the number, the inbound webhook is a &#x60;contacts&#x60; message with &#x60;origin: contact_request&#x60;. The phone is stored on that BSUID automatically. See &#x60;POST /sendContactInfo&#x60;.  &#x60;&#x60;&#x60;json {   \&quot;name\&quot;: \&quot;request_phone\&quot;,   \&quot;category\&quot;: \&quot;UTILITY\&quot;,   \&quot;language\&quot;: \&quot;en_US\&quot;,   \&quot;components\&quot;: [     {       \&quot;type\&quot;: \&quot;BODY\&quot;,       \&quot;text\&quot;: \&quot;Please share your phone number so we can continue.\&quot;     },     {       \&quot;type\&quot;: \&quot;BUTTONS\&quot;,       \&quot;buttons\&quot;: [{ \&quot;type\&quot;: \&quot;REQUEST_CONTACT_INFO\&quot; }]     }   ] } &#x60;&#x60;&#x60; 
      * @param token JWT token or API key for authorization
      * @param addTemplateRequest  (optional)
-     * @return ApiResponse<kotlin.collections.Map<kotlin.String, kotlin.Any>?>
+     * @return ApiResponse<AddTemplate200Response?>
      * @throws IllegalStateException If the request is not correctly configured
      * @throws IOException Rethrows the OkHttp execute method exception
      */
     @Suppress("UNCHECKED_CAST")
     @Throws(IllegalStateException::class, IOException::class)
-    fun addTemplateWithHttpInfo(token: kotlin.String, addTemplateRequest: AddTemplateRequest?) : ApiResponse<kotlin.collections.Map<kotlin.String, kotlin.Any>?> {
+    fun addTemplateWithHttpInfo(token: kotlin.String, addTemplateRequest: AddTemplateRequest?) : ApiResponse<AddTemplate200Response?> {
         val localVariableConfig = addTemplateRequestConfig(token = token, addTemplateRequest = addTemplateRequest)
 
-        return request<AddTemplateRequest, kotlin.collections.Map<kotlin.String, kotlin.Any>>(
+        return request<AddTemplateRequest, AddTemplate200Response>(
             localVariableConfig
         )
     }
@@ -137,10 +139,31 @@ open class TemplatesApi(basePath: kotlin.String = defaultBasePath, client: Call.
     }
 
     /**
+     * enum for parameter sort
+     */
+     enum class SortListTemplates(val value: kotlin.String) {
+         @Json(name = "id") ID("id"),
+         @Json(name = "name") NAME("name"),
+         @Json(name = "status") STATUS("status");
+
+        /**
+         * Override [toString()] to avoid using the enum variable name as the value, and instead use
+         * the actual value defined in the API spec file.
+         *
+         * This solves a problem when the variable name and its value are different, and ensures that
+         * the client sends the correct enum values to the server always.
+         */
+        override fun toString(): kotlin.String = "$value"
+     }
+
+    /**
      * GET /templates
      * Get templates list
-     * 
+     * List message templates. Paginate with &#x60;limit&#x60; / &#x60;offset&#x60;; sort by &#x60;id&#x60;, &#x60;name&#x60;, or &#x60;status&#x60;.
      * @param token JWT token or API key for authorization
+     * @param limit  (optional)
+     * @param offset  (optional)
+     * @param sort Sort field (&#x60;id&#x60;, &#x60;name&#x60;, or &#x60;status&#x60;) (optional)
      * @return ListTemplates200Response
      * @throws IllegalStateException If the request is not correctly configured
      * @throws IOException Rethrows the OkHttp execute method exception
@@ -150,8 +173,8 @@ open class TemplatesApi(basePath: kotlin.String = defaultBasePath, client: Call.
      */
     @Suppress("UNCHECKED_CAST")
     @Throws(IllegalStateException::class, IOException::class, UnsupportedOperationException::class, ClientException::class, ServerException::class)
-    fun listTemplates(token: kotlin.String) : ListTemplates200Response {
-        val localVarResponse = listTemplatesWithHttpInfo(token = token)
+    fun listTemplates(token: kotlin.String, limit: kotlin.Int? = null, offset: kotlin.Int? = null, sort: SortListTemplates? = null) : ListTemplates200Response {
+        val localVarResponse = listTemplatesWithHttpInfo(token = token, limit = limit, offset = offset, sort = sort)
 
         return when (localVarResponse.responseType) {
             ResponseType.Success -> (localVarResponse as Success<*>).data as ListTemplates200Response
@@ -171,16 +194,19 @@ open class TemplatesApi(basePath: kotlin.String = defaultBasePath, client: Call.
     /**
      * GET /templates
      * Get templates list
-     * 
+     * List message templates. Paginate with &#x60;limit&#x60; / &#x60;offset&#x60;; sort by &#x60;id&#x60;, &#x60;name&#x60;, or &#x60;status&#x60;.
      * @param token JWT token or API key for authorization
+     * @param limit  (optional)
+     * @param offset  (optional)
+     * @param sort Sort field (&#x60;id&#x60;, &#x60;name&#x60;, or &#x60;status&#x60;) (optional)
      * @return ApiResponse<ListTemplates200Response?>
      * @throws IllegalStateException If the request is not correctly configured
      * @throws IOException Rethrows the OkHttp execute method exception
      */
     @Suppress("UNCHECKED_CAST")
     @Throws(IllegalStateException::class, IOException::class)
-    fun listTemplatesWithHttpInfo(token: kotlin.String) : ApiResponse<ListTemplates200Response?> {
-        val localVariableConfig = listTemplatesRequestConfig(token = token)
+    fun listTemplatesWithHttpInfo(token: kotlin.String, limit: kotlin.Int?, offset: kotlin.Int?, sort: SortListTemplates?) : ApiResponse<ListTemplates200Response?> {
+        val localVariableConfig = listTemplatesRequestConfig(token = token, limit = limit, offset = offset, sort = sort)
 
         return request<Unit, ListTemplates200Response>(
             localVariableConfig
@@ -191,13 +217,25 @@ open class TemplatesApi(basePath: kotlin.String = defaultBasePath, client: Call.
      * To obtain the request config of the operation listTemplates
      *
      * @param token JWT token or API key for authorization
+     * @param limit  (optional)
+     * @param offset  (optional)
+     * @param sort Sort field (&#x60;id&#x60;, &#x60;name&#x60;, or &#x60;status&#x60;) (optional)
      * @return RequestConfig
      */
-    fun listTemplatesRequestConfig(token: kotlin.String) : RequestConfig<Unit> {
+    fun listTemplatesRequestConfig(token: kotlin.String, limit: kotlin.Int?, offset: kotlin.Int?, sort: SortListTemplates?) : RequestConfig<Unit> {
         val localVariableBody = null
         val localVariableQuery: MultiValueMap = mutableMapOf<kotlin.String, kotlin.collections.List<kotlin.String>>()
             .apply {
                 put("token", listOf(token.toString()))
+                if (limit != null) {
+                    put("limit", listOf(limit.toString()))
+                }
+                if (offset != null) {
+                    put("offset", listOf(offset.toString()))
+                }
+                if (sort != null) {
+                    put("sort", listOf(sort.value))
+                }
             }
         val localVariableHeaders: MutableMap<String, String> = mutableMapOf()
         localVariableHeaders["Accept"] = "application/json"
@@ -215,9 +253,9 @@ open class TemplatesApi(basePath: kotlin.String = defaultBasePath, client: Call.
     /**
      * POST /removeTemplate
      * Remove message template
-     * 
+     * Delete a message template by &#x60;name&#x60; (all language versions of that name).
      * @param token JWT token or API key for authorization
-     * @param requestBody  (optional)
+     * @param removeTemplateRequest 
      * @return kotlin.collections.Map<kotlin.String, kotlin.Any>
      * @throws IllegalStateException If the request is not correctly configured
      * @throws IOException Rethrows the OkHttp execute method exception
@@ -227,8 +265,8 @@ open class TemplatesApi(basePath: kotlin.String = defaultBasePath, client: Call.
      */
     @Suppress("UNCHECKED_CAST")
     @Throws(IllegalStateException::class, IOException::class, UnsupportedOperationException::class, ClientException::class, ServerException::class)
-    fun removeTemplate(token: kotlin.String, requestBody: kotlin.collections.Map<kotlin.String, kotlin.Any>? = null) : kotlin.collections.Map<kotlin.String, kotlin.Any> {
-        val localVarResponse = removeTemplateWithHttpInfo(token = token, requestBody = requestBody)
+    fun removeTemplate(token: kotlin.String, removeTemplateRequest: RemoveTemplateRequest) : kotlin.collections.Map<kotlin.String, kotlin.Any> {
+        val localVarResponse = removeTemplateWithHttpInfo(token = token, removeTemplateRequest = removeTemplateRequest)
 
         return when (localVarResponse.responseType) {
             ResponseType.Success -> (localVarResponse as Success<*>).data as kotlin.collections.Map<kotlin.String, kotlin.Any>
@@ -248,19 +286,19 @@ open class TemplatesApi(basePath: kotlin.String = defaultBasePath, client: Call.
     /**
      * POST /removeTemplate
      * Remove message template
-     * 
+     * Delete a message template by &#x60;name&#x60; (all language versions of that name).
      * @param token JWT token or API key for authorization
-     * @param requestBody  (optional)
+     * @param removeTemplateRequest 
      * @return ApiResponse<kotlin.collections.Map<kotlin.String, kotlin.Any>?>
      * @throws IllegalStateException If the request is not correctly configured
      * @throws IOException Rethrows the OkHttp execute method exception
      */
     @Suppress("UNCHECKED_CAST")
     @Throws(IllegalStateException::class, IOException::class)
-    fun removeTemplateWithHttpInfo(token: kotlin.String, requestBody: kotlin.collections.Map<kotlin.String, kotlin.Any>?) : ApiResponse<kotlin.collections.Map<kotlin.String, kotlin.Any>?> {
-        val localVariableConfig = removeTemplateRequestConfig(token = token, requestBody = requestBody)
+    fun removeTemplateWithHttpInfo(token: kotlin.String, removeTemplateRequest: RemoveTemplateRequest) : ApiResponse<kotlin.collections.Map<kotlin.String, kotlin.Any>?> {
+        val localVariableConfig = removeTemplateRequestConfig(token = token, removeTemplateRequest = removeTemplateRequest)
 
-        return request<kotlin.collections.Map<kotlin.String, kotlin.Any>, kotlin.collections.Map<kotlin.String, kotlin.Any>>(
+        return request<RemoveTemplateRequest, kotlin.collections.Map<kotlin.String, kotlin.Any>>(
             localVariableConfig
         )
     }
@@ -269,11 +307,11 @@ open class TemplatesApi(basePath: kotlin.String = defaultBasePath, client: Call.
      * To obtain the request config of the operation removeTemplate
      *
      * @param token JWT token or API key for authorization
-     * @param requestBody  (optional)
+     * @param removeTemplateRequest 
      * @return RequestConfig
      */
-    fun removeTemplateRequestConfig(token: kotlin.String, requestBody: kotlin.collections.Map<kotlin.String, kotlin.Any>?) : RequestConfig<kotlin.collections.Map<kotlin.String, kotlin.Any>> {
-        val localVariableBody = requestBody
+    fun removeTemplateRequestConfig(token: kotlin.String, removeTemplateRequest: RemoveTemplateRequest) : RequestConfig<RemoveTemplateRequest> {
+        val localVariableBody = removeTemplateRequest
         val localVariableQuery: MultiValueMap = mutableMapOf<kotlin.String, kotlin.collections.List<kotlin.String>>()
             .apply {
                 put("token", listOf(token.toString()))
@@ -295,7 +333,7 @@ open class TemplatesApi(basePath: kotlin.String = defaultBasePath, client: Call.
     /**
      * POST /sendTemplate
      * Send Template Message
-     * Send a WhatsApp template message (works outside the 24-hour session window).  Supported &#x60;params&#x60; button &#x60;sub_type&#x60; values include: &#x60;url&#x60;, &#x60;quick_reply&#x60;, &#x60;copy_code&#x60; / &#x60;coupon_code&#x60;, &#x60;catalog&#x60;, &#x60;flow&#x60;, &#x60;limited_time_offer&#x60;, and **&#x60;order_details&#x60;** (WhatsApp Payments **India only** — requires an approved Utility template with an ORDER_DETAILS button).  For India order/invoice payments outside 24h, include a button component:  &#x60;&#x60;&#x60;json {   \&quot;type\&quot;: \&quot;button\&quot;,   \&quot;sub_type\&quot;: \&quot;order_details\&quot;,   \&quot;index\&quot;: 0,   \&quot;parameters\&quot;: [{     \&quot;type\&quot;: \&quot;action\&quot;,     \&quot;action\&quot;: { \&quot;order_details\&quot;: { \&quot;reference_id\&quot;: \&quot;...\&quot;, \&quot;currency\&quot;: \&quot;INR\&quot;, \&quot;order\&quot;: {} } }   }] } &#x60;&#x60;&#x60;  Convenience wrapper with structured fields: &#x60;POST /sendOrderDetails&#x60;. 
+     * Send a WhatsApp **template** message (works outside the 24-hour session window).  Use this tool — not &#x60;send_message&#x60; — when the 24h session is closed.  &#x60;params&#x60; MUST be Cloud API **component objects**, never a flat list of strings and never the old On-Prem &#x60;hsm&#x60; / &#x60;localizable_params&#x60; format.  Example body variable &#x60;{{1}}&#x60;:  &#x60;&#x60;&#x60;json {   \&quot;type\&quot;: \&quot;body\&quot;,   \&quot;parameters\&quot;: [{ \&quot;type\&quot;: \&quot;text\&quot;, \&quot;text\&quot;: \&quot;Ivan\&quot; }] } &#x60;&#x60;&#x60;  Do not send &#x60;\&quot;type\&quot;: \&quot;hsm\&quot;&#x60; and do not send &#x60;params: [\&quot;Ivan\&quot;, \&quot;123\&quot;]&#x60;.  Supported &#x60;params&#x60; button &#x60;sub_type&#x60; values include: &#x60;url&#x60;, &#x60;quick_reply&#x60;, &#x60;copy_code&#x60; / &#x60;coupon_code&#x60;, &#x60;catalog&#x60;, &#x60;flow&#x60;, &#x60;limited_time_offer&#x60;, and **&#x60;order_details&#x60;** (WhatsApp Payments **India only** — requires an approved Utility template with an ORDER_DETAILS button).  Convenience wrapper with structured fields: &#x60;POST /sendOrderDetails&#x60;.  Authentication OTP templates (category &#x60;AUTHENTICATION&#x60;, or a template with an OTP / copy-code button) can only be sent to a phone number (&#x60;phone&#x60; or a phone &#x60;chatId&#x60;). Meta rejects a BSUID &#x60;recipient&#x60; for these templates with error 131062. If the recipient is known only by BSUID — for example they use a username and their phone number is not in your Business Portfolio — the template cannot be sent.  A &#x60;REQUEST_CONTACT_INFO&#x60; button (UTILITY or MARKETING only) has no send-time parameters. Do not add a button component for it in &#x60;params&#x60;, and do not send button text — WhatsApp sets that label on the template. Create the button with &#x60;POST /addTemplate&#x60; as &#x60;{ \&quot;type\&quot;: \&quot;REQUEST_CONTACT_INFO\&quot; }&#x60; with no &#x60;text&#x60;. Inside an open 24-hour window, &#x60;POST /sendContactInfo&#x60; asks for the number without a template. 
      * @param token JWT token or API key for authorization
      * @param sendTemplateRequest  (optional)
      * @return kotlin.collections.Map<kotlin.String, kotlin.Any>
@@ -328,7 +366,7 @@ open class TemplatesApi(basePath: kotlin.String = defaultBasePath, client: Call.
     /**
      * POST /sendTemplate
      * Send Template Message
-     * Send a WhatsApp template message (works outside the 24-hour session window).  Supported &#x60;params&#x60; button &#x60;sub_type&#x60; values include: &#x60;url&#x60;, &#x60;quick_reply&#x60;, &#x60;copy_code&#x60; / &#x60;coupon_code&#x60;, &#x60;catalog&#x60;, &#x60;flow&#x60;, &#x60;limited_time_offer&#x60;, and **&#x60;order_details&#x60;** (WhatsApp Payments **India only** — requires an approved Utility template with an ORDER_DETAILS button).  For India order/invoice payments outside 24h, include a button component:  &#x60;&#x60;&#x60;json {   \&quot;type\&quot;: \&quot;button\&quot;,   \&quot;sub_type\&quot;: \&quot;order_details\&quot;,   \&quot;index\&quot;: 0,   \&quot;parameters\&quot;: [{     \&quot;type\&quot;: \&quot;action\&quot;,     \&quot;action\&quot;: { \&quot;order_details\&quot;: { \&quot;reference_id\&quot;: \&quot;...\&quot;, \&quot;currency\&quot;: \&quot;INR\&quot;, \&quot;order\&quot;: {} } }   }] } &#x60;&#x60;&#x60;  Convenience wrapper with structured fields: &#x60;POST /sendOrderDetails&#x60;. 
+     * Send a WhatsApp **template** message (works outside the 24-hour session window).  Use this tool — not &#x60;send_message&#x60; — when the 24h session is closed.  &#x60;params&#x60; MUST be Cloud API **component objects**, never a flat list of strings and never the old On-Prem &#x60;hsm&#x60; / &#x60;localizable_params&#x60; format.  Example body variable &#x60;{{1}}&#x60;:  &#x60;&#x60;&#x60;json {   \&quot;type\&quot;: \&quot;body\&quot;,   \&quot;parameters\&quot;: [{ \&quot;type\&quot;: \&quot;text\&quot;, \&quot;text\&quot;: \&quot;Ivan\&quot; }] } &#x60;&#x60;&#x60;  Do not send &#x60;\&quot;type\&quot;: \&quot;hsm\&quot;&#x60; and do not send &#x60;params: [\&quot;Ivan\&quot;, \&quot;123\&quot;]&#x60;.  Supported &#x60;params&#x60; button &#x60;sub_type&#x60; values include: &#x60;url&#x60;, &#x60;quick_reply&#x60;, &#x60;copy_code&#x60; / &#x60;coupon_code&#x60;, &#x60;catalog&#x60;, &#x60;flow&#x60;, &#x60;limited_time_offer&#x60;, and **&#x60;order_details&#x60;** (WhatsApp Payments **India only** — requires an approved Utility template with an ORDER_DETAILS button).  Convenience wrapper with structured fields: &#x60;POST /sendOrderDetails&#x60;.  Authentication OTP templates (category &#x60;AUTHENTICATION&#x60;, or a template with an OTP / copy-code button) can only be sent to a phone number (&#x60;phone&#x60; or a phone &#x60;chatId&#x60;). Meta rejects a BSUID &#x60;recipient&#x60; for these templates with error 131062. If the recipient is known only by BSUID — for example they use a username and their phone number is not in your Business Portfolio — the template cannot be sent.  A &#x60;REQUEST_CONTACT_INFO&#x60; button (UTILITY or MARKETING only) has no send-time parameters. Do not add a button component for it in &#x60;params&#x60;, and do not send button text — WhatsApp sets that label on the template. Create the button with &#x60;POST /addTemplate&#x60; as &#x60;{ \&quot;type\&quot;: \&quot;REQUEST_CONTACT_INFO\&quot; }&#x60; with no &#x60;text&#x60;. Inside an open 24-hour window, &#x60;POST /sendContactInfo&#x60; asks for the number without a template. 
      * @param token JWT token or API key for authorization
      * @param sendTemplateRequest  (optional)
      * @return ApiResponse<kotlin.collections.Map<kotlin.String, kotlin.Any>?>

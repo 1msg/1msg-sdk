@@ -34,7 +34,7 @@ class SendTemplateRequestTest : ShouldSpec() {
         // uncomment below to create an instance of SendTemplateRequest
         //val modelInstance = SendTemplateRequest()
 
-        // to test the property `template`
+        // to test the property `template` - Approved template name (template `name`, not the old HSM `element_name`)
         should("test template") {
             // uncomment below to test the property
             //modelInstance.template shouldBe ("TODO")
@@ -46,25 +46,37 @@ class SendTemplateRequestTest : ShouldSpec() {
             //modelInstance.language shouldBe ("TODO")
         }
 
-        // to test the property `namespace`
+        // to test the property `namespace` - Template namespace from `list_templates`
         should("test namespace") {
             // uncomment below to test the property
             //modelInstance.namespace shouldBe ("TODO")
         }
 
-        // to test the property `params`
+        // to test the property `params` - Template components in WhatsApp Cloud API format. Each item is an object with `type` (`body`, `header`, `button`) and `parameters` (objects with `type` + `text` / media / action). Never a list of strings. Never HSM `localizable_params`. 
         should("test params") {
             // uncomment below to test the property
             //modelInstance.params shouldBe ("TODO")
         }
 
-        // to test the property `phone`
+        // to test the property `phone` - Recipient phone with country code (use phone or chatId)
         should("test phone") {
             // uncomment below to test the property
             //modelInstance.phone shouldBe ("TODO")
         }
 
-        // to test the property `useMMlite` - Force Marketing Messages API (POST marketing_messages). If omitted: auto for MARKETING category when channel has mm_lite_enabled and mm_lite_available service settings. 
+        // to test the property `chatId` - Recipient chat ID (`phone@c.us`, group `@g.us`, or BSUID `@lid`). Use phone or chatId.
+        should("test chatId") {
+            // uncomment below to test the property
+            //modelInstance.chatId shouldBe ("TODO")
+        }
+
+        // to test the property `quotedMsgId` - Optional Cloud API wamid to quote
+        should("test quotedMsgId") {
+            // uncomment below to test the property
+            //modelInstance.quotedMsgId shouldBe ("TODO")
+        }
+
+        // to test the property `useMMlite` - Force Marketing Messages API (POST marketing_messages). If omitted, and the channel has mm_lite_enabled and mm_lite_available: MARKETING templates and templates with an unknown category use marketing_messages. An unknown category falls back to messages (mmLiteFallback) when Meta rejects it. Known AUTHENTICATION and UTILITY templates stay on messages. useMMlite:false forces messages. 
         should("test useMMlite") {
             // uncomment below to test the property
             //modelInstance.useMMlite shouldBe ("TODO")
