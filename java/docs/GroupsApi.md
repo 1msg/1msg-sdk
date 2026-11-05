@@ -23,7 +23,7 @@ All URIs are relative to *https://api.1msg.io*
 
 ## createGroups
 
-> CreateGroups200Response createGroups(token)
+> CreateGroups200Response createGroups(token, createGroupsRequest)
 
 Create Group
 
@@ -51,8 +51,9 @@ public class Example {
 
         GroupsApi apiInstance = new GroupsApi(defaultClient);
         String token = "token_example"; // String | JWT token or API key for authorization
+        CreateGroupsRequest createGroupsRequest = new CreateGroupsRequest(); // CreateGroupsRequest | 
         try {
-            CreateGroups200Response result = apiInstance.createGroups(token);
+            CreateGroups200Response result = apiInstance.createGroups(token, createGroupsRequest);
             System.out.println(result);
         } catch (ApiException e) {
             System.err.println("Exception when calling GroupsApi#createGroups");
@@ -71,6 +72,7 @@ public class Example {
 | Name | Type | Description  | Notes |
 |------------- | ------------- | ------------- | -------------|
 | **token** | **String**| JWT token or API key for authorization | |
+| **createGroupsRequest** | [**CreateGroupsRequest**](CreateGroupsRequest.md)|  | |
 
 ### Return type
 
@@ -83,7 +85,7 @@ public class Example {
 
 ### HTTP request headers
 
-- **Content-Type**: Not defined
+- **Content-Type**: application/json
 - **Accept**: application/json
 
 ### HTTP response details
@@ -93,7 +95,7 @@ public class Example {
 
 ## createGroupsWithHttpInfo
 
-> ApiResponse<CreateGroups200Response> createGroupsWithHttpInfo(token)
+> ApiResponse<CreateGroups200Response> createGroupsWithHttpInfo(token, createGroupsRequest)
 
 Create Group
 
@@ -122,8 +124,9 @@ public class Example {
 
         GroupsApi apiInstance = new GroupsApi(defaultClient);
         String token = "token_example"; // String | JWT token or API key for authorization
+        CreateGroupsRequest createGroupsRequest = new CreateGroupsRequest(); // CreateGroupsRequest | 
         try {
-            ApiResponse<CreateGroups200Response> response = apiInstance.createGroupsWithHttpInfo(token);
+            ApiResponse<CreateGroups200Response> response = apiInstance.createGroupsWithHttpInfo(token, createGroupsRequest);
             System.out.println("Status code: " + response.getStatusCode());
             System.out.println("Response headers: " + response.getHeaders());
             System.out.println("Response body: " + response.getData());
@@ -144,6 +147,7 @@ public class Example {
 | Name | Type | Description  | Notes |
 |------------- | ------------- | ------------- | -------------|
 | **token** | **String**| JWT token or API key for authorization | |
+| **createGroupsRequest** | [**CreateGroupsRequest**](CreateGroupsRequest.md)|  | |
 
 ### Return type
 
@@ -156,7 +160,7 @@ ApiResponse<[**CreateGroups200Response**](CreateGroups200Response.md)>
 
 ### HTTP request headers
 
-- **Content-Type**: Not defined
+- **Content-Type**: application/json
 - **Accept**: application/json
 
 ### HTTP response details
@@ -167,9 +171,11 @@ ApiResponse<[**CreateGroups200Response**](CreateGroups200Response.md)>
 
 ## createGroupsGroupId
 
-> Map<String, Object> createGroupsGroupId(groupId, token)
+> Map<String, Object> createGroupsGroupId(groupId, token, createGroupsGroupIdRequest)
 
 Update Group Info
+
+Update group subject, description, and/or profile picture. Path &#x60;groupId&#x60; is the WABA group id (without &#x60;@g.us&#x60;). 
 
 ### Example
 
@@ -196,8 +202,9 @@ public class Example {
         GroupsApi apiInstance = new GroupsApi(defaultClient);
         String groupId = "{{createdGroupId}}"; // String | 
         String token = "token_example"; // String | JWT token or API key for authorization
+        CreateGroupsGroupIdRequest createGroupsGroupIdRequest = new CreateGroupsGroupIdRequest(); // CreateGroupsGroupIdRequest | 
         try {
-            Map<String, Object> result = apiInstance.createGroupsGroupId(groupId, token);
+            Map<String, Object> result = apiInstance.createGroupsGroupId(groupId, token, createGroupsGroupIdRequest);
             System.out.println(result);
         } catch (ApiException e) {
             System.err.println("Exception when calling GroupsApi#createGroupsGroupId");
@@ -217,6 +224,7 @@ public class Example {
 |------------- | ------------- | ------------- | -------------|
 | **groupId** | **String**|  | |
 | **token** | **String**| JWT token or API key for authorization | |
+| **createGroupsGroupIdRequest** | [**CreateGroupsGroupIdRequest**](CreateGroupsGroupIdRequest.md)|  | |
 
 ### Return type
 
@@ -229,7 +237,7 @@ public class Example {
 
 ### HTTP request headers
 
-- **Content-Type**: Not defined
+- **Content-Type**: application/json
 - **Accept**: application/json
 
 ### HTTP response details
@@ -239,9 +247,11 @@ public class Example {
 
 ## createGroupsGroupIdWithHttpInfo
 
-> ApiResponse<Map<String, Object>> createGroupsGroupIdWithHttpInfo(groupId, token)
+> ApiResponse<Map<String, Object>> createGroupsGroupIdWithHttpInfo(groupId, token, createGroupsGroupIdRequest)
 
 Update Group Info
+
+Update group subject, description, and/or profile picture. Path &#x60;groupId&#x60; is the WABA group id (without &#x60;@g.us&#x60;). 
 
 ### Example
 
@@ -269,8 +279,9 @@ public class Example {
         GroupsApi apiInstance = new GroupsApi(defaultClient);
         String groupId = "{{createdGroupId}}"; // String | 
         String token = "token_example"; // String | JWT token or API key for authorization
+        CreateGroupsGroupIdRequest createGroupsGroupIdRequest = new CreateGroupsGroupIdRequest(); // CreateGroupsGroupIdRequest | 
         try {
-            ApiResponse<Map<String, Object>> response = apiInstance.createGroupsGroupIdWithHttpInfo(groupId, token);
+            ApiResponse<Map<String, Object>> response = apiInstance.createGroupsGroupIdWithHttpInfo(groupId, token, createGroupsGroupIdRequest);
             System.out.println("Status code: " + response.getStatusCode());
             System.out.println("Response headers: " + response.getHeaders());
             System.out.println("Response body: " + response.getData());
@@ -292,6 +303,7 @@ public class Example {
 |------------- | ------------- | ------------- | -------------|
 | **groupId** | **String**|  | |
 | **token** | **String**| JWT token or API key for authorization | |
+| **createGroupsGroupIdRequest** | [**CreateGroupsGroupIdRequest**](CreateGroupsGroupIdRequest.md)|  | |
 
 ### Return type
 
@@ -304,7 +316,7 @@ ApiResponse<**Map&lt;String, Object&gt;**>
 
 ### HTTP request headers
 
-- **Content-Type**: Not defined
+- **Content-Type**: application/json
 - **Accept**: application/json
 
 ### HTTP response details
@@ -611,7 +623,7 @@ ApiResponse<[**DeleteGroupsGroupId200Response**](DeleteGroupsGroupId200Response.
 
 ## getGroupsGroupId
 
-> Map<String, Object> getGroupsGroupId(groupId, token)
+> Map<String, Object> getGroupsGroupId(groupId, token, fields)
 
 Get Group Info
 
@@ -640,8 +652,9 @@ public class Example {
         GroupsApi apiInstance = new GroupsApi(defaultClient);
         String groupId = "{{createdGroupId}}"; // String | 
         String token = "token_example"; // String | JWT token or API key for authorization
+        String fields = "fields_example"; // String | Comma-separated group fields to return
         try {
-            Map<String, Object> result = apiInstance.getGroupsGroupId(groupId, token);
+            Map<String, Object> result = apiInstance.getGroupsGroupId(groupId, token, fields);
             System.out.println(result);
         } catch (ApiException e) {
             System.err.println("Exception when calling GroupsApi#getGroupsGroupId");
@@ -661,6 +674,7 @@ public class Example {
 |------------- | ------------- | ------------- | -------------|
 | **groupId** | **String**|  | |
 | **token** | **String**| JWT token or API key for authorization | |
+| **fields** | **String**| Comma-separated group fields to return | [optional] |
 
 ### Return type
 
@@ -683,7 +697,7 @@ public class Example {
 
 ## getGroupsGroupIdWithHttpInfo
 
-> ApiResponse<Map<String, Object>> getGroupsGroupIdWithHttpInfo(groupId, token)
+> ApiResponse<Map<String, Object>> getGroupsGroupIdWithHttpInfo(groupId, token, fields)
 
 Get Group Info
 
@@ -713,8 +727,9 @@ public class Example {
         GroupsApi apiInstance = new GroupsApi(defaultClient);
         String groupId = "{{createdGroupId}}"; // String | 
         String token = "token_example"; // String | JWT token or API key for authorization
+        String fields = "fields_example"; // String | Comma-separated group fields to return
         try {
-            ApiResponse<Map<String, Object>> response = apiInstance.getGroupsGroupIdWithHttpInfo(groupId, token);
+            ApiResponse<Map<String, Object>> response = apiInstance.getGroupsGroupIdWithHttpInfo(groupId, token, fields);
             System.out.println("Status code: " + response.getStatusCode());
             System.out.println("Response headers: " + response.getHeaders());
             System.out.println("Response body: " + response.getData());
@@ -736,6 +751,7 @@ public class Example {
 |------------- | ------------- | ------------- | -------------|
 | **groupId** | **String**|  | |
 | **token** | **String**| JWT token or API key for authorization | |
+| **fields** | **String**| Comma-separated group fields to return | [optional] |
 
 ### Return type
 
@@ -907,9 +923,11 @@ ApiResponse<**Map&lt;String, Object&gt;**>
 
 ## listGroups
 
-> Map<String, Object> listGroups(token)
+> Map<String, Object> listGroups(token, limit, before, after)
 
 Get Groups List
+
+List WhatsApp groups for this channel. Paginate with &#x60;limit&#x60;, &#x60;before&#x60;, and &#x60;after&#x60;.
 
 ### Example
 
@@ -935,8 +953,11 @@ public class Example {
 
         GroupsApi apiInstance = new GroupsApi(defaultClient);
         String token = "token_example"; // String | JWT token or API key for authorization
+        Integer limit = 56; // Integer | Max groups to return
+        String before = "before_example"; // String | Cursor for the previous page
+        String after = "after_example"; // String | Cursor for the next page
         try {
-            Map<String, Object> result = apiInstance.listGroups(token);
+            Map<String, Object> result = apiInstance.listGroups(token, limit, before, after);
             System.out.println(result);
         } catch (ApiException e) {
             System.err.println("Exception when calling GroupsApi#listGroups");
@@ -955,6 +976,9 @@ public class Example {
 | Name | Type | Description  | Notes |
 |------------- | ------------- | ------------- | -------------|
 | **token** | **String**| JWT token or API key for authorization | |
+| **limit** | **Integer**| Max groups to return | [optional] |
+| **before** | **String**| Cursor for the previous page | [optional] |
+| **after** | **String**| Cursor for the next page | [optional] |
 
 ### Return type
 
@@ -977,9 +1001,11 @@ public class Example {
 
 ## listGroupsWithHttpInfo
 
-> ApiResponse<Map<String, Object>> listGroupsWithHttpInfo(token)
+> ApiResponse<Map<String, Object>> listGroupsWithHttpInfo(token, limit, before, after)
 
 Get Groups List
+
+List WhatsApp groups for this channel. Paginate with &#x60;limit&#x60;, &#x60;before&#x60;, and &#x60;after&#x60;.
 
 ### Example
 
@@ -1006,8 +1032,11 @@ public class Example {
 
         GroupsApi apiInstance = new GroupsApi(defaultClient);
         String token = "token_example"; // String | JWT token or API key for authorization
+        Integer limit = 56; // Integer | Max groups to return
+        String before = "before_example"; // String | Cursor for the previous page
+        String after = "after_example"; // String | Cursor for the next page
         try {
-            ApiResponse<Map<String, Object>> response = apiInstance.listGroupsWithHttpInfo(token);
+            ApiResponse<Map<String, Object>> response = apiInstance.listGroupsWithHttpInfo(token, limit, before, after);
             System.out.println("Status code: " + response.getStatusCode());
             System.out.println("Response headers: " + response.getHeaders());
             System.out.println("Response body: " + response.getData());
@@ -1028,6 +1057,9 @@ public class Example {
 | Name | Type | Description  | Notes |
 |------------- | ------------- | ------------- | -------------|
 | **token** | **String**| JWT token or API key for authorization | |
+| **limit** | **Integer**| Max groups to return | [optional] |
+| **before** | **String**| Cursor for the previous page | [optional] |
+| **after** | **String**| Cursor for the next page | [optional] |
 
 ### Return type
 

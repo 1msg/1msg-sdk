@@ -26,6 +26,8 @@ All URIs are relative to *https://api.1msg.io*
 | [**sendCarouselWithHttpInfo**](MessagingApi.md#sendCarouselWithHttpInfo) | **POST** /sendCarousel | Send Carousel |
 | [**sendContact**](MessagingApi.md#sendContact) | **POST** /sendContact | Send a Contact |
 | [**sendContactWithHttpInfo**](MessagingApi.md#sendContactWithHttpInfo) | **POST** /sendContact | Send a Contact |
+| [**sendContactInfo**](MessagingApi.md#sendContactInfo) | **POST** /sendContactInfo | Request the user&#39;s phone number |
+| [**sendContactInfoWithHttpInfo**](MessagingApi.md#sendContactInfoWithHttpInfo) | **POST** /sendContactInfo | Request the user&#39;s phone number |
 | [**sendCtaUrl**](MessagingApi.md#sendCtaUrl) | **POST** /sendCtaUrl | Send CTA URL interactive message |
 | [**sendCtaUrlWithHttpInfo**](MessagingApi.md#sendCtaUrlWithHttpInfo) | **POST** /sendCtaUrl | Send CTA URL interactive message |
 | [**sendFile**](MessagingApi.md#sendFile) | **POST** /sendFile | Send a File |
@@ -213,9 +215,11 @@ ApiResponse<[**CreateReadMessage200Response**](CreateReadMessage200Response.md)>
 
 ## createUploadMedia
 
-> void createUploadMedia(token, requestBody)
+> CreateUploadMedia200Response createUploadMedia(token, createUploadMediaRequest)
 
 Upload media
+
+Upload a file to WhatsApp media storage and get a numeric &#x60;mediaId&#x60; for later use with &#x60;send_file&#x60; / &#x60;send_sticker&#x60; (&#x60;mediaId&#x60; field, not &#x60;body&#x60;).  Pass the file as &#x60;body&#x60; **or** &#x60;url&#x60; — an HTTP(S) URL or a base64 data URI. The &#x60;mediaId&#x60; in the response is a numeric string (keep it as a string). 
 
 ### Example
 
@@ -241,9 +245,10 @@ public class Example {
 
         MessagingApi apiInstance = new MessagingApi(defaultClient);
         String token = "token_example"; // String | JWT token or API key for authorization
-        Map<String, Object> requestBody = null; // Map<String, Object> | 
+        CreateUploadMediaRequest createUploadMediaRequest = new CreateUploadMediaRequest(); // CreateUploadMediaRequest | 
         try {
-            apiInstance.createUploadMedia(token, requestBody);
+            CreateUploadMedia200Response result = apiInstance.createUploadMedia(token, createUploadMediaRequest);
+            System.out.println(result);
         } catch (ApiException e) {
             System.err.println("Exception when calling MessagingApi#createUploadMedia");
             System.err.println("Status code: " + e.getCode());
@@ -261,12 +266,12 @@ public class Example {
 | Name | Type | Description  | Notes |
 |------------- | ------------- | ------------- | -------------|
 | **token** | **String**| JWT token or API key for authorization | |
-| **requestBody** | [**Map&lt;String, Object&gt;**](Object.md)|  | [optional] |
+| **createUploadMediaRequest** | [**CreateUploadMediaRequest**](CreateUploadMediaRequest.md)|  | |
 
 ### Return type
 
+[**CreateUploadMedia200Response**](CreateUploadMedia200Response.md)
 
-null (empty response body)
 
 ### Authorization
 
@@ -275,7 +280,7 @@ null (empty response body)
 ### HTTP request headers
 
 - **Content-Type**: application/json
-- **Accept**: Not defined
+- **Accept**: application/json
 
 ### HTTP response details
 | Status code | Description | Response headers |
@@ -284,9 +289,11 @@ null (empty response body)
 
 ## createUploadMediaWithHttpInfo
 
-> ApiResponse<Void> createUploadMediaWithHttpInfo(token, requestBody)
+> ApiResponse<CreateUploadMedia200Response> createUploadMediaWithHttpInfo(token, createUploadMediaRequest)
 
 Upload media
+
+Upload a file to WhatsApp media storage and get a numeric &#x60;mediaId&#x60; for later use with &#x60;send_file&#x60; / &#x60;send_sticker&#x60; (&#x60;mediaId&#x60; field, not &#x60;body&#x60;).  Pass the file as &#x60;body&#x60; **or** &#x60;url&#x60; — an HTTP(S) URL or a base64 data URI. The &#x60;mediaId&#x60; in the response is a numeric string (keep it as a string). 
 
 ### Example
 
@@ -313,11 +320,12 @@ public class Example {
 
         MessagingApi apiInstance = new MessagingApi(defaultClient);
         String token = "token_example"; // String | JWT token or API key for authorization
-        Map<String, Object> requestBody = null; // Map<String, Object> | 
+        CreateUploadMediaRequest createUploadMediaRequest = new CreateUploadMediaRequest(); // CreateUploadMediaRequest | 
         try {
-            ApiResponse<Void> response = apiInstance.createUploadMediaWithHttpInfo(token, requestBody);
+            ApiResponse<CreateUploadMedia200Response> response = apiInstance.createUploadMediaWithHttpInfo(token, createUploadMediaRequest);
             System.out.println("Status code: " + response.getStatusCode());
             System.out.println("Response headers: " + response.getHeaders());
+            System.out.println("Response body: " + response.getData());
         } catch (ApiException e) {
             System.err.println("Exception when calling MessagingApi#createUploadMedia");
             System.err.println("Status code: " + e.getCode());
@@ -335,12 +343,12 @@ public class Example {
 | Name | Type | Description  | Notes |
 |------------- | ------------- | ------------- | -------------|
 | **token** | **String**| JWT token or API key for authorization | |
-| **requestBody** | [**Map&lt;String, Object&gt;**](Object.md)|  | [optional] |
+| **createUploadMediaRequest** | [**CreateUploadMediaRequest**](CreateUploadMediaRequest.md)|  | |
 
 ### Return type
 
+ApiResponse<[**CreateUploadMedia200Response**](CreateUploadMedia200Response.md)>
 
-ApiResponse<Void>
 
 ### Authorization
 
@@ -349,7 +357,7 @@ ApiResponse<Void>
 ### HTTP request headers
 
 - **Content-Type**: application/json
-- **Accept**: Not defined
+- **Accept**: application/json
 
 ### HTTP response details
 | Status code | Description | Response headers |
@@ -823,9 +831,11 @@ ApiResponse<[**GetMmLiteStatus200Response**](GetMmLiteStatus200Response.md)>
 
 ## listMessages
 
-> ListMessages200Response listMessages(token)
+> ListMessages200Response listMessages(token, chatId, limit, last, lastMessageNumber, firstMessageNumber, minTime, maxTime, msgId)
 
 Get messages list
+
+List stored chat history for this channel (requires history storage). Filter with &#x60;chatId&#x60;, &#x60;limit&#x60;, &#x60;last&#x60;, message numbers, or time bounds. 
 
 ### Example
 
@@ -851,8 +861,16 @@ public class Example {
 
         MessagingApi apiInstance = new MessagingApi(defaultClient);
         String token = "token_example"; // String | JWT token or API key for authorization
+        String chatId = "chatId_example"; // String | Filter messages for one chat (`phone@c.us`, group `@g.us`, or BSUID `@lid`)
+        Integer limit = 56; // Integer | Max rows to return (default 100)
+        Boolean last = true; // Boolean | If true, return the latest messages (DESC). Default false.
+        Integer lastMessageNumber = 56; // Integer | 
+        Integer firstMessageNumber = 56; // Integer | 
+        Integer minTime = 56; // Integer | Unix timestamp lower bound
+        Integer maxTime = 56; // Integer | Unix timestamp upper bound
+        String msgId = "msgId_example"; // String | Filter by stored message id
         try {
-            ListMessages200Response result = apiInstance.listMessages(token);
+            ListMessages200Response result = apiInstance.listMessages(token, chatId, limit, last, lastMessageNumber, firstMessageNumber, minTime, maxTime, msgId);
             System.out.println(result);
         } catch (ApiException e) {
             System.err.println("Exception when calling MessagingApi#listMessages");
@@ -871,6 +889,14 @@ public class Example {
 | Name | Type | Description  | Notes |
 |------------- | ------------- | ------------- | -------------|
 | **token** | **String**| JWT token or API key for authorization | |
+| **chatId** | **String**| Filter messages for one chat (&#x60;phone@c.us&#x60;, group &#x60;@g.us&#x60;, or BSUID &#x60;@lid&#x60;) | [optional] |
+| **limit** | **Integer**| Max rows to return (default 100) | [optional] |
+| **last** | **Boolean**| If true, return the latest messages (DESC). Default false. | [optional] |
+| **lastMessageNumber** | **Integer**|  | [optional] |
+| **firstMessageNumber** | **Integer**|  | [optional] |
+| **minTime** | **Integer**| Unix timestamp lower bound | [optional] |
+| **maxTime** | **Integer**| Unix timestamp upper bound | [optional] |
+| **msgId** | **String**| Filter by stored message id | [optional] |
 
 ### Return type
 
@@ -893,9 +919,11 @@ public class Example {
 
 ## listMessagesWithHttpInfo
 
-> ApiResponse<ListMessages200Response> listMessagesWithHttpInfo(token)
+> ApiResponse<ListMessages200Response> listMessagesWithHttpInfo(token, chatId, limit, last, lastMessageNumber, firstMessageNumber, minTime, maxTime, msgId)
 
 Get messages list
+
+List stored chat history for this channel (requires history storage). Filter with &#x60;chatId&#x60;, &#x60;limit&#x60;, &#x60;last&#x60;, message numbers, or time bounds. 
 
 ### Example
 
@@ -922,8 +950,16 @@ public class Example {
 
         MessagingApi apiInstance = new MessagingApi(defaultClient);
         String token = "token_example"; // String | JWT token or API key for authorization
+        String chatId = "chatId_example"; // String | Filter messages for one chat (`phone@c.us`, group `@g.us`, or BSUID `@lid`)
+        Integer limit = 56; // Integer | Max rows to return (default 100)
+        Boolean last = true; // Boolean | If true, return the latest messages (DESC). Default false.
+        Integer lastMessageNumber = 56; // Integer | 
+        Integer firstMessageNumber = 56; // Integer | 
+        Integer minTime = 56; // Integer | Unix timestamp lower bound
+        Integer maxTime = 56; // Integer | Unix timestamp upper bound
+        String msgId = "msgId_example"; // String | Filter by stored message id
         try {
-            ApiResponse<ListMessages200Response> response = apiInstance.listMessagesWithHttpInfo(token);
+            ApiResponse<ListMessages200Response> response = apiInstance.listMessagesWithHttpInfo(token, chatId, limit, last, lastMessageNumber, firstMessageNumber, minTime, maxTime, msgId);
             System.out.println("Status code: " + response.getStatusCode());
             System.out.println("Response headers: " + response.getHeaders());
             System.out.println("Response body: " + response.getData());
@@ -944,6 +980,14 @@ public class Example {
 | Name | Type | Description  | Notes |
 |------------- | ------------- | ------------- | -------------|
 | **token** | **String**| JWT token or API key for authorization | |
+| **chatId** | **String**| Filter messages for one chat (&#x60;phone@c.us&#x60;, group &#x60;@g.us&#x60;, or BSUID &#x60;@lid&#x60;) | [optional] |
+| **limit** | **Integer**| Max rows to return (default 100) | [optional] |
+| **last** | **Boolean**| If true, return the latest messages (DESC). Default false. | [optional] |
+| **lastMessageNumber** | **Integer**|  | [optional] |
+| **firstMessageNumber** | **Integer**|  | [optional] |
+| **minTime** | **Integer**| Unix timestamp lower bound | [optional] |
+| **maxTime** | **Integer**| Unix timestamp upper bound | [optional] |
+| **msgId** | **String**| Filter by stored message id | [optional] |
 
 ### Return type
 
@@ -1441,11 +1485,11 @@ ApiResponse<[**MessageSentResponse**](MessageSentResponse.md)>
 
 ## sendCarousel
 
-> MessageSentResponse sendCarousel(token, params, body, quotedMsgId, chatId, phone)
+> MessageSentResponse sendCarousel(token, body, cards, params, quotedMsgId, chatId, phone)
 
 Send Carousel
 
-You can send product cards via Carousel in two ways:  Template messages: do not require a 24-hour customer service window between you and the recipient. Use sendTemplate.  Free-form messages: can be sent only when a customer service window is open between you and the recipient. Use sendCarousel.  The message structure in /sendCarousel is largely similar to sending a template. However, in this case you must  explicitly specify all elements that are created in advance when working with templates. This is because the message  is sent without using a template.  In /sendCarousel, for sending a Catalog Carousel there can be either 1 URL button or one or more quick reply buttons. 
+You can send product cards via Carousel in two ways:  Template messages: do not require a 24-hour customer service window between you and the recipient. Use sendTemplate.  Free-form messages: can be sent only when a customer service window is open between you and the recipient. Use sendCarousel.  The message structure in /sendCarousel is largely similar to sending a template. However, in this case you must  explicitly specify all elements that are created in advance when working with templates. This is because the message  is sent without using a template.  In /sendCarousel, for a Catalog Carousel there can be either 1 URL button or one or more quick reply buttons.  Prefer the simple &#x60;cards&#x60; array (2–10 cards). Each card needs a header media/product plus a CTA URL or quick-reply buttons. Example:  &#x60;&#x60;&#x60;json {   \&quot;phone\&quot;: \&quot;79001234567\&quot;,   \&quot;body\&quot;: \&quot;Pick a product\&quot;,   \&quot;cards\&quot;: [     {       \&quot;header\&quot;: { \&quot;type\&quot;: \&quot;image\&quot;, \&quot;image\&quot;: { \&quot;link\&quot;: \&quot;https://example.com/1.jpg\&quot; } },       \&quot;body\&quot;: { \&quot;text\&quot;: \&quot;Card one\&quot; },       \&quot;type\&quot;: \&quot;cta_url\&quot;,       \&quot;action\&quot;: { \&quot;name\&quot;: \&quot;cta_url\&quot;, \&quot;parameters\&quot;: { \&quot;url\&quot;: \&quot;https://example.com/p1\&quot;, \&quot;display_text\&quot;: \&quot;Open\&quot; } }     },     {       \&quot;header\&quot;: { \&quot;type\&quot;: \&quot;image\&quot;, \&quot;image\&quot;: { \&quot;link\&quot;: \&quot;https://example.com/2.jpg\&quot; } },       \&quot;body\&quot;: { \&quot;text\&quot;: \&quot;Card two\&quot; },       \&quot;type\&quot;: \&quot;cta_url\&quot;,       \&quot;action\&quot;: { \&quot;name\&quot;: \&quot;cta_url\&quot;, \&quot;parameters\&quot;: { \&quot;url\&quot;: \&quot;https://example.com/p2\&quot;, \&quot;display_text\&quot;: \&quot;Open\&quot; } }     }   ] } &#x60;&#x60;&#x60;  &#x60;params&#x60; with a &#x60;CAROUSEL&#x60; component is the template-like alternative. 
 
 ### Example
 
@@ -1471,13 +1515,14 @@ public class Example {
 
         MessagingApi apiInstance = new MessagingApi(defaultClient);
         String token = "token_example"; // String | JWT token or API key for authorization
-        List<Object> params = null; // List<Object> | Required. Template-like structure (same as sendTemplate params). Must include a CAROUSEL component and its cards.  Structure: - params[] item with type CAROUSEL and cards (2..10) - cards[] item:   - components[] items:     - header: parameters[0] with type image/video/product       - image: {\\\"image\\\": {\\\"link\\\": \\\"https://...\\\"}}       - video: {\\\"video\\\": {\\\"link\\\": \\\"https://...\\\"}}       - product: {\\\"product\\\": {\\\"catalog_id\\\": \\\"...\\\", \\\"product_retailer_id\\\": \\\"...\\\"}}     - button: sub_type url or quick_reply       - url: parameters {\\\"text\\\": \\\"Button\\\", \\\"url\\\": \\\"https://...\\\"}       - quick_reply: parameters[] of {\\\"id\\\": \\\"...\\\", \\\"text\\\": \\\"...\\\"} 
         String body = "body_example"; // String | Text shown above the carousel. Optional. If omitted and params include a body component, the body will be taken from params.
+        List<Map<String, Object>> cards = Arrays.asList(new HashMap<>()); // List<Map<String, Object>> | Preferred. 2–10 carousel cards (header + body + CTA or quick replies).
+        List<Object> params = null; // List<Object> | Required. Template-like structure (same as sendTemplate params). Must include a CAROUSEL component and its cards.  Structure: - params[] item with type CAROUSEL and cards (2..10) - cards[] item:   - components[] items:     - header: parameters[0] with type image/video/product       - image: {\\\"image\\\": {\\\"link\\\": \\\"https://...\\\"}}       - video: {\\\"video\\\": {\\\"link\\\": \\\"https://...\\\"}}       - product: {\\\"product\\\": {\\\"catalog_id\\\": \\\"...\\\", \\\"product_retailer_id\\\": \\\"...\\\"}}     - button: sub_type url or quick_reply       - url: parameters {\\\"text\\\": \\\"Button\\\", \\\"url\\\": \\\"https://...\\\"}       - quick_reply: parameters[] of {\\\"id\\\": \\\"...\\\", \\\"text\\\": \\\"...\\\"} 
         String quotedMsgId = "quotedMsgId_example"; // String | Quoted message ID (Cloud API)
         String chatId = "chatId_example"; // String | Required if phone is not set. Chat ID from the message list. Examples: 12020721369@c.us or 120363046942338209@g.us(group)
         Integer phone = 56; // Integer | Required if chatId is not set. A phone number starting with the country code. USA example: 12020721369.
         try {
-            MessageSentResponse result = apiInstance.sendCarousel(token, params, body, quotedMsgId, chatId, phone);
+            MessageSentResponse result = apiInstance.sendCarousel(token, body, cards, params, quotedMsgId, chatId, phone);
             System.out.println(result);
         } catch (ApiException e) {
             System.err.println("Exception when calling MessagingApi#sendCarousel");
@@ -1496,8 +1541,9 @@ public class Example {
 | Name | Type | Description  | Notes |
 |------------- | ------------- | ------------- | -------------|
 | **token** | **String**| JWT token or API key for authorization | |
-| **params** | [**List&lt;Object&gt;**](Object.md)| Required. Template-like structure (same as sendTemplate params). Must include a CAROUSEL component and its cards.  Structure: - params[] item with type CAROUSEL and cards (2..10) - cards[] item:   - components[] items:     - header: parameters[0] with type image/video/product       - image: {\\\&quot;image\\\&quot;: {\\\&quot;link\\\&quot;: \\\&quot;https://...\\\&quot;}}       - video: {\\\&quot;video\\\&quot;: {\\\&quot;link\\\&quot;: \\\&quot;https://...\\\&quot;}}       - product: {\\\&quot;product\\\&quot;: {\\\&quot;catalog_id\\\&quot;: \\\&quot;...\\\&quot;, \\\&quot;product_retailer_id\\\&quot;: \\\&quot;...\\\&quot;}}     - button: sub_type url or quick_reply       - url: parameters {\\\&quot;text\\\&quot;: \\\&quot;Button\\\&quot;, \\\&quot;url\\\&quot;: \\\&quot;https://...\\\&quot;}       - quick_reply: parameters[] of {\\\&quot;id\\\&quot;: \\\&quot;...\\\&quot;, \\\&quot;text\\\&quot;: \\\&quot;...\\\&quot;}  | |
 | **body** | **String**| Text shown above the carousel. Optional. If omitted and params include a body component, the body will be taken from params. | [optional] |
+| **cards** | [**List&lt;Map&lt;String, Object&gt;&gt;**](Map&lt;String, Object&gt;.md)| Preferred. 2–10 carousel cards (header + body + CTA or quick replies). | [optional] |
+| **params** | [**List&lt;Object&gt;**](Object.md)| Required. Template-like structure (same as sendTemplate params). Must include a CAROUSEL component and its cards.  Structure: - params[] item with type CAROUSEL and cards (2..10) - cards[] item:   - components[] items:     - header: parameters[0] with type image/video/product       - image: {\\\&quot;image\\\&quot;: {\\\&quot;link\\\&quot;: \\\&quot;https://...\\\&quot;}}       - video: {\\\&quot;video\\\&quot;: {\\\&quot;link\\\&quot;: \\\&quot;https://...\\\&quot;}}       - product: {\\\&quot;product\\\&quot;: {\\\&quot;catalog_id\\\&quot;: \\\&quot;...\\\&quot;, \\\&quot;product_retailer_id\\\&quot;: \\\&quot;...\\\&quot;}}     - button: sub_type url or quick_reply       - url: parameters {\\\&quot;text\\\&quot;: \\\&quot;Button\\\&quot;, \\\&quot;url\\\&quot;: \\\&quot;https://...\\\&quot;}       - quick_reply: parameters[] of {\\\&quot;id\\\&quot;: \\\&quot;...\\\&quot;, \\\&quot;text\\\&quot;: \\\&quot;...\\\&quot;}  | [optional] |
 | **quotedMsgId** | **String**| Quoted message ID (Cloud API) | [optional] |
 | **chatId** | **String**| Required if phone is not set. Chat ID from the message list. Examples: 12020721369@c.us or 120363046942338209@g.us(group) | [optional] |
 | **phone** | **Integer**| Required if chatId is not set. A phone number starting with the country code. USA example: 12020721369. | [optional] |
@@ -1527,11 +1573,11 @@ public class Example {
 
 ## sendCarouselWithHttpInfo
 
-> ApiResponse<MessageSentResponse> sendCarouselWithHttpInfo(token, params, body, quotedMsgId, chatId, phone)
+> ApiResponse<MessageSentResponse> sendCarouselWithHttpInfo(token, body, cards, params, quotedMsgId, chatId, phone)
 
 Send Carousel
 
-You can send product cards via Carousel in two ways:  Template messages: do not require a 24-hour customer service window between you and the recipient. Use sendTemplate.  Free-form messages: can be sent only when a customer service window is open between you and the recipient. Use sendCarousel.  The message structure in /sendCarousel is largely similar to sending a template. However, in this case you must  explicitly specify all elements that are created in advance when working with templates. This is because the message  is sent without using a template.  In /sendCarousel, for sending a Catalog Carousel there can be either 1 URL button or one or more quick reply buttons. 
+You can send product cards via Carousel in two ways:  Template messages: do not require a 24-hour customer service window between you and the recipient. Use sendTemplate.  Free-form messages: can be sent only when a customer service window is open between you and the recipient. Use sendCarousel.  The message structure in /sendCarousel is largely similar to sending a template. However, in this case you must  explicitly specify all elements that are created in advance when working with templates. This is because the message  is sent without using a template.  In /sendCarousel, for a Catalog Carousel there can be either 1 URL button or one or more quick reply buttons.  Prefer the simple &#x60;cards&#x60; array (2–10 cards). Each card needs a header media/product plus a CTA URL or quick-reply buttons. Example:  &#x60;&#x60;&#x60;json {   \&quot;phone\&quot;: \&quot;79001234567\&quot;,   \&quot;body\&quot;: \&quot;Pick a product\&quot;,   \&quot;cards\&quot;: [     {       \&quot;header\&quot;: { \&quot;type\&quot;: \&quot;image\&quot;, \&quot;image\&quot;: { \&quot;link\&quot;: \&quot;https://example.com/1.jpg\&quot; } },       \&quot;body\&quot;: { \&quot;text\&quot;: \&quot;Card one\&quot; },       \&quot;type\&quot;: \&quot;cta_url\&quot;,       \&quot;action\&quot;: { \&quot;name\&quot;: \&quot;cta_url\&quot;, \&quot;parameters\&quot;: { \&quot;url\&quot;: \&quot;https://example.com/p1\&quot;, \&quot;display_text\&quot;: \&quot;Open\&quot; } }     },     {       \&quot;header\&quot;: { \&quot;type\&quot;: \&quot;image\&quot;, \&quot;image\&quot;: { \&quot;link\&quot;: \&quot;https://example.com/2.jpg\&quot; } },       \&quot;body\&quot;: { \&quot;text\&quot;: \&quot;Card two\&quot; },       \&quot;type\&quot;: \&quot;cta_url\&quot;,       \&quot;action\&quot;: { \&quot;name\&quot;: \&quot;cta_url\&quot;, \&quot;parameters\&quot;: { \&quot;url\&quot;: \&quot;https://example.com/p2\&quot;, \&quot;display_text\&quot;: \&quot;Open\&quot; } }     }   ] } &#x60;&#x60;&#x60;  &#x60;params&#x60; with a &#x60;CAROUSEL&#x60; component is the template-like alternative. 
 
 ### Example
 
@@ -1558,13 +1604,14 @@ public class Example {
 
         MessagingApi apiInstance = new MessagingApi(defaultClient);
         String token = "token_example"; // String | JWT token or API key for authorization
-        List<Object> params = null; // List<Object> | Required. Template-like structure (same as sendTemplate params). Must include a CAROUSEL component and its cards.  Structure: - params[] item with type CAROUSEL and cards (2..10) - cards[] item:   - components[] items:     - header: parameters[0] with type image/video/product       - image: {\\\"image\\\": {\\\"link\\\": \\\"https://...\\\"}}       - video: {\\\"video\\\": {\\\"link\\\": \\\"https://...\\\"}}       - product: {\\\"product\\\": {\\\"catalog_id\\\": \\\"...\\\", \\\"product_retailer_id\\\": \\\"...\\\"}}     - button: sub_type url or quick_reply       - url: parameters {\\\"text\\\": \\\"Button\\\", \\\"url\\\": \\\"https://...\\\"}       - quick_reply: parameters[] of {\\\"id\\\": \\\"...\\\", \\\"text\\\": \\\"...\\\"} 
         String body = "body_example"; // String | Text shown above the carousel. Optional. If omitted and params include a body component, the body will be taken from params.
+        List<Map<String, Object>> cards = Arrays.asList(new HashMap<>()); // List<Map<String, Object>> | Preferred. 2–10 carousel cards (header + body + CTA or quick replies).
+        List<Object> params = null; // List<Object> | Required. Template-like structure (same as sendTemplate params). Must include a CAROUSEL component and its cards.  Structure: - params[] item with type CAROUSEL and cards (2..10) - cards[] item:   - components[] items:     - header: parameters[0] with type image/video/product       - image: {\\\"image\\\": {\\\"link\\\": \\\"https://...\\\"}}       - video: {\\\"video\\\": {\\\"link\\\": \\\"https://...\\\"}}       - product: {\\\"product\\\": {\\\"catalog_id\\\": \\\"...\\\", \\\"product_retailer_id\\\": \\\"...\\\"}}     - button: sub_type url or quick_reply       - url: parameters {\\\"text\\\": \\\"Button\\\", \\\"url\\\": \\\"https://...\\\"}       - quick_reply: parameters[] of {\\\"id\\\": \\\"...\\\", \\\"text\\\": \\\"...\\\"} 
         String quotedMsgId = "quotedMsgId_example"; // String | Quoted message ID (Cloud API)
         String chatId = "chatId_example"; // String | Required if phone is not set. Chat ID from the message list. Examples: 12020721369@c.us or 120363046942338209@g.us(group)
         Integer phone = 56; // Integer | Required if chatId is not set. A phone number starting with the country code. USA example: 12020721369.
         try {
-            ApiResponse<MessageSentResponse> response = apiInstance.sendCarouselWithHttpInfo(token, params, body, quotedMsgId, chatId, phone);
+            ApiResponse<MessageSentResponse> response = apiInstance.sendCarouselWithHttpInfo(token, body, cards, params, quotedMsgId, chatId, phone);
             System.out.println("Status code: " + response.getStatusCode());
             System.out.println("Response headers: " + response.getHeaders());
             System.out.println("Response body: " + response.getData());
@@ -1585,8 +1632,9 @@ public class Example {
 | Name | Type | Description  | Notes |
 |------------- | ------------- | ------------- | -------------|
 | **token** | **String**| JWT token or API key for authorization | |
-| **params** | [**List&lt;Object&gt;**](Object.md)| Required. Template-like structure (same as sendTemplate params). Must include a CAROUSEL component and its cards.  Structure: - params[] item with type CAROUSEL and cards (2..10) - cards[] item:   - components[] items:     - header: parameters[0] with type image/video/product       - image: {\\\&quot;image\\\&quot;: {\\\&quot;link\\\&quot;: \\\&quot;https://...\\\&quot;}}       - video: {\\\&quot;video\\\&quot;: {\\\&quot;link\\\&quot;: \\\&quot;https://...\\\&quot;}}       - product: {\\\&quot;product\\\&quot;: {\\\&quot;catalog_id\\\&quot;: \\\&quot;...\\\&quot;, \\\&quot;product_retailer_id\\\&quot;: \\\&quot;...\\\&quot;}}     - button: sub_type url or quick_reply       - url: parameters {\\\&quot;text\\\&quot;: \\\&quot;Button\\\&quot;, \\\&quot;url\\\&quot;: \\\&quot;https://...\\\&quot;}       - quick_reply: parameters[] of {\\\&quot;id\\\&quot;: \\\&quot;...\\\&quot;, \\\&quot;text\\\&quot;: \\\&quot;...\\\&quot;}  | |
 | **body** | **String**| Text shown above the carousel. Optional. If omitted and params include a body component, the body will be taken from params. | [optional] |
+| **cards** | [**List&lt;Map&lt;String, Object&gt;&gt;**](Map&lt;String, Object&gt;.md)| Preferred. 2–10 carousel cards (header + body + CTA or quick replies). | [optional] |
+| **params** | [**List&lt;Object&gt;**](Object.md)| Required. Template-like structure (same as sendTemplate params). Must include a CAROUSEL component and its cards.  Structure: - params[] item with type CAROUSEL and cards (2..10) - cards[] item:   - components[] items:     - header: parameters[0] with type image/video/product       - image: {\\\&quot;image\\\&quot;: {\\\&quot;link\\\&quot;: \\\&quot;https://...\\\&quot;}}       - video: {\\\&quot;video\\\&quot;: {\\\&quot;link\\\&quot;: \\\&quot;https://...\\\&quot;}}       - product: {\\\&quot;product\\\&quot;: {\\\&quot;catalog_id\\\&quot;: \\\&quot;...\\\&quot;, \\\&quot;product_retailer_id\\\&quot;: \\\&quot;...\\\&quot;}}     - button: sub_type url or quick_reply       - url: parameters {\\\&quot;text\\\&quot;: \\\&quot;Button\\\&quot;, \\\&quot;url\\\&quot;: \\\&quot;https://...\\\&quot;}       - quick_reply: parameters[] of {\\\&quot;id\\\&quot;: \\\&quot;...\\\&quot;, \\\&quot;text\\\&quot;: \\\&quot;...\\\&quot;}  | [optional] |
 | **quotedMsgId** | **String**| Quoted message ID (Cloud API) | [optional] |
 | **chatId** | **String**| Required if phone is not set. Chat ID from the message list. Examples: 12020721369@c.us or 120363046942338209@g.us(group) | [optional] |
 | **phone** | **Integer**| Required if chatId is not set. A phone number starting with the country code. USA example: 12020721369. | [optional] |
@@ -1620,6 +1668,8 @@ ApiResponse<[**MessageSentResponse**](MessageSentResponse.md)>
 > MessageSentResponse sendContact(token, sendContactRequest)
 
 Send a Contact
+
+Send a WhatsApp contact card.  Preferred simple body (legacy-compatible):  &#x60;&#x60;&#x60;json {   \&quot;phone\&quot;: \&quot;79001234567\&quot;,   \&quot;contact\&quot;: { \&quot;name\&quot;: \&quot;Lida\&quot;, \&quot;phone\&quot;: \&quot;+79181976551\&quot; } } &#x60;&#x60;&#x60;  Cloud API shape also works: &#x60;contacts&#x60; is an array of objects with &#x60;name.formatted_name&#x60; and &#x60;phones[].phone&#x60; (E.164 string, **not** a timestamp). 
 
 ### Example
 
@@ -1697,6 +1747,8 @@ public class Example {
 
 Send a Contact
 
+Send a WhatsApp contact card.  Preferred simple body (legacy-compatible):  &#x60;&#x60;&#x60;json {   \&quot;phone\&quot;: \&quot;79001234567\&quot;,   \&quot;contact\&quot;: { \&quot;name\&quot;: \&quot;Lida\&quot;, \&quot;phone\&quot;: \&quot;+79181976551\&quot; } } &#x60;&#x60;&#x60;  Cloud API shape also works: &#x60;contacts&#x60; is an array of objects with &#x60;name.formatted_name&#x60; and &#x60;phones[].phone&#x60; (E.164 string, **not** a timestamp). 
+
 ### Example
 
 ```java
@@ -1746,6 +1798,166 @@ public class Example {
 |------------- | ------------- | ------------- | -------------|
 | **token** | **String**| JWT token or API key for authorization | |
 | **sendContactRequest** | [**SendContactRequest**](SendContactRequest.md)|  | [optional] |
+
+### Return type
+
+ApiResponse<[**MessageSentResponse**](MessageSentResponse.md)>
+
+
+### Authorization
+
+[tokenAuth](../README.md#tokenAuth)
+
+### HTTP request headers
+
+- **Content-Type**: application/json
+- **Accept**: application/json
+
+### HTTP response details
+| Status code | Description | Response headers |
+|-------------|-------------|------------------|
+| **200** | Message sent successfully |  -  |
+| **400** | Invalid request parameters |  -  |
+| **401** | Invalid or missing authentication token |  -  |
+| **429** | Rate limit exceeded |  -  |
+| **500** | Internal server error |  -  |
+
+
+## sendContactInfo
+
+> MessageSentResponse sendContactInfo(token, sendContactInfoRequest)
+
+Request the user&#39;s phone number
+
+Send a service-window interactive message that asks the WhatsApp user to share their phone number (&#x60;request_contact_info&#x60;).  Use this when you only know the user by BSUID (WhatsApp username) and the 24-hour customer service window is open. Outside that window, create a UTILITY or MARKETING template with a &#x60;REQUEST_CONTACT_INFO&#x60; button (&#x60;POST /addTemplate&#x60;) and send it with &#x60;POST /sendTemplate&#x60;.  &#x60;body&#x60; is the text shown above the button (1–1024 characters). WhatsApp chooses the button label. This method has no button-text field — do not send one.  &#x60;&#x60;&#x60;json {   \&quot;bsuid\&quot;: \&quot;US.13491208655302741918\&quot;,   \&quot;body\&quot;: \&quot;Please share your phone number so we can reach you.\&quot; } &#x60;&#x60;&#x60;  &#x60;phone&#x60;, &#x60;chatId&#x60; (&#x60;…@c.us&#x60;, &#x60;…@lid&#x60;, &#x60;…@username&#x60;), or &#x60;bsuid&#x60; identifies the recipient. One of them is enough.  After Meta accepts the send, the outgoing webhook and stored history message use this same text as &#x60;messages[].body&#x60; (&#x60;type: interactive&#x60;).  When the user taps the button, Meta sends an inbound &#x60;contacts&#x60; message. The sender stays the BSUID. The shared number is on the card with &#x60;origin: contact_request&#x60;. We write that phone onto the existing BSUID contact automatically — there is no separate “link phone” call.  &#x60;&#x60;&#x60;json {   \&quot;contacts\&quot;: [     {       \&quot;profile\&quot;: { \&quot;name\&quot;: \&quot;Ada\&quot;, \&quot;username\&quot;: \&quot;ada\&quot; },       \&quot;user_id\&quot;: \&quot;US.13491208655302741918\&quot;     }   ],   \&quot;messages\&quot;: [     {       \&quot;from_user_id\&quot;: \&quot;US.13491208655302741918\&quot;,       \&quot;type\&quot;: \&quot;contacts\&quot;,       \&quot;contacts\&quot;: [         {           \&quot;origin\&quot;: \&quot;contact_request\&quot;,           \&quot;phones\&quot;: [{ \&quot;phone\&quot;: \&quot;+1 202-555-0123\&quot;, \&quot;wa_id\&quot;: \&quot;12025550123\&quot; }]         }       ]     }   ] } &#x60;&#x60;&#x60;  The stored inbound message body is the digits (&#x60;12025550123&#x60;).  If Meta later includes a phone on an ordinary message or status for that same BSUID (&#x60;wa_id&#x60;, &#x60;from&#x60;, or &#x60;recipient_id&#x60;, together with &#x60;user_id&#x60; / &#x60;recipient_user_id&#x60;), that phone is merged onto the same contact. A contact card the user forwards (&#x60;origin&#x60; other than &#x60;contact_request&#x60;) is someone else&#39;s number and is not stored as this sender&#39;s phone. 
+
+### Example
+
+```java
+// Import classes:
+import io.onemsg.sdk.ApiClient;
+import io.onemsg.sdk.ApiException;
+import io.onemsg.sdk.Configuration;
+import io.onemsg.sdk.auth.*;
+import io.onemsg.sdk.models.*;
+import io.onemsg.sdk.api.MessagingApi;
+
+public class Example {
+    public static void main(String[] args) {
+        ApiClient defaultClient = Configuration.getDefaultApiClient();
+        defaultClient.setBasePath("https://api.1msg.io");
+        
+        // Configure API key authorization: tokenAuth
+        ApiKeyAuth tokenAuth = (ApiKeyAuth) defaultClient.getAuthentication("tokenAuth");
+        tokenAuth.setApiKey("YOUR API KEY");
+        // Uncomment the following line to set a prefix for the API key, e.g. "Token" (defaults to null)
+        //tokenAuth.setApiKeyPrefix("Token");
+
+        MessagingApi apiInstance = new MessagingApi(defaultClient);
+        String token = "token_example"; // String | JWT token or API key for authorization
+        SendContactInfoRequest sendContactInfoRequest = new SendContactInfoRequest(); // SendContactInfoRequest | 
+        try {
+            MessageSentResponse result = apiInstance.sendContactInfo(token, sendContactInfoRequest);
+            System.out.println(result);
+        } catch (ApiException e) {
+            System.err.println("Exception when calling MessagingApi#sendContactInfo");
+            System.err.println("Status code: " + e.getCode());
+            System.err.println("Reason: " + e.getResponseBody());
+            System.err.println("Response headers: " + e.getResponseHeaders());
+            e.printStackTrace();
+        }
+    }
+}
+```
+
+### Parameters
+
+
+| Name | Type | Description  | Notes |
+|------------- | ------------- | ------------- | -------------|
+| **token** | **String**| JWT token or API key for authorization | |
+| **sendContactInfoRequest** | [**SendContactInfoRequest**](SendContactInfoRequest.md)|  | [optional] |
+
+### Return type
+
+[**MessageSentResponse**](MessageSentResponse.md)
+
+
+### Authorization
+
+[tokenAuth](../README.md#tokenAuth)
+
+### HTTP request headers
+
+- **Content-Type**: application/json
+- **Accept**: application/json
+
+### HTTP response details
+| Status code | Description | Response headers |
+|-------------|-------------|------------------|
+| **200** | Message sent successfully |  -  |
+| **400** | Invalid request parameters |  -  |
+| **401** | Invalid or missing authentication token |  -  |
+| **429** | Rate limit exceeded |  -  |
+| **500** | Internal server error |  -  |
+
+## sendContactInfoWithHttpInfo
+
+> ApiResponse<MessageSentResponse> sendContactInfoWithHttpInfo(token, sendContactInfoRequest)
+
+Request the user&#39;s phone number
+
+Send a service-window interactive message that asks the WhatsApp user to share their phone number (&#x60;request_contact_info&#x60;).  Use this when you only know the user by BSUID (WhatsApp username) and the 24-hour customer service window is open. Outside that window, create a UTILITY or MARKETING template with a &#x60;REQUEST_CONTACT_INFO&#x60; button (&#x60;POST /addTemplate&#x60;) and send it with &#x60;POST /sendTemplate&#x60;.  &#x60;body&#x60; is the text shown above the button (1–1024 characters). WhatsApp chooses the button label. This method has no button-text field — do not send one.  &#x60;&#x60;&#x60;json {   \&quot;bsuid\&quot;: \&quot;US.13491208655302741918\&quot;,   \&quot;body\&quot;: \&quot;Please share your phone number so we can reach you.\&quot; } &#x60;&#x60;&#x60;  &#x60;phone&#x60;, &#x60;chatId&#x60; (&#x60;…@c.us&#x60;, &#x60;…@lid&#x60;, &#x60;…@username&#x60;), or &#x60;bsuid&#x60; identifies the recipient. One of them is enough.  After Meta accepts the send, the outgoing webhook and stored history message use this same text as &#x60;messages[].body&#x60; (&#x60;type: interactive&#x60;).  When the user taps the button, Meta sends an inbound &#x60;contacts&#x60; message. The sender stays the BSUID. The shared number is on the card with &#x60;origin: contact_request&#x60;. We write that phone onto the existing BSUID contact automatically — there is no separate “link phone” call.  &#x60;&#x60;&#x60;json {   \&quot;contacts\&quot;: [     {       \&quot;profile\&quot;: { \&quot;name\&quot;: \&quot;Ada\&quot;, \&quot;username\&quot;: \&quot;ada\&quot; },       \&quot;user_id\&quot;: \&quot;US.13491208655302741918\&quot;     }   ],   \&quot;messages\&quot;: [     {       \&quot;from_user_id\&quot;: \&quot;US.13491208655302741918\&quot;,       \&quot;type\&quot;: \&quot;contacts\&quot;,       \&quot;contacts\&quot;: [         {           \&quot;origin\&quot;: \&quot;contact_request\&quot;,           \&quot;phones\&quot;: [{ \&quot;phone\&quot;: \&quot;+1 202-555-0123\&quot;, \&quot;wa_id\&quot;: \&quot;12025550123\&quot; }]         }       ]     }   ] } &#x60;&#x60;&#x60;  The stored inbound message body is the digits (&#x60;12025550123&#x60;).  If Meta later includes a phone on an ordinary message or status for that same BSUID (&#x60;wa_id&#x60;, &#x60;from&#x60;, or &#x60;recipient_id&#x60;, together with &#x60;user_id&#x60; / &#x60;recipient_user_id&#x60;), that phone is merged onto the same contact. A contact card the user forwards (&#x60;origin&#x60; other than &#x60;contact_request&#x60;) is someone else&#39;s number and is not stored as this sender&#39;s phone. 
+
+### Example
+
+```java
+// Import classes:
+import io.onemsg.sdk.ApiClient;
+import io.onemsg.sdk.ApiException;
+import io.onemsg.sdk.ApiResponse;
+import io.onemsg.sdk.Configuration;
+import io.onemsg.sdk.auth.*;
+import io.onemsg.sdk.models.*;
+import io.onemsg.sdk.api.MessagingApi;
+
+public class Example {
+    public static void main(String[] args) {
+        ApiClient defaultClient = Configuration.getDefaultApiClient();
+        defaultClient.setBasePath("https://api.1msg.io");
+        
+        // Configure API key authorization: tokenAuth
+        ApiKeyAuth tokenAuth = (ApiKeyAuth) defaultClient.getAuthentication("tokenAuth");
+        tokenAuth.setApiKey("YOUR API KEY");
+        // Uncomment the following line to set a prefix for the API key, e.g. "Token" (defaults to null)
+        //tokenAuth.setApiKeyPrefix("Token");
+
+        MessagingApi apiInstance = new MessagingApi(defaultClient);
+        String token = "token_example"; // String | JWT token or API key for authorization
+        SendContactInfoRequest sendContactInfoRequest = new SendContactInfoRequest(); // SendContactInfoRequest | 
+        try {
+            ApiResponse<MessageSentResponse> response = apiInstance.sendContactInfoWithHttpInfo(token, sendContactInfoRequest);
+            System.out.println("Status code: " + response.getStatusCode());
+            System.out.println("Response headers: " + response.getHeaders());
+            System.out.println("Response body: " + response.getData());
+        } catch (ApiException e) {
+            System.err.println("Exception when calling MessagingApi#sendContactInfo");
+            System.err.println("Status code: " + e.getCode());
+            System.err.println("Response headers: " + e.getResponseHeaders());
+            System.err.println("Reason: " + e.getResponseBody());
+            e.printStackTrace();
+        }
+    }
+}
+```
+
+### Parameters
+
+
+| Name | Type | Description  | Notes |
+|------------- | ------------- | ------------- | -------------|
+| **token** | **String**| JWT token or API key for authorization | |
+| **sendContactInfoRequest** | [**SendContactInfoRequest**](SendContactInfoRequest.md)|  | [optional] |
 
 ### Return type
 
@@ -2837,11 +3049,11 @@ ApiResponse<[**MessageSentResponse**](MessageSentResponse.md)>
 
 ## sendMessage
 
-> MessageSentResponse sendMessage(token, body, quotedMsgId, chatId, phone)
+> MessageSentResponse sendMessage(token, body, quotedMsgId, chatId, phone, category, directSend)
 
 Send a Message
 
-Send a message to an existing chat. (Only if the dialogue has an Open Session).  The message will be added to the queue for sending and delivered even if the phone  is disconnected from the Internet or authorization is not passed.  Only one of two parameters is needed to determine the destination - chatId or phone. 
+Send a message to an existing chat. (Only if the dialogue has an Open Session).  The message will be added to the queue for sending and delivered even if the phone  is disconnected from the Internet or authorization is not passed.  Only one of two parameters is needed to determine the destination - chatId or phone.  Direct Send is in beta. Meta has not enabled it on every business portfolio, so &#x60;category&#x60; and &#x60;directSend&#x60; are a beta option: watch delivery errors before relying on them.  Set &#x60;category&#x60; to &#x60;utility&#x60; or &#x60;authentication&#x60; to send outside the 24-hour window as a Meta Direct Send template instead of the 1MSG marketing auto-template. &#x60;authentication&#x60; is part of that beta and is not recommended. &#x60;directSend.serviceFirst: true&#x60; tries a free service message first and uses Direct Send only when Meta rejects it because the window is closed (131047). &#x60;directSend.templateName&#x60; is only valid with &#x60;utility&#x60; (&#x60;^[a-z0-9_]+$&#x60;, max 512). Direct Send text is limited to 1024 characters. Without &#x60;templateName&#x60;, the first unseen phrase may be delivered as Meta&#39;s onboarding template. A named template does not guarantee delivery — wait for webhook errors 131000 or 132021. An open 24-hour window is still billed as utility when &#x60;category&#x60; is set and &#x60;serviceFirst&#x60; is not true. 
 
 ### Example
 
@@ -2869,10 +3081,12 @@ public class Example {
         String token = "token_example"; // String | JWT token or API key for authorization
         String body = "body_example"; // String | Message text, UTF-8 or UTF-16 string with emoji
         String quotedMsgId = "quotedMsgId_example"; // String | Message ID to quote/reply to (Cloud API wamid)
-        String chatId = "chatId_example"; // String | Chat ID in format: phone@c.us (individual) or phone@g.us (group)
+        String chatId = "chatId_example"; // String | Recipient chat ID: phone@c.us, group@g.us, or BSUID@lid
         Integer phone = 56; // Integer | Phone number starting with country code (alternative to chatId)
+        String category = "utility"; // String | Optional Direct Send category. Direct Send is in beta: Meta has not enabled it on every business portfolio. `utility` or `authentication` enables it. `authentication` is part of that beta and is not recommended. Omit or `service` keeps a normal service message (and the marketing auto-template outside the 24-hour window). `marketing` is rejected. 
+        SendMessageRequestDirectSend directSend = new SendMessageRequestDirectSend(); // SendMessageRequestDirectSend | 
         try {
-            MessageSentResponse result = apiInstance.sendMessage(token, body, quotedMsgId, chatId, phone);
+            MessageSentResponse result = apiInstance.sendMessage(token, body, quotedMsgId, chatId, phone, category, directSend);
             System.out.println(result);
         } catch (ApiException e) {
             System.err.println("Exception when calling MessagingApi#sendMessage");
@@ -2893,8 +3107,10 @@ public class Example {
 | **token** | **String**| JWT token or API key for authorization | |
 | **body** | **String**| Message text, UTF-8 or UTF-16 string with emoji | |
 | **quotedMsgId** | **String**| Message ID to quote/reply to (Cloud API wamid) | [optional] |
-| **chatId** | **String**| Chat ID in format: phone@c.us (individual) or phone@g.us (group) | [optional] |
+| **chatId** | **String**| Recipient chat ID: phone@c.us, group@g.us, or BSUID@lid | [optional] |
 | **phone** | **Integer**| Phone number starting with country code (alternative to chatId) | [optional] |
+| **category** | **String**| Optional Direct Send category. Direct Send is in beta: Meta has not enabled it on every business portfolio. &#x60;utility&#x60; or &#x60;authentication&#x60; enables it. &#x60;authentication&#x60; is part of that beta and is not recommended. Omit or &#x60;service&#x60; keeps a normal service message (and the marketing auto-template outside the 24-hour window). &#x60;marketing&#x60; is rejected.  | [optional] [enum: utility, authentication, service] |
+| **directSend** | [**SendMessageRequestDirectSend**](SendMessageRequestDirectSend.md)|  | [optional] |
 
 ### Return type
 
@@ -2921,11 +3137,11 @@ public class Example {
 
 ## sendMessageWithHttpInfo
 
-> ApiResponse<MessageSentResponse> sendMessageWithHttpInfo(token, body, quotedMsgId, chatId, phone)
+> ApiResponse<MessageSentResponse> sendMessageWithHttpInfo(token, body, quotedMsgId, chatId, phone, category, directSend)
 
 Send a Message
 
-Send a message to an existing chat. (Only if the dialogue has an Open Session).  The message will be added to the queue for sending and delivered even if the phone  is disconnected from the Internet or authorization is not passed.  Only one of two parameters is needed to determine the destination - chatId or phone. 
+Send a message to an existing chat. (Only if the dialogue has an Open Session).  The message will be added to the queue for sending and delivered even if the phone  is disconnected from the Internet or authorization is not passed.  Only one of two parameters is needed to determine the destination - chatId or phone.  Direct Send is in beta. Meta has not enabled it on every business portfolio, so &#x60;category&#x60; and &#x60;directSend&#x60; are a beta option: watch delivery errors before relying on them.  Set &#x60;category&#x60; to &#x60;utility&#x60; or &#x60;authentication&#x60; to send outside the 24-hour window as a Meta Direct Send template instead of the 1MSG marketing auto-template. &#x60;authentication&#x60; is part of that beta and is not recommended. &#x60;directSend.serviceFirst: true&#x60; tries a free service message first and uses Direct Send only when Meta rejects it because the window is closed (131047). &#x60;directSend.templateName&#x60; is only valid with &#x60;utility&#x60; (&#x60;^[a-z0-9_]+$&#x60;, max 512). Direct Send text is limited to 1024 characters. Without &#x60;templateName&#x60;, the first unseen phrase may be delivered as Meta&#39;s onboarding template. A named template does not guarantee delivery — wait for webhook errors 131000 or 132021. An open 24-hour window is still billed as utility when &#x60;category&#x60; is set and &#x60;serviceFirst&#x60; is not true. 
 
 ### Example
 
@@ -2954,10 +3170,12 @@ public class Example {
         String token = "token_example"; // String | JWT token or API key for authorization
         String body = "body_example"; // String | Message text, UTF-8 or UTF-16 string with emoji
         String quotedMsgId = "quotedMsgId_example"; // String | Message ID to quote/reply to (Cloud API wamid)
-        String chatId = "chatId_example"; // String | Chat ID in format: phone@c.us (individual) or phone@g.us (group)
+        String chatId = "chatId_example"; // String | Recipient chat ID: phone@c.us, group@g.us, or BSUID@lid
         Integer phone = 56; // Integer | Phone number starting with country code (alternative to chatId)
+        String category = "utility"; // String | Optional Direct Send category. Direct Send is in beta: Meta has not enabled it on every business portfolio. `utility` or `authentication` enables it. `authentication` is part of that beta and is not recommended. Omit or `service` keeps a normal service message (and the marketing auto-template outside the 24-hour window). `marketing` is rejected. 
+        SendMessageRequestDirectSend directSend = new SendMessageRequestDirectSend(); // SendMessageRequestDirectSend | 
         try {
-            ApiResponse<MessageSentResponse> response = apiInstance.sendMessageWithHttpInfo(token, body, quotedMsgId, chatId, phone);
+            ApiResponse<MessageSentResponse> response = apiInstance.sendMessageWithHttpInfo(token, body, quotedMsgId, chatId, phone, category, directSend);
             System.out.println("Status code: " + response.getStatusCode());
             System.out.println("Response headers: " + response.getHeaders());
             System.out.println("Response body: " + response.getData());
@@ -2980,8 +3198,10 @@ public class Example {
 | **token** | **String**| JWT token or API key for authorization | |
 | **body** | **String**| Message text, UTF-8 or UTF-16 string with emoji | |
 | **quotedMsgId** | **String**| Message ID to quote/reply to (Cloud API wamid) | [optional] |
-| **chatId** | **String**| Chat ID in format: phone@c.us (individual) or phone@g.us (group) | [optional] |
+| **chatId** | **String**| Recipient chat ID: phone@c.us, group@g.us, or BSUID@lid | [optional] |
 | **phone** | **Integer**| Phone number starting with country code (alternative to chatId) | [optional] |
+| **category** | **String**| Optional Direct Send category. Direct Send is in beta: Meta has not enabled it on every business portfolio. &#x60;utility&#x60; or &#x60;authentication&#x60; enables it. &#x60;authentication&#x60; is part of that beta and is not recommended. Omit or &#x60;service&#x60; keeps a normal service message (and the marketing auto-template outside the 24-hour window). &#x60;marketing&#x60; is rejected.  | [optional] [enum: utility, authentication, service] |
+| **directSend** | [**SendMessageRequestDirectSend**](SendMessageRequestDirectSend.md)|  | [optional] |
 
 ### Return type
 
@@ -3325,9 +3545,11 @@ ApiResponse<[**MessageSentResponse**](MessageSentResponse.md)>
 
 ## sendProduct
 
-> MessageSentResponse sendProduct(token, requestBody)
+> MessageSentResponse sendProduct(token, sendProductRequest)
 
 Send a Product
+
+Send a single catalog product or a product list. Destination is &#x60;chatId&#x60; or &#x60;phone&#x60;. &#x60;action&#x60; is required: - single product: &#x60;{ \&quot;catalog_id\&quot;: \&quot;...\&quot;, \&quot;product_retailer_id\&quot;: \&quot;...\&quot; }&#x60; - product list: &#x60;{ \&quot;catalog_id\&quot;: \&quot;...\&quot;, \&quot;sections\&quot;: [{ \&quot;title\&quot;: \&quot;...\&quot;, \&quot;product_items\&quot;: [{ \&quot;product_retailer_id\&quot;: \&quot;...\&quot; }] }] }&#x60; 
 
 ### Example
 
@@ -3353,9 +3575,9 @@ public class Example {
 
         MessagingApi apiInstance = new MessagingApi(defaultClient);
         String token = "token_example"; // String | JWT token or API key for authorization
-        Map<String, Object> requestBody = null; // Map<String, Object> | 
+        SendProductRequest sendProductRequest = new SendProductRequest(); // SendProductRequest | 
         try {
-            MessageSentResponse result = apiInstance.sendProduct(token, requestBody);
+            MessageSentResponse result = apiInstance.sendProduct(token, sendProductRequest);
             System.out.println(result);
         } catch (ApiException e) {
             System.err.println("Exception when calling MessagingApi#sendProduct");
@@ -3374,7 +3596,7 @@ public class Example {
 | Name | Type | Description  | Notes |
 |------------- | ------------- | ------------- | -------------|
 | **token** | **String**| JWT token or API key for authorization | |
-| **requestBody** | [**Map&lt;String, Object&gt;**](Object.md)|  | [optional] |
+| **sendProductRequest** | [**SendProductRequest**](SendProductRequest.md)|  | |
 
 ### Return type
 
@@ -3401,9 +3623,11 @@ public class Example {
 
 ## sendProductWithHttpInfo
 
-> ApiResponse<MessageSentResponse> sendProductWithHttpInfo(token, requestBody)
+> ApiResponse<MessageSentResponse> sendProductWithHttpInfo(token, sendProductRequest)
 
 Send a Product
+
+Send a single catalog product or a product list. Destination is &#x60;chatId&#x60; or &#x60;phone&#x60;. &#x60;action&#x60; is required: - single product: &#x60;{ \&quot;catalog_id\&quot;: \&quot;...\&quot;, \&quot;product_retailer_id\&quot;: \&quot;...\&quot; }&#x60; - product list: &#x60;{ \&quot;catalog_id\&quot;: \&quot;...\&quot;, \&quot;sections\&quot;: [{ \&quot;title\&quot;: \&quot;...\&quot;, \&quot;product_items\&quot;: [{ \&quot;product_retailer_id\&quot;: \&quot;...\&quot; }] }] }&#x60; 
 
 ### Example
 
@@ -3430,9 +3654,9 @@ public class Example {
 
         MessagingApi apiInstance = new MessagingApi(defaultClient);
         String token = "token_example"; // String | JWT token or API key for authorization
-        Map<String, Object> requestBody = null; // Map<String, Object> | 
+        SendProductRequest sendProductRequest = new SendProductRequest(); // SendProductRequest | 
         try {
-            ApiResponse<MessageSentResponse> response = apiInstance.sendProductWithHttpInfo(token, requestBody);
+            ApiResponse<MessageSentResponse> response = apiInstance.sendProductWithHttpInfo(token, sendProductRequest);
             System.out.println("Status code: " + response.getStatusCode());
             System.out.println("Response headers: " + response.getHeaders());
             System.out.println("Response body: " + response.getData());
@@ -3453,7 +3677,7 @@ public class Example {
 | Name | Type | Description  | Notes |
 |------------- | ------------- | ------------- | -------------|
 | **token** | **String**| JWT token or API key for authorization | |
-| **requestBody** | [**Map&lt;String, Object&gt;**](Object.md)|  | [optional] |
+| **sendProductRequest** | [**SendProductRequest**](SendProductRequest.md)|  | |
 
 ### Return type
 

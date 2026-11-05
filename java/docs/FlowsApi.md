@@ -31,9 +31,11 @@ All URIs are relative to *https://api.1msg.io*
 
 ## createFlows
 
-> CreateGroups200Response createFlows(token, wabaAccountId)
+> CreateGroups200Response createFlows(token, createFlowsRequest, wabaAccountId)
 
 Create Flow
+
+Create a WhatsApp Flow (&#x60;name&#x60; + &#x60;categories&#x60; required). Currently returns HTTP 501 until the Meta Graph Flows rewrite is available. 
 
 ### Example
 
@@ -59,9 +61,10 @@ public class Example {
 
         FlowsApi apiInstance = new FlowsApi(defaultClient);
         String token = "token_example"; // String | JWT token or API key for authorization
+        CreateFlowsRequest createFlowsRequest = new CreateFlowsRequest(); // CreateFlowsRequest | 
         String wabaAccountId = "{{wabaAccountId}}"; // String | 
         try {
-            CreateGroups200Response result = apiInstance.createFlows(token, wabaAccountId);
+            CreateGroups200Response result = apiInstance.createFlows(token, createFlowsRequest, wabaAccountId);
             System.out.println(result);
         } catch (ApiException e) {
             System.err.println("Exception when calling FlowsApi#createFlows");
@@ -80,6 +83,7 @@ public class Example {
 | Name | Type | Description  | Notes |
 |------------- | ------------- | ------------- | -------------|
 | **token** | **String**| JWT token or API key for authorization | |
+| **createFlowsRequest** | [**CreateFlowsRequest**](CreateFlowsRequest.md)|  | |
 | **wabaAccountId** | **String**|  | [optional] |
 
 ### Return type
@@ -93,19 +97,22 @@ public class Example {
 
 ### HTTP request headers
 
-- **Content-Type**: Not defined
+- **Content-Type**: application/json
 - **Accept**: application/json
 
 ### HTTP response details
 | Status code | Description | Response headers |
 |-------------|-------------|------------------|
 | **200** | OK |  -  |
+| **501** | WhatsApp Flows are not available on this channel yet |  -  |
 
 ## createFlowsWithHttpInfo
 
-> ApiResponse<CreateGroups200Response> createFlowsWithHttpInfo(token, wabaAccountId)
+> ApiResponse<CreateGroups200Response> createFlowsWithHttpInfo(token, createFlowsRequest, wabaAccountId)
 
 Create Flow
+
+Create a WhatsApp Flow (&#x60;name&#x60; + &#x60;categories&#x60; required). Currently returns HTTP 501 until the Meta Graph Flows rewrite is available. 
 
 ### Example
 
@@ -132,9 +139,10 @@ public class Example {
 
         FlowsApi apiInstance = new FlowsApi(defaultClient);
         String token = "token_example"; // String | JWT token or API key for authorization
+        CreateFlowsRequest createFlowsRequest = new CreateFlowsRequest(); // CreateFlowsRequest | 
         String wabaAccountId = "{{wabaAccountId}}"; // String | 
         try {
-            ApiResponse<CreateGroups200Response> response = apiInstance.createFlowsWithHttpInfo(token, wabaAccountId);
+            ApiResponse<CreateGroups200Response> response = apiInstance.createFlowsWithHttpInfo(token, createFlowsRequest, wabaAccountId);
             System.out.println("Status code: " + response.getStatusCode());
             System.out.println("Response headers: " + response.getHeaders());
             System.out.println("Response body: " + response.getData());
@@ -155,6 +163,7 @@ public class Example {
 | Name | Type | Description  | Notes |
 |------------- | ------------- | ------------- | -------------|
 | **token** | **String**| JWT token or API key for authorization | |
+| **createFlowsRequest** | [**CreateFlowsRequest**](CreateFlowsRequest.md)|  | |
 | **wabaAccountId** | **String**|  | [optional] |
 
 ### Return type
@@ -168,13 +177,14 @@ ApiResponse<[**CreateGroups200Response**](CreateGroups200Response.md)>
 
 ### HTTP request headers
 
-- **Content-Type**: Not defined
+- **Content-Type**: application/json
 - **Accept**: application/json
 
 ### HTTP response details
 | Status code | Description | Response headers |
 |-------------|-------------|------------------|
 | **200** | OK |  -  |
+| **501** | WhatsApp Flows are not available on this channel yet |  -  |
 
 
 ## createFlowsFlowIdDeprecate
@@ -1091,9 +1101,11 @@ ApiResponse<[**GetWhatsappBusinessEncryption200Response**](GetWhatsappBusinessEn
 
 ## listFlows
 
-> ListFlows200Response listFlows(token, wabaAccountId)
+> ListFlows200Response listFlows(token, wabaAccountId, fields)
 
 List Flows
+
+List WhatsApp Flows for the WABA. Currently returns HTTP 501 until the Meta Graph Flows rewrite is available. 
 
 ### Example
 
@@ -1120,8 +1132,9 @@ public class Example {
         FlowsApi apiInstance = new FlowsApi(defaultClient);
         String token = "token_example"; // String | JWT token or API key for authorization
         String wabaAccountId = "{{wabaAccountId}}"; // String | 
+        String fields = "fields_example"; // String | Comma-separated Flow fields to return
         try {
-            ListFlows200Response result = apiInstance.listFlows(token, wabaAccountId);
+            ListFlows200Response result = apiInstance.listFlows(token, wabaAccountId, fields);
             System.out.println(result);
         } catch (ApiException e) {
             System.err.println("Exception when calling FlowsApi#listFlows");
@@ -1141,6 +1154,7 @@ public class Example {
 |------------- | ------------- | ------------- | -------------|
 | **token** | **String**| JWT token or API key for authorization | |
 | **wabaAccountId** | **String**|  | [optional] |
+| **fields** | **String**| Comma-separated Flow fields to return | [optional] |
 
 ### Return type
 
@@ -1160,12 +1174,15 @@ public class Example {
 | Status code | Description | Response headers |
 |-------------|-------------|------------------|
 | **200** | OK |  -  |
+| **501** | WhatsApp Flows are not available on this channel yet |  -  |
 
 ## listFlowsWithHttpInfo
 
-> ApiResponse<ListFlows200Response> listFlowsWithHttpInfo(token, wabaAccountId)
+> ApiResponse<ListFlows200Response> listFlowsWithHttpInfo(token, wabaAccountId, fields)
 
 List Flows
+
+List WhatsApp Flows for the WABA. Currently returns HTTP 501 until the Meta Graph Flows rewrite is available. 
 
 ### Example
 
@@ -1193,8 +1210,9 @@ public class Example {
         FlowsApi apiInstance = new FlowsApi(defaultClient);
         String token = "token_example"; // String | JWT token or API key for authorization
         String wabaAccountId = "{{wabaAccountId}}"; // String | 
+        String fields = "fields_example"; // String | Comma-separated Flow fields to return
         try {
-            ApiResponse<ListFlows200Response> response = apiInstance.listFlowsWithHttpInfo(token, wabaAccountId);
+            ApiResponse<ListFlows200Response> response = apiInstance.listFlowsWithHttpInfo(token, wabaAccountId, fields);
             System.out.println("Status code: " + response.getStatusCode());
             System.out.println("Response headers: " + response.getHeaders());
             System.out.println("Response body: " + response.getData());
@@ -1216,6 +1234,7 @@ public class Example {
 |------------- | ------------- | ------------- | -------------|
 | **token** | **String**| JWT token or API key for authorization | |
 | **wabaAccountId** | **String**|  | [optional] |
+| **fields** | **String**| Comma-separated Flow fields to return | [optional] |
 
 ### Return type
 
@@ -1235,13 +1254,16 @@ ApiResponse<[**ListFlows200Response**](ListFlows200Response.md)>
 | Status code | Description | Response headers |
 |-------------|-------------|------------------|
 | **200** | OK |  -  |
+| **501** | WhatsApp Flows are not available on this channel yet |  -  |
 
 
 ## patchFlowsFlowIdAssets
 
-> PatchFlowsFlowIdAssets200Response patchFlowsFlowIdAssets(flowId, token, wabaAccountId)
+> PatchFlowsFlowIdAssets200Response patchFlowsFlowIdAssets(flowId, token, patchFlowsFlowIdAssetsRequest, wabaAccountId)
 
 Update Flow Structure
+
+Replace the Flow JSON document (&#x60;flowJson&#x60;). Currently returns HTTP 501 until the Meta Graph Flows rewrite is available. 
 
 ### Example
 
@@ -1268,9 +1290,10 @@ public class Example {
         FlowsApi apiInstance = new FlowsApi(defaultClient);
         String flowId = "flowId_example"; // String | Flow ID
         String token = "token_example"; // String | JWT token or API key for authorization
+        PatchFlowsFlowIdAssetsRequest patchFlowsFlowIdAssetsRequest = new PatchFlowsFlowIdAssetsRequest(); // PatchFlowsFlowIdAssetsRequest | 
         String wabaAccountId = "{{wabaAccountId}}"; // String | 
         try {
-            PatchFlowsFlowIdAssets200Response result = apiInstance.patchFlowsFlowIdAssets(flowId, token, wabaAccountId);
+            PatchFlowsFlowIdAssets200Response result = apiInstance.patchFlowsFlowIdAssets(flowId, token, patchFlowsFlowIdAssetsRequest, wabaAccountId);
             System.out.println(result);
         } catch (ApiException e) {
             System.err.println("Exception when calling FlowsApi#patchFlowsFlowIdAssets");
@@ -1290,6 +1313,7 @@ public class Example {
 |------------- | ------------- | ------------- | -------------|
 | **flowId** | **String**| Flow ID | |
 | **token** | **String**| JWT token or API key for authorization | |
+| **patchFlowsFlowIdAssetsRequest** | [**PatchFlowsFlowIdAssetsRequest**](PatchFlowsFlowIdAssetsRequest.md)|  | |
 | **wabaAccountId** | **String**|  | [optional] |
 
 ### Return type
@@ -1303,19 +1327,22 @@ public class Example {
 
 ### HTTP request headers
 
-- **Content-Type**: Not defined
+- **Content-Type**: application/json
 - **Accept**: application/json
 
 ### HTTP response details
 | Status code | Description | Response headers |
 |-------------|-------------|------------------|
 | **200** | OK |  -  |
+| **501** | WhatsApp Flows are not available on this channel yet |  -  |
 
 ## patchFlowsFlowIdAssetsWithHttpInfo
 
-> ApiResponse<PatchFlowsFlowIdAssets200Response> patchFlowsFlowIdAssetsWithHttpInfo(flowId, token, wabaAccountId)
+> ApiResponse<PatchFlowsFlowIdAssets200Response> patchFlowsFlowIdAssetsWithHttpInfo(flowId, token, patchFlowsFlowIdAssetsRequest, wabaAccountId)
 
 Update Flow Structure
+
+Replace the Flow JSON document (&#x60;flowJson&#x60;). Currently returns HTTP 501 until the Meta Graph Flows rewrite is available. 
 
 ### Example
 
@@ -1343,9 +1370,10 @@ public class Example {
         FlowsApi apiInstance = new FlowsApi(defaultClient);
         String flowId = "flowId_example"; // String | Flow ID
         String token = "token_example"; // String | JWT token or API key for authorization
+        PatchFlowsFlowIdAssetsRequest patchFlowsFlowIdAssetsRequest = new PatchFlowsFlowIdAssetsRequest(); // PatchFlowsFlowIdAssetsRequest | 
         String wabaAccountId = "{{wabaAccountId}}"; // String | 
         try {
-            ApiResponse<PatchFlowsFlowIdAssets200Response> response = apiInstance.patchFlowsFlowIdAssetsWithHttpInfo(flowId, token, wabaAccountId);
+            ApiResponse<PatchFlowsFlowIdAssets200Response> response = apiInstance.patchFlowsFlowIdAssetsWithHttpInfo(flowId, token, patchFlowsFlowIdAssetsRequest, wabaAccountId);
             System.out.println("Status code: " + response.getStatusCode());
             System.out.println("Response headers: " + response.getHeaders());
             System.out.println("Response body: " + response.getData());
@@ -1367,6 +1395,7 @@ public class Example {
 |------------- | ------------- | ------------- | -------------|
 | **flowId** | **String**| Flow ID | |
 | **token** | **String**| JWT token or API key for authorization | |
+| **patchFlowsFlowIdAssetsRequest** | [**PatchFlowsFlowIdAssetsRequest**](PatchFlowsFlowIdAssetsRequest.md)|  | |
 | **wabaAccountId** | **String**|  | [optional] |
 
 ### Return type
@@ -1380,20 +1409,23 @@ ApiResponse<[**PatchFlowsFlowIdAssets200Response**](PatchFlowsFlowIdAssets200Res
 
 ### HTTP request headers
 
-- **Content-Type**: Not defined
+- **Content-Type**: application/json
 - **Accept**: application/json
 
 ### HTTP response details
 | Status code | Description | Response headers |
 |-------------|-------------|------------------|
 | **200** | OK |  -  |
+| **501** | WhatsApp Flows are not available on this channel yet |  -  |
 
 
 ## patchFlowsFlowIdMetadata
 
-> Map<String, Object> patchFlowsFlowIdMetadata(flowId, token, wabaAccountId)
+> Map<String, Object> patchFlowsFlowIdMetadata(flowId, token, patchFlowsFlowIdMetadataRequest, wabaAccountId)
 
 Update Flow Metadata
+
+Update Flow &#x60;name&#x60;, &#x60;categories&#x60;, and/or &#x60;endpointUri&#x60;. Currently returns HTTP 501 until the Meta Graph Flows rewrite is available. 
 
 ### Example
 
@@ -1420,9 +1452,10 @@ public class Example {
         FlowsApi apiInstance = new FlowsApi(defaultClient);
         String flowId = "flowId_example"; // String | Flow ID
         String token = "token_example"; // String | JWT token or API key for authorization
+        PatchFlowsFlowIdMetadataRequest patchFlowsFlowIdMetadataRequest = new PatchFlowsFlowIdMetadataRequest(); // PatchFlowsFlowIdMetadataRequest | 
         String wabaAccountId = "{{wabaAccountId}}"; // String | 
         try {
-            Map<String, Object> result = apiInstance.patchFlowsFlowIdMetadata(flowId, token, wabaAccountId);
+            Map<String, Object> result = apiInstance.patchFlowsFlowIdMetadata(flowId, token, patchFlowsFlowIdMetadataRequest, wabaAccountId);
             System.out.println(result);
         } catch (ApiException e) {
             System.err.println("Exception when calling FlowsApi#patchFlowsFlowIdMetadata");
@@ -1442,6 +1475,7 @@ public class Example {
 |------------- | ------------- | ------------- | -------------|
 | **flowId** | **String**| Flow ID | |
 | **token** | **String**| JWT token or API key for authorization | |
+| **patchFlowsFlowIdMetadataRequest** | [**PatchFlowsFlowIdMetadataRequest**](PatchFlowsFlowIdMetadataRequest.md)|  | |
 | **wabaAccountId** | **String**|  | [optional] |
 
 ### Return type
@@ -1455,19 +1489,22 @@ public class Example {
 
 ### HTTP request headers
 
-- **Content-Type**: Not defined
+- **Content-Type**: application/json
 - **Accept**: application/json
 
 ### HTTP response details
 | Status code | Description | Response headers |
 |-------------|-------------|------------------|
 | **200** | OK |  -  |
+| **501** | WhatsApp Flows are not available on this channel yet |  -  |
 
 ## patchFlowsFlowIdMetadataWithHttpInfo
 
-> ApiResponse<Map<String, Object>> patchFlowsFlowIdMetadataWithHttpInfo(flowId, token, wabaAccountId)
+> ApiResponse<Map<String, Object>> patchFlowsFlowIdMetadataWithHttpInfo(flowId, token, patchFlowsFlowIdMetadataRequest, wabaAccountId)
 
 Update Flow Metadata
+
+Update Flow &#x60;name&#x60;, &#x60;categories&#x60;, and/or &#x60;endpointUri&#x60;. Currently returns HTTP 501 until the Meta Graph Flows rewrite is available. 
 
 ### Example
 
@@ -1495,9 +1532,10 @@ public class Example {
         FlowsApi apiInstance = new FlowsApi(defaultClient);
         String flowId = "flowId_example"; // String | Flow ID
         String token = "token_example"; // String | JWT token or API key for authorization
+        PatchFlowsFlowIdMetadataRequest patchFlowsFlowIdMetadataRequest = new PatchFlowsFlowIdMetadataRequest(); // PatchFlowsFlowIdMetadataRequest | 
         String wabaAccountId = "{{wabaAccountId}}"; // String | 
         try {
-            ApiResponse<Map<String, Object>> response = apiInstance.patchFlowsFlowIdMetadataWithHttpInfo(flowId, token, wabaAccountId);
+            ApiResponse<Map<String, Object>> response = apiInstance.patchFlowsFlowIdMetadataWithHttpInfo(flowId, token, patchFlowsFlowIdMetadataRequest, wabaAccountId);
             System.out.println("Status code: " + response.getStatusCode());
             System.out.println("Response headers: " + response.getHeaders());
             System.out.println("Response body: " + response.getData());
@@ -1519,6 +1557,7 @@ public class Example {
 |------------- | ------------- | ------------- | -------------|
 | **flowId** | **String**| Flow ID | |
 | **token** | **String**| JWT token or API key for authorization | |
+| **patchFlowsFlowIdMetadataRequest** | [**PatchFlowsFlowIdMetadataRequest**](PatchFlowsFlowIdMetadataRequest.md)|  | |
 | **wabaAccountId** | **String**|  | [optional] |
 
 ### Return type
@@ -1532,13 +1571,14 @@ ApiResponse<**Map&lt;String, Object&gt;**>
 
 ### HTTP request headers
 
-- **Content-Type**: Not defined
+- **Content-Type**: application/json
 - **Accept**: application/json
 
 ### HTTP response details
 | Status code | Description | Response headers |
 |-------------|-------------|------------------|
 | **200** | OK |  -  |
+| **501** | WhatsApp Flows are not available on this channel yet |  -  |
 
 
 ## setWhatsappBusinessEncryption

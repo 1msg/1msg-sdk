@@ -173,7 +173,7 @@ ApiResponse<[**CreateCommerce200Response**](CreateCommerce200Response.md)>
 
 Get Commerce Settings
 
-Returns catalog/cart commerce settings for the channel.  - &#x60;is_catalog_visible&#x60; — show catalog storefront icon (&#x60;true&#x60;) or hide it (&#x60;false&#x60;). - &#x60;is_cart_enabled&#x60; — enable cart (&#x60;true&#x60;) or disable it (&#x60;false&#x60;). 
+Returns catalog/cart commerce settings for the channel.  Fails with a provider error when the WABA has no catalog linked — that is an API/account limitation, not an MCP schema bug.  - &#x60;is_catalog_visible&#x60; — show catalog storefront icon (&#x60;true&#x60;) or hide it (&#x60;false&#x60;). - &#x60;is_cart_enabled&#x60; — enable cart (&#x60;true&#x60;) or disable it (&#x60;false&#x60;). 
 
 ### Example
 
@@ -247,7 +247,7 @@ public class Example {
 
 Get Commerce Settings
 
-Returns catalog/cart commerce settings for the channel.  - &#x60;is_catalog_visible&#x60; — show catalog storefront icon (&#x60;true&#x60;) or hide it (&#x60;false&#x60;). - &#x60;is_cart_enabled&#x60; — enable cart (&#x60;true&#x60;) or disable it (&#x60;false&#x60;). 
+Returns catalog/cart commerce settings for the channel.  Fails with a provider error when the WABA has no catalog linked — that is an API/account limitation, not an MCP schema bug.  - &#x60;is_catalog_visible&#x60; — show catalog storefront icon (&#x60;true&#x60;) or hide it (&#x60;false&#x60;). - &#x60;is_cart_enabled&#x60; — enable cart (&#x60;true&#x60;) or disable it (&#x60;false&#x60;). 
 
 ### Example
 

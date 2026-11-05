@@ -17,7 +17,7 @@ All URIs are relative to *https://api.1msg.io*
 
 Get Profile Info
 
-Get WhatsApp Business Account profile information
+Return the WhatsApp Business profile for this channel: About, address, description, email, phone, websites, industry (&#x60;vertical&#x60;), and profile photo URL. 
 
 ### Example
 
@@ -91,7 +91,7 @@ public class Example {
 
 Get Profile Info
 
-Get WhatsApp Business Account profile information
+Return the WhatsApp Business profile for this channel: About, address, description, email, phone, websites, industry (&#x60;vertical&#x60;), and profile photo URL. 
 
 ### Example
 
@@ -165,7 +165,7 @@ ApiResponse<[**ProfileInfo**](ProfileInfo.md)>
 
 ## updateMe
 
-> Map<String, Object> updateMe(token, updateMeRequest)
+> UpdateMe200Response updateMe(token, updateMeRequest)
 
 Update profile info
 
@@ -197,7 +197,7 @@ public class Example {
         String token = "token_example"; // String | JWT token or API key for authorization
         UpdateMeRequest updateMeRequest = new UpdateMeRequest(); // UpdateMeRequest | 
         try {
-            Map<String, Object> result = apiInstance.updateMe(token, updateMeRequest);
+            UpdateMe200Response result = apiInstance.updateMe(token, updateMeRequest);
             System.out.println(result);
         } catch (ApiException e) {
             System.err.println("Exception when calling ProfileApi#updateMe");
@@ -216,11 +216,11 @@ public class Example {
 | Name | Type | Description  | Notes |
 |------------- | ------------- | ------------- | -------------|
 | **token** | **String**| JWT token or API key for authorization | |
-| **updateMeRequest** | [**UpdateMeRequest**](UpdateMeRequest.md)|  | [optional] |
+| **updateMeRequest** | [**UpdateMeRequest**](UpdateMeRequest.md)|  | |
 
 ### Return type
 
-**Map&lt;String, Object&gt;**
+[**UpdateMe200Response**](UpdateMe200Response.md)
 
 
 ### Authorization
@@ -242,7 +242,7 @@ public class Example {
 
 ## updateMeWithHttpInfo
 
-> ApiResponse<Map<String, Object>> updateMeWithHttpInfo(token, updateMeRequest)
+> ApiResponse<UpdateMe200Response> updateMeWithHttpInfo(token, updateMeRequest)
 
 Update profile info
 
@@ -275,7 +275,7 @@ public class Example {
         String token = "token_example"; // String | JWT token or API key for authorization
         UpdateMeRequest updateMeRequest = new UpdateMeRequest(); // UpdateMeRequest | 
         try {
-            ApiResponse<Map<String, Object>> response = apiInstance.updateMeWithHttpInfo(token, updateMeRequest);
+            ApiResponse<UpdateMe200Response> response = apiInstance.updateMeWithHttpInfo(token, updateMeRequest);
             System.out.println("Status code: " + response.getStatusCode());
             System.out.println("Response headers: " + response.getHeaders());
             System.out.println("Response body: " + response.getData());
@@ -296,11 +296,11 @@ public class Example {
 | Name | Type | Description  | Notes |
 |------------- | ------------- | ------------- | -------------|
 | **token** | **String**| JWT token or API key for authorization | |
-| **updateMeRequest** | [**UpdateMeRequest**](UpdateMeRequest.md)|  | [optional] |
+| **updateMeRequest** | [**UpdateMeRequest**](UpdateMeRequest.md)|  | |
 
 ### Return type
 
-ApiResponse<**Map&lt;String, Object&gt;**>
+ApiResponse<[**UpdateMe200Response**](UpdateMe200Response.md)>
 
 
 ### Authorization
