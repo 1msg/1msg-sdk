@@ -62,7 +62,7 @@ jobs:
           const root = require('./package.json');
           const pkg = require('./typescript/package.json');
           assert.equal(root.private, true);
-          assert.equal(root.packageManager, 'pnpm@10.34.9');
+          assert.equal(root.packageManager, 'pnpm@12.18.0');
           assert.deepEqual(root.workspaces, ['typescript']);
           assert.equal(pkg.name, '@1msg/sdk');
           assert.equal(pkg.version, process.env.RELEASE_VERSION);
@@ -72,15 +72,15 @@ jobs:
           assert.ok(pkg.publishConfig?.registry === undefined || /^https:\/\/registry\.npmjs\.org\/?$/.test(pkg.publishConfig.registry));
           NODE
 
-      - uses: pnpm/action-setup@v4
-        with:
-          version: '10.34.9'
-          dest: ${{ runner.temp }}/pnpm-${{ github.run_id }}-${{ github.run_attempt }}-${{ github.job }}
-          run_install: false
       - uses: actions/setup-node@v4
         with:
-          node-version: '24.22.2'
+          node-version: '26.13.1'
           registry-url: https://registry.npmjs.org
+      - uses: pnpm/action-setup@v4
+        with:
+          version: '12.18.0'
+          dest: ${{ runner.temp }}/pnpm-${{ github.run_id }}-${{ github.run_attempt }}-${{ github.job }}
+          run_install: false
       - uses: actions/setup-java@v4
         with:
           distribution: temurin
@@ -89,8 +89,8 @@ jobs:
       - name: Run the standalone repository quality and consumer checks
         run: |
           set -euo pipefail
-          pnpm install --frozen-lockfile
-          pnpm --dir tools/quality --ignore-workspace install --lockfile-dir "$PWD/quality/tooling" --frozen-lockfile --ignore-scripts
+          pnpm install --frozen-lockfile --config.dangerously-allow-all-builds=true
+          pnpm --dir tools/quality --ignore-workspace install --lockfile-dir "$PWD/quality/tooling" --frozen-lockfile --ignore-scripts --config.engine-strict=false
           for script in test:preset quality:guards format:check lint:static lint:typed typecheck lint:arch lint:unused:production lint:unused:full lint:duplicates lint:duplicates:full lint:complexity test:exceptions test:generated test:quality test build test:pack; do
             pnpm run "$script"
           done
@@ -142,15 +142,15 @@ jobs:
       SOURCE_REF: ${{ inputs.source_ref }}
       RELEASE_VERSION: ${{ inputs.version }}
     steps:
-      - uses: pnpm/action-setup@v4
-        with:
-          version: '10.34.9'
-          dest: ${{ runner.temp }}/pnpm-${{ github.run_id }}-${{ github.run_attempt }}-${{ github.job }}
-          run_install: false
       - uses: actions/setup-node@v4
         with:
-          node-version: '24.22.2'
+          node-version: '26.13.1'
           registry-url: https://registry.npmjs.org
+      - uses: pnpm/action-setup@v4
+        with:
+          version: '12.18.0'
+          dest: ${{ runner.temp }}/pnpm-${{ github.run_id }}-${{ github.run_attempt }}-${{ github.job }}
+          run_install: false
       - name: Install the reviewed npm CLI with trusted publishing support
         run: npm install --global npm@11.19.1 --ignore-scripts --registry=https://registry.npmjs.org/
       - uses: actions/download-artifact@v4

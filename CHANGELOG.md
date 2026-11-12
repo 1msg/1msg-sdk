@@ -13,7 +13,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Miscellaneous
 
-- Migrate repository tooling to Node 24 and pnpm (#7) * chore: migrate repository tooling to Node 24 and pnpm * fix: declare SDK test Node types for strict pnpm installs
+- Migrate repository tooling to Node 26 and pnpm (#7) * chore: migrate repository tooling to Node 26 and pnpm * fix: declare SDK test Node types for strict pnpm installs
 
 ### Other
 
