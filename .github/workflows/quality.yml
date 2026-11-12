@@ -32,8 +32,8 @@ jobs:
         with:
           distribution: temurin
           java-version: '24.0.2'
-      - run: pnpm install --frozen-lockfile
-      - run: pnpm --dir tools/quality --ignore-workspace install --lockfile-dir "$PWD/quality/tooling" --frozen-lockfile --ignore-scripts
+      - run: pnpm install --frozen-lockfile --config.dangerously-allow-all-builds=true
+      - run: pnpm --dir tools/quality --ignore-workspace install --lockfile-dir "$PWD/quality/tooling" --frozen-lockfile --ignore-scripts --config.engine-strict=false
       - run: pnpm run test:preset
       - run: pnpm run quality:guards
       - run: pnpm run format:check

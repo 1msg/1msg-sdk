@@ -6,7 +6,7 @@ settings:
 
 importers:
 
-  ../../../../../../private/tmp/node26/repos/1msg-sdk/tools/quality:
+  ../../tools/quality:
     dependencies:
       '@eslint/js':
         specifier: 9.39.5

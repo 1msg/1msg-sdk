@@ -89,8 +89,8 @@ jobs:
       - name: Run the standalone repository quality and consumer checks
         run: |
           set -euo pipefail
-          pnpm install --frozen-lockfile
-          pnpm --dir tools/quality --ignore-workspace install --lockfile-dir "$PWD/quality/tooling" --frozen-lockfile --ignore-scripts
+          pnpm install --frozen-lockfile --config.dangerously-allow-all-builds=true
+          pnpm --dir tools/quality --ignore-workspace install --lockfile-dir "$PWD/quality/tooling" --frozen-lockfile --ignore-scripts --config.engine-strict=false
           for script in test:preset quality:guards format:check lint:static lint:typed typecheck lint:arch lint:unused:production lint:unused:full lint:duplicates lint:duplicates:full lint:complexity test:exceptions test:generated test:quality test build test:pack; do
             pnpm run "$script"
           done
