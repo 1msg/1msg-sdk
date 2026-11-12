@@ -72,15 +72,15 @@ jobs:
           assert.ok(pkg.publishConfig?.registry === undefined || /^https:\/\/registry\.npmjs\.org\/?$/.test(pkg.publishConfig.registry));
           NODE
 
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '26.13.1'
+          registry-url: https://registry.npmjs.org
       - uses: pnpm/action-setup@v4
         with:
           version: '12.18.0'
           dest: ${{ runner.temp }}/pnpm-${{ github.run_id }}-${{ github.run_attempt }}-${{ github.job }}
           run_install: false
-      - uses: actions/setup-node@v4
-        with:
-          node-version: '26.13.1'
-          registry-url: https://registry.npmjs.org
       - uses: actions/setup-java@v4
         with:
           distribution: temurin
@@ -142,15 +142,15 @@ jobs:
       SOURCE_REF: ${{ inputs.source_ref }}
       RELEASE_VERSION: ${{ inputs.version }}
     steps:
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '26.13.1'
+          registry-url: https://registry.npmjs.org
       - uses: pnpm/action-setup@v4
         with:
           version: '12.18.0'
           dest: ${{ runner.temp }}/pnpm-${{ github.run_id }}-${{ github.run_attempt }}-${{ github.job }}
           run_install: false
-      - uses: actions/setup-node@v4
-        with:
-          node-version: '26.13.1'
-          registry-url: https://registry.npmjs.org
       - name: Install the reviewed npm CLI with trusted publishing support
         run: npm install --global npm@11.19.1 --ignore-scripts --registry=https://registry.npmjs.org/
       - uses: actions/download-artifact@v4

@@ -11,18 +11,23 @@ concurrency:
 jobs:
   checks:
     runs-on: [self-hosted, 1msg-ci-heavy]
+    container:
+      image: node:26.13.1-bookworm@sha256:b7087bc4d973034b30854b378ba107f9fab622b47514cb7e2592e41b8bab8d49
+    defaults:
+      run:
+        shell: bash
     steps:
       - uses: actions/checkout@v4
         with:
           fetch-depth: 0
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '26.13.1'
       - uses: pnpm/action-setup@v4
         with:
           version: '12.18.0'
           dest: ${{ runner.temp }}/pnpm-${{ github.run_id }}-${{ github.run_attempt }}-${{ github.job }}
           run_install: false
-      - uses: actions/setup-node@v4
-        with:
-          node-version: '26.13.1'
       - uses: actions/setup-java@v4
         with:
           distribution: temurin
@@ -53,6 +58,14 @@ jobs:
           name: quality-reports
           path: quality/reports/
           if-no-files-found: error
+      - name: Return the workspace to the runner user
+        if: always()
+        run: |
+          set -euo pipefail
+          runner_root="$(dirname "$(dirname "$GITHUB_WORKSPACE")")"
+          owner="$(stat -c '%u:%g' "$runner_root")"
+          chown -R "$owner" "$GITHUB_WORKSPACE" || true
+          if [ -n "${RUNNER_TEMP:-}" ] && [ -d "$RUNNER_TEMP" ]; then chown -R "$owner" "$RUNNER_TEMP" || true; fi
   quality-required:
     if: always()
     needs: [checks]
