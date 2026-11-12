@@ -30,7 +30,7 @@ jobs:
   prepare:
     if: github.ref == 'refs/heads/main' && github.repository == '1msg/1msg-sdk'
     name: Validate and pack reviewed @1msg/sdk
-    runs-on: ubuntu-24.04
+    runs-on: [self-hosted, 1msg-ci-heavy]
     timeout-minutes: 30
     permissions:
       contents: read
@@ -62,7 +62,7 @@ jobs:
           const root = require('./package.json');
           const pkg = require('./typescript/package.json');
           assert.equal(root.private, true);
-          assert.equal(root.packageManager, 'pnpm@10.34.9');
+          assert.equal(root.packageManager, 'pnpm@12.18.0');
           assert.deepEqual(root.workspaces, ['typescript']);
           assert.equal(pkg.name, '@1msg/sdk');
           assert.equal(pkg.version, process.env.RELEASE_VERSION);
@@ -74,12 +74,12 @@ jobs:
 
       - uses: pnpm/action-setup@v4
         with:
-          version: '10.34.9'
+          version: '12.18.0'
           dest: ${{ runner.temp }}/pnpm-${{ github.run_id }}-${{ github.run_attempt }}-${{ github.job }}
           run_install: false
       - uses: actions/setup-node@v4
         with:
-          node-version: '24.22.2'
+          node-version: '26.13.1'
           registry-url: https://registry.npmjs.org
       - uses: actions/setup-java@v4
         with:
@@ -133,7 +133,7 @@ jobs:
     name: Publish validated tarball with npm trusted publishing
     needs: [prepare]
     if: ${{ !inputs.dry_run }}
-    runs-on: ubuntu-24.04
+    runs-on: [self-hosted, 1msg-ci-heavy]
     timeout-minutes: 15
     permissions:
       contents: read
@@ -144,12 +144,12 @@ jobs:
     steps:
       - uses: pnpm/action-setup@v4
         with:
-          version: '10.34.9'
+          version: '12.18.0'
           dest: ${{ runner.temp }}/pnpm-${{ github.run_id }}-${{ github.run_attempt }}-${{ github.job }}
           run_install: false
       - uses: actions/setup-node@v4
         with:
-          node-version: '24.22.2'
+          node-version: '26.13.1'
           registry-url: https://registry.npmjs.org
       - name: Install the reviewed npm CLI with trusted publishing support
         run: npm install --global npm@11.19.1 --ignore-scripts --registry=https://registry.npmjs.org/

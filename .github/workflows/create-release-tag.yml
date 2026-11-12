@@ -35,7 +35,7 @@ concurrency:
 jobs:
   release:
     name: Create release tag
-    runs-on: ubuntu-latest
+    runs-on: [self-hosted, 1msg-ci-heavy]
     steps:
       - name: Checkout default branch (full history + tags)
         uses: actions/checkout@v4
