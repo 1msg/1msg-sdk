@@ -10,16 +10,7 @@ concurrency:
   cancel-in-progress: true
 jobs:
   checks:
-    runs-on: [self-hosted, 1msg-ci-heavy]
-    container:
-      image: node:26.13.1-bookworm@sha256:b7087bc4d973034b30854b378ba107f9fab622b47514cb7e2592e41b8bab8d49
-    defaults:
-      run:
-        shell: bash
-    env:
-      GIT_CONFIG_COUNT: '1'
-      GIT_CONFIG_KEY_0: safe.directory
-      GIT_CONFIG_VALUE_0: '*'
+    runs-on: ubuntu-24.04
     steps:
       - uses: actions/checkout@v4
         with:
@@ -62,18 +53,10 @@ jobs:
           name: quality-reports
           path: quality/reports/
           if-no-files-found: error
-      - name: Return the workspace to the runner user
-        if: always()
-        run: |
-          set -euo pipefail
-          runner_root="$(dirname "$(dirname "$GITHUB_WORKSPACE")")"
-          owner="$(stat -c '%u:%g' "$runner_root")"
-          chown -R "$owner" "$GITHUB_WORKSPACE" || true
-          if [ -n "${RUNNER_TEMP:-}" ] && [ -d "$RUNNER_TEMP" ]; then chown -R "$owner" "$RUNNER_TEMP" || true; fi
   quality-required:
     if: always()
     needs: [checks]
-    runs-on: [self-hosted, 1msg-ci-heavy]
+    runs-on: ubuntu-24.04
     steps:
       - env:
           RESULTS: ${{ toJSON(needs) }}

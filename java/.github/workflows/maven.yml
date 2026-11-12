@@ -14,7 +14,7 @@ on:
 jobs:
   build:
     name: Build 1MSG WhatsApp Business API (Public)
-    runs-on: [self-hosted, 1msg-ci-heavy]
+    runs-on: ubuntu-latest
     strategy:
       matrix:
         java: [ 17, 21 ]

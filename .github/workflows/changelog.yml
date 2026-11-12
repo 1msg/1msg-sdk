@@ -28,7 +28,7 @@ concurrency:
 jobs:
   release-notes:
     name: Generate release notes
-    runs-on: [self-hosted, 1msg-ci-heavy]
+    runs-on: ubuntu-latest
     steps:
       - name: Resolve tag
         id: tag

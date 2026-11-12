@@ -30,7 +30,7 @@ jobs:
   prepare:
     if: github.ref == 'refs/heads/main' && github.repository == '1msg/1msg-sdk'
     name: Validate and pack reviewed @1msg/sdk
-    runs-on: [self-hosted, 1msg-ci-heavy]
+    runs-on: ubuntu-24.04
     timeout-minutes: 30
     permissions:
       contents: read
@@ -133,7 +133,7 @@ jobs:
     name: Publish validated tarball with npm trusted publishing
     needs: [prepare]
     if: ${{ !inputs.dry_run }}
-    runs-on: [self-hosted, 1msg-ci-heavy]
+    runs-on: ubuntu-24.04
     timeout-minutes: 15
     permissions:
       contents: read
