@@ -1,6 +1,6 @@
 {
   "name": "@1msg/quality-template",
-  "version": "1.0.12",
+  "version": "1.0.13",
   "private": true,
   "type": "module",
   "engines": {

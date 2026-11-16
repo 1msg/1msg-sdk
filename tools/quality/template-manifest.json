@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "version": "1.0.12",
+  "version": "1.0.13",
   "files": {
     "README.md": "80380757947a33100e4f43f7808b129f2c3cdc81c380614fc2e55153ef5f124a",
     "canonical-duplicates.mjs": "a3583fdc3e344af448ea8d2543c2398daaa03fa10a0739da486afb04e35425ba",
@@ -11,10 +11,10 @@
     "lib/guards.mjs": "fe95129ef78aa5354446d8b37769ac27deb95d2b8bc978c5d3bafad538bd7836",
     "lib/historical.mjs": "43b46395828daa3f19d8692e9bd22ea6cfc1d0dbac83814d727894f672a0ddd2",
     "lib/knip-reporter.mjs": "175d7d96e2913e8f6de04b6c706172258d9d7654a26ba7f9ed7edff79d3fc8ca",
-    "lib/reports.mjs": "361e38ae981238db91f7b9a31af963ccbb89e3ae6745d1582b2086e6c64f0c9e",
+    "lib/reports.mjs": "396396a35f37685a331500f28c66e27cd3a166e225fb995c767b9ea8eebb9107",
     "lib/template.mjs": "c2a14b715f0c9dbe8b8243b142f4c6628967400fb8f92767537169e1b7bfd8f4",
-    "package-lock.json": "238e6a8ff9303c66968b8e83ef028dfa49b7bb6a5ca485c0a7e65520d4c54365",
-    "package.json": "91adacf496715638a7e765035ca16d27e7a3c40ad3abbdd4bb4fc8c9574113eb",
+    "package-lock.json": "48cf6aa7b0f5a9c1960706565ae676dd02165760d5a0292105b4ec3a20e78b28",
+    "package.json": "baa019afe88c8016ccb2e39d02f1fbdfd37602942cca48cef7fe5d1606fc0929",
     "prettier.config.mjs": "7576563a9a30aff8eb3177f9cc2e4bc7a0f6b825042eadb9a619b86f519c5e5e",
     "run.mjs": "7cf26128cdf63f3a7ccab7341a0a274a352fd9bda0521ba41e37216bb9cc249f",
     "seal.mjs": "fb38c8e08ea3cf9f4dcd95e45ffc931aea3b7a54181fed88d7379f8aad4c050d",
