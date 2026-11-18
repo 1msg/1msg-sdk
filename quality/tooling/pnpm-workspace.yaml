@@ -1,0 +1,2 @@
+minimumReleaseAgeExclude:
+  - eslint-plugin-perfectionist@5.14.0

@@ -31,6 +31,10 @@
     "lint:duplicates": "node tools/quality/run.mjs duplicates",
     "lint:duplicates:full": "node tools/quality/run.mjs duplicates-full"
   },
+  "devDependencies": {
+    "@types/jest": "^30.0.0",
+    "@types/node": "26.6.6"
+  },
   "lint-staged": {
     "*.{js,jsx,mjs,cjs}": [
       "node tools/quality/staged.mjs --config eslint.config.mjs --",

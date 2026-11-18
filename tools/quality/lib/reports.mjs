@@ -106,8 +106,11 @@ export function architectureRecords(report) {
   return [...cycles.values()].sort((a, b) => a.key.localeCompare(b.key));
 }
 
+const svelteFragment =
+  /^(html|css|scss|sass|less|stylus|javascript|typescript|jsx|tsx)$/;
+
 /** Resolve jscpd's embedded Svelte fragments to an existing source while retaining their language identity. */
-function duplicateSource(path) {
+function duplicateSource(path, format) {
   const participant = repoPath(path);
   const embedded =
     /^(.*\.svelte):(html|css|scss|sass|less|stylus|javascript|typescript|jsx|tsx)$/.exec(
@@ -116,6 +119,15 @@ function duplicateSource(path) {
   if (!embedded) {
     if (/\.svelte:/.test(participant))
       throw new Error(`Unknown Svelte clone fragment: ${participant}`);
+    if (participant.endsWith('.svelte') && svelteFragment.test(format ?? '')) {
+      if (!existsSync(participant))
+        throw new Error(`Missing Svelte clone source: ${participant}`);
+      return {
+        path: participant,
+        participant: `${participant}:${format}`,
+        embedded: true,
+      };
+    }
     return { path: participant, participant, embedded: false };
   }
   const source = embedded[1];
@@ -135,8 +147,8 @@ export function duplicateRecords(report) {
   }
   const grouped = new Map();
   for (const clone of report.duplicates) {
-    const first = duplicateSource(clone.firstFile?.name);
-    const second = duplicateSource(clone.secondFile?.name);
+    const first = duplicateSource(clone.firstFile?.name, clone.format);
+    const second = duplicateSource(clone.secondFile?.name, clone.format);
     let fragment = clone.fragment;
     if (typeof fragment !== 'string') {
       if (first.embedded || second.embedded)
