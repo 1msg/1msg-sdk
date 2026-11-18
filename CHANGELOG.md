@@ -5,15 +5,53 @@ All notable changes to this project are documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.1.2] - 2026-11-18
+
+### Fixed
+
+- **quality:** Match the freeze to published SDK trees Regeneration now expands explicit TypeScript barrels, and the freeze manifest adopts the language bytes already committed on main. Co-authored-by: Cursor <cursoragent@cursor.com>
+
+- Keep Svelte clone identity in jscpd 5 reports The quality gate records the fragment language when jscpd reports the Svelte file directly.
+
+- Give typed test lint the Jest types TypeScript 6 does not load @types/jest unless the test config asks for it.
+
+- Resolve Jest types from the repository root Typed lint of the SDK tests looks for @types/jest next to the quality tsconfig.
+
+- Load Jest types when the SDK tests compile TypeScript 6 no longer includes @types/jest unless the test project asks for it.
+
+
+### Miscellaneous
+
+- **csharp:** Sync OneMsg.Sdk v2.0.2
+
+- **kotlin:** Sync io.1msg:sdk-kotlin v2.0.2
+
+- **scala:** Sync io.1msg:sdk-scala v2.0.2
+
+- **java:** Sync io.1msg:sdk v2.0.2
+
+- **typescript:** Sync @1msg/sdk v2.0.2 Co-authored-by: Cursor <cursoragent@cursor.com>
+
+- Pin Node 26.13.1 and pnpm 12.18.0 (#8) * chore: run quality on self-hosted runners and pin Node 26.13.1 GitHub-hosted quality jobs move to the 1msg-ci-heavy pool, and the toolchain follows current Node 26 and pnpm 12. * fix: make the Node 26 and pnpm 12 installs succeed Install Node before pnpm, use npm to install pnpm inside Node 26 images, allow dependency builds, and run glibc-sensitive quality jobs in Bookworm. * fix: resolve the pnpm 12 quality toolchain from the repository * fix: let quality git commands trust the container workspace * ci: keep public repository jobs on GitHub-hosted runners Co-authored-by: Cursor <cursoragent@cursor.com> --------- Co-authored-by: Cursor <cursoragent@cursor.com>
+
+- Update dependencies to current compatible releases Keep installs and typechecks working on the newest libraries that do not force a framework migration. Co-authored-by: Cursor <cursoragent@cursor.com>
+
+
+### Other
+
+- Merge pull request #9 from 1msg/chore/dependency-updates chore: update dependencies to current compatible releases
+
 ## [1.1.1] - 2026-11-03
 
 ### Build & CI
 
 - **sdk:** Publish reviewed TypeScript artifacts with npm OIDC
 
+
 ### Miscellaneous
 
-- Migrate repository tooling to Node 26 and pnpm (#7) * chore: migrate repository tooling to Node 26 and pnpm * fix: declare SDK test Node types for strict pnpm installs
+- Migrate repository tooling to Node 24 and pnpm (#7) * chore: migrate repository tooling to Node 24 and pnpm * fix: declare SDK test Node types for strict pnpm installs
+
 
 ### Other
 
@@ -25,6 +63,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Enforce SDK TypeScript quality and freeze deferred native profiles
 
+
 ### Build & CI
 
 - **quality:** Replay historical complexity with sealed analyzer 1.0.8
@@ -33,9 +72,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - **quality:** Merge 1MSG-156 improvements (#4) 1MSG-156: enforce SDK TypeScript quality and native adoption inventory
 
+
 ### Documentation
 
 - Pin C# 2.0.1 and Ruby 2.0.2 after registry publishes Co-authored-by: Cursor <cursoragent@cursor.com>
+
 
 ### Fixed
 
@@ -44,6 +85,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **quality:** Support older Git in shared fixtures
 
 - **quality:** Parse suppression comments with template context
+
 
 ### Miscellaneous
 
@@ -69,6 +111,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Drop ChatApi aliases and move Kotlin/Scala to io.onemsg.sdk Co-authored-by: Cursor <cursoragent@cursor.com>
 
+
 ### Documentation
 
 - Add full README + AGENTS.md for Java, Kotlin, Scala, C# Mirror TypeScript-style OpenAPI docs with registry links for Maven Central and NuGet. Co-authored-by: Cursor <cursoragent@cursor.com>
@@ -79,11 +122,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - 1MSG POM names and note published Kotlin/Scala still use io.onemsg.chat Co-authored-by: Cursor <cursoragent@cursor.com>
 
+
 ### Fixed
 
 - Fix test
 
 - **csharp:** Restore OneMsg.Sdk sources after bad sync
+
 
 ### Miscellaneous
 
@@ -125,6 +170,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - **scala:** Sync io.1msg:sdk-scala v1.0.3
 
+
 ### Other
 
 - Initial commit
@@ -139,9 +185,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Added c, cpp, csharp, java, python raw generated clients
 
-- csharp update
+-  csharp update
 
-- csharp update
+-  csharp update
 
 - Added README and updated dependencies for C# SDK
 
@@ -184,3 +230,5 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Prepare public SDK docs for announcement and drop MCP from this repo. Customer-facing README was stale: mixed versions, generator names, Chat API wording, and an MCP example that belongs in a separate product. Add changelog and GitHub Release workflows, and keep deprecated TypeScript aliases. Co-authored-by: Cursor <cursoragent@cursor.com>
 
 - Merge pull request #3 from 1msg/docs/1msg-63-sdk-announce Prepare public SDK docs and changelog for announcement
+
+
