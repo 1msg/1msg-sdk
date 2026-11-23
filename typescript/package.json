@@ -21,6 +21,7 @@
     "dist",
     "README.md",
     "AGENTS.md",
+    "SKILL.md",
     "LICENSE"
   ],
   "scripts": {
