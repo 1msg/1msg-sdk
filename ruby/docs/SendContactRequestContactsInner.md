@@ -6,11 +6,11 @@
 | ---- | ---- | ----------- | ----- |
 | **name** | [**SendContactRequestContactsInnerName**](SendContactRequestContactsInnerName.md) |  | [optional] |
 | **birthday** | **String** |  | [optional] |
-| **addresses** | **Array&lt;Object&gt;** |  | [optional] |
-| **emails** | **Array&lt;Object&gt;** |  | [optional] |
+| **addresses** | **Array&lt;Hash&lt;String, Object&gt;&gt;** |  | [optional] |
+| **emails** | **Array&lt;Hash&lt;String, Object&gt;&gt;** |  | [optional] |
 | **org** | [**SendContactRequestContactsInnerOrg**](SendContactRequestContactsInnerOrg.md) |  | [optional] |
 | **phones** | [**Array&lt;SendContactRequestContactsInnerPhonesInner&gt;**](SendContactRequestContactsInnerPhonesInner.md) |  | [optional] |
-| **urls** | **Array&lt;Object&gt;** |  | [optional] |
+| **urls** | **Array&lt;Hash&lt;String, Object&gt;&gt;** |  | [optional] |
 
 ## Example
 

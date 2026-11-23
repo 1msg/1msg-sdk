@@ -19,9 +19,11 @@ All URIs are relative to *https://api.1msg.io*
 
 ## create_flows
 
-> <CreateGroups200Response> create_flows(token, opts)
+> <CreateGroups200Response> create_flows(token, create_flows_request, opts)
 
 Create Flow
+
+Create a WhatsApp Flow (`name` + `categories` required). Currently returns HTTP 501 until the Meta Graph Flows rewrite is available. 
 
 ### Examples
 
@@ -38,13 +40,14 @@ end
 
 api_instance = OneMsgSdk::FlowsApi.new
 token = 'token_example' # String | JWT token or API key for authorization
+create_flows_request = OneMsgSdk::CreateFlowsRequest.new({name: 'name_example', categories: ['SIGN_UP']}) # CreateFlowsRequest | 
 opts = {
   waba_account_id: '{{wabaAccountId}}' # String | 
 }
 
 begin
   # Create Flow
-  result = api_instance.create_flows(token, opts)
+  result = api_instance.create_flows(token, create_flows_request, opts)
   p result
 rescue OneMsgSdk::ApiError => e
   puts "Error when calling FlowsApi->create_flows: #{e}"
@@ -55,12 +58,12 @@ end
 
 This returns an Array which contains the response data, status code and headers.
 
-> <Array(<CreateGroups200Response>, Integer, Hash)> create_flows_with_http_info(token, opts)
+> <Array(<CreateGroups200Response>, Integer, Hash)> create_flows_with_http_info(token, create_flows_request, opts)
 
 ```ruby
 begin
   # Create Flow
-  data, status_code, headers = api_instance.create_flows_with_http_info(token, opts)
+  data, status_code, headers = api_instance.create_flows_with_http_info(token, create_flows_request, opts)
   p status_code # => 2xx
   p headers # => { ... }
   p data # => <CreateGroups200Response>
@@ -74,6 +77,7 @@ end
 | Name | Type | Description | Notes |
 | ---- | ---- | ----------- | ----- |
 | **token** | **String** | JWT token or API key for authorization |  |
+| **create_flows_request** | [**CreateFlowsRequest**](CreateFlowsRequest.md) |  |  |
 | **waba_account_id** | **String** |  | [optional] |
 
 ### Return type
@@ -86,7 +90,7 @@ end
 
 ### HTTP request headers
 
-- **Content-Type**: Not defined
+- **Content-Type**: application/json
 - **Accept**: application/json
 
 
@@ -542,6 +546,8 @@ end
 
 List Flows
 
+List WhatsApp Flows for the WABA. Currently returns HTTP 501 until the Meta Graph Flows rewrite is available. 
+
 ### Examples
 
 ```ruby
@@ -558,7 +564,8 @@ end
 api_instance = OneMsgSdk::FlowsApi.new
 token = 'token_example' # String | JWT token or API key for authorization
 opts = {
-  waba_account_id: '{{wabaAccountId}}' # String | 
+  waba_account_id: '{{wabaAccountId}}', # String | 
+  fields: 'fields_example' # String | Comma-separated Flow fields to return
 }
 
 begin
@@ -594,6 +601,7 @@ end
 | ---- | ---- | ----------- | ----- |
 | **token** | **String** | JWT token or API key for authorization |  |
 | **waba_account_id** | **String** |  | [optional] |
+| **fields** | **String** | Comma-separated Flow fields to return | [optional] |
 
 ### Return type
 
@@ -611,9 +619,11 @@ end
 
 ## patch_flows_flow_id_assets
 
-> <PatchFlowsFlowIdAssets200Response> patch_flows_flow_id_assets(flow_id, token, opts)
+> <PatchFlowsFlowIdAssets200Response> patch_flows_flow_id_assets(flow_id, token, patch_flows_flow_id_assets_request, opts)
 
 Update Flow Structure
+
+Replace the Flow JSON document (`flowJson`). Currently returns HTTP 501 until the Meta Graph Flows rewrite is available. 
 
 ### Examples
 
@@ -631,13 +641,14 @@ end
 api_instance = OneMsgSdk::FlowsApi.new
 flow_id = 'flow_id_example' # String | Flow ID
 token = 'token_example' # String | JWT token or API key for authorization
+patch_flows_flow_id_assets_request = OneMsgSdk::PatchFlowsFlowIdAssetsRequest.new({flow_json: { key: 3.56}}) # PatchFlowsFlowIdAssetsRequest | 
 opts = {
   waba_account_id: '{{wabaAccountId}}' # String | 
 }
 
 begin
   # Update Flow Structure
-  result = api_instance.patch_flows_flow_id_assets(flow_id, token, opts)
+  result = api_instance.patch_flows_flow_id_assets(flow_id, token, patch_flows_flow_id_assets_request, opts)
   p result
 rescue OneMsgSdk::ApiError => e
   puts "Error when calling FlowsApi->patch_flows_flow_id_assets: #{e}"
@@ -648,12 +659,12 @@ end
 
 This returns an Array which contains the response data, status code and headers.
 
-> <Array(<PatchFlowsFlowIdAssets200Response>, Integer, Hash)> patch_flows_flow_id_assets_with_http_info(flow_id, token, opts)
+> <Array(<PatchFlowsFlowIdAssets200Response>, Integer, Hash)> patch_flows_flow_id_assets_with_http_info(flow_id, token, patch_flows_flow_id_assets_request, opts)
 
 ```ruby
 begin
   # Update Flow Structure
-  data, status_code, headers = api_instance.patch_flows_flow_id_assets_with_http_info(flow_id, token, opts)
+  data, status_code, headers = api_instance.patch_flows_flow_id_assets_with_http_info(flow_id, token, patch_flows_flow_id_assets_request, opts)
   p status_code # => 2xx
   p headers # => { ... }
   p data # => <PatchFlowsFlowIdAssets200Response>
@@ -668,6 +679,7 @@ end
 | ---- | ---- | ----------- | ----- |
 | **flow_id** | **String** | Flow ID |  |
 | **token** | **String** | JWT token or API key for authorization |  |
+| **patch_flows_flow_id_assets_request** | [**PatchFlowsFlowIdAssetsRequest**](PatchFlowsFlowIdAssetsRequest.md) |  |  |
 | **waba_account_id** | **String** |  | [optional] |
 
 ### Return type
@@ -680,15 +692,17 @@ end
 
 ### HTTP request headers
 
-- **Content-Type**: Not defined
+- **Content-Type**: application/json
 - **Accept**: application/json
 
 
 ## patch_flows_flow_id_metadata
 
-> Hash&lt;String, Object&gt; patch_flows_flow_id_metadata(flow_id, token, opts)
+> Hash&lt;String, Object&gt; patch_flows_flow_id_metadata(flow_id, token, patch_flows_flow_id_metadata_request, opts)
 
 Update Flow Metadata
+
+Update Flow `name`, `categories`, and/or `endpointUri`. Currently returns HTTP 501 until the Meta Graph Flows rewrite is available. 
 
 ### Examples
 
@@ -706,13 +720,14 @@ end
 api_instance = OneMsgSdk::FlowsApi.new
 flow_id = 'flow_id_example' # String | Flow ID
 token = 'token_example' # String | JWT token or API key for authorization
+patch_flows_flow_id_metadata_request = OneMsgSdk::PatchFlowsFlowIdMetadataRequest.new # PatchFlowsFlowIdMetadataRequest | 
 opts = {
   waba_account_id: '{{wabaAccountId}}' # String | 
 }
 
 begin
   # Update Flow Metadata
-  result = api_instance.patch_flows_flow_id_metadata(flow_id, token, opts)
+  result = api_instance.patch_flows_flow_id_metadata(flow_id, token, patch_flows_flow_id_metadata_request, opts)
   p result
 rescue OneMsgSdk::ApiError => e
   puts "Error when calling FlowsApi->patch_flows_flow_id_metadata: #{e}"
@@ -723,12 +738,12 @@ end
 
 This returns an Array which contains the response data, status code and headers.
 
-> <Array(Hash&lt;String, Object&gt;, Integer, Hash)> patch_flows_flow_id_metadata_with_http_info(flow_id, token, opts)
+> <Array(Hash&lt;String, Object&gt;, Integer, Hash)> patch_flows_flow_id_metadata_with_http_info(flow_id, token, patch_flows_flow_id_metadata_request, opts)
 
 ```ruby
 begin
   # Update Flow Metadata
-  data, status_code, headers = api_instance.patch_flows_flow_id_metadata_with_http_info(flow_id, token, opts)
+  data, status_code, headers = api_instance.patch_flows_flow_id_metadata_with_http_info(flow_id, token, patch_flows_flow_id_metadata_request, opts)
   p status_code # => 2xx
   p headers # => { ... }
   p data # => Hash&lt;String, Object&gt;
@@ -743,6 +758,7 @@ end
 | ---- | ---- | ----------- | ----- |
 | **flow_id** | **String** | Flow ID |  |
 | **token** | **String** | JWT token or API key for authorization |  |
+| **patch_flows_flow_id_metadata_request** | [**PatchFlowsFlowIdMetadataRequest**](PatchFlowsFlowIdMetadataRequest.md) |  |  |
 | **waba_account_id** | **String** |  | [optional] |
 
 ### Return type
@@ -755,7 +771,7 @@ end
 
 ### HTTP request headers
 
-- **Content-Type**: Not defined
+- **Content-Type**: application/json
 - **Accept**: application/json
 
 

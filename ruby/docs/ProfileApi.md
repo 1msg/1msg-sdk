@@ -14,7 +14,7 @@ All URIs are relative to *https://api.1msg.io*
 
 Get Profile Info
 
-Get WhatsApp Business Account profile information
+Return the WhatsApp Business profile for this channel: About, address, description, email, phone, websites, industry (`vertical`), and profile photo URL. 
 
 ### Examples
 
@@ -81,7 +81,7 @@ end
 
 ## update_me
 
-> Hash&lt;String, Object&gt; update_me(token, opts)
+> <UpdateMe200Response> update_me(token, update_me_request)
 
 Update profile info
 
@@ -102,13 +102,11 @@ end
 
 api_instance = OneMsgSdk::ProfileApi.new
 token = 'token_example' # String | JWT token or API key for authorization
-opts = {
-  update_me_request: OneMsgSdk::UpdateMeRequest.new # UpdateMeRequest | 
-}
+update_me_request = OneMsgSdk::UpdateMeRequest.new # UpdateMeRequest | 
 
 begin
   # Update profile info
-  result = api_instance.update_me(token, opts)
+  result = api_instance.update_me(token, update_me_request)
   p result
 rescue OneMsgSdk::ApiError => e
   puts "Error when calling ProfileApi->update_me: #{e}"
@@ -119,15 +117,15 @@ end
 
 This returns an Array which contains the response data, status code and headers.
 
-> <Array(Hash&lt;String, Object&gt;, Integer, Hash)> update_me_with_http_info(token, opts)
+> <Array(<UpdateMe200Response>, Integer, Hash)> update_me_with_http_info(token, update_me_request)
 
 ```ruby
 begin
   # Update profile info
-  data, status_code, headers = api_instance.update_me_with_http_info(token, opts)
+  data, status_code, headers = api_instance.update_me_with_http_info(token, update_me_request)
   p status_code # => 2xx
   p headers # => { ... }
-  p data # => Hash&lt;String, Object&gt;
+  p data # => <UpdateMe200Response>
 rescue OneMsgSdk::ApiError => e
   puts "Error when calling ProfileApi->update_me_with_http_info: #{e}"
 end
@@ -138,11 +136,11 @@ end
 | Name | Type | Description | Notes |
 | ---- | ---- | ----------- | ----- |
 | **token** | **String** | JWT token or API key for authorization |  |
-| **update_me_request** | [**UpdateMeRequest**](UpdateMeRequest.md) |  | [optional] |
+| **update_me_request** | [**UpdateMeRequest**](UpdateMeRequest.md) |  |  |
 
 ### Return type
 
-**Hash&lt;String, Object&gt;**
+[**UpdateMe200Response**](UpdateMe200Response.md)
 
 ### Authorization
 

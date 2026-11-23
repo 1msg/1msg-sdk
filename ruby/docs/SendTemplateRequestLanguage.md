@@ -4,7 +4,7 @@
 
 | Name | Type | Description | Notes |
 | ---- | ---- | ----------- | ----- |
-| **policy** | **String** |  | [optional] |
+| **policy** | **String** | Must be &#x60;deterministic&#x60; | [optional][default to &#39;deterministic&#39;] |
 | **code** | **String** |  | [optional] |
 
 ## Example
@@ -13,8 +13,8 @@
 require 'one_msg_sdk'
 
 instance = OneMsgSdk::SendTemplateRequestLanguage.new(
-  policy: null,
-  code: null
+  policy: deterministic,
+  code: en
 )
 ```
 

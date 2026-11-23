@@ -15,6 +15,7 @@ All URIs are relative to *https://api.1msg.io*
 | [**send_button**](MessagingApi.md#send_button) | **POST** /sendButton | Send Reply Buttons Message |
 | [**send_carousel**](MessagingApi.md#send_carousel) | **POST** /sendCarousel | Send Carousel |
 | [**send_contact**](MessagingApi.md#send_contact) | **POST** /sendContact | Send a Contact |
+| [**send_contact_info**](MessagingApi.md#send_contact_info) | **POST** /sendContactInfo | Request the user&#39;s phone number |
 | [**send_cta_url**](MessagingApi.md#send_cta_url) | **POST** /sendCtaUrl | Send CTA URL interactive message |
 | [**send_file**](MessagingApi.md#send_file) | **POST** /sendFile | Send a File |
 | [**send_flow**](MessagingApi.md#send_flow) | **POST** /sendFlow | Send WhatsApp Flow Message |
@@ -108,9 +109,11 @@ end
 
 ## create_upload_media
 
-> create_upload_media(token, opts)
+> <CreateUploadMedia200Response> create_upload_media(token, create_upload_media_request)
 
 Upload media
+
+Upload a file to WhatsApp media storage and get a numeric `mediaId` for later use with `send_file` / `send_sticker` (`mediaId` field, not `body`).  Pass the file as `body` **or** `url` — an HTTP(S) URL or a base64 data URI. The `mediaId` in the response is a numeric string (keep it as a string). 
 
 ### Examples
 
@@ -127,13 +130,12 @@ end
 
 api_instance = OneMsgSdk::MessagingApi.new
 token = 'token_example' # String | JWT token or API key for authorization
-opts = {
-  request_body: { key: 3.56} # Hash<String, Object> | 
-}
+create_upload_media_request = OneMsgSdk::CreateUploadMediaRequest.new # CreateUploadMediaRequest | 
 
 begin
   # Upload media
-  api_instance.create_upload_media(token, opts)
+  result = api_instance.create_upload_media(token, create_upload_media_request)
+  p result
 rescue OneMsgSdk::ApiError => e
   puts "Error when calling MessagingApi->create_upload_media: #{e}"
 end
@@ -141,17 +143,17 @@ end
 
 #### Using the create_upload_media_with_http_info variant
 
-This returns an Array which contains the response data (`nil` in this case), status code and headers.
+This returns an Array which contains the response data, status code and headers.
 
-> <Array(nil, Integer, Hash)> create_upload_media_with_http_info(token, opts)
+> <Array(<CreateUploadMedia200Response>, Integer, Hash)> create_upload_media_with_http_info(token, create_upload_media_request)
 
 ```ruby
 begin
   # Upload media
-  data, status_code, headers = api_instance.create_upload_media_with_http_info(token, opts)
+  data, status_code, headers = api_instance.create_upload_media_with_http_info(token, create_upload_media_request)
   p status_code # => 2xx
   p headers # => { ... }
-  p data # => nil
+  p data # => <CreateUploadMedia200Response>
 rescue OneMsgSdk::ApiError => e
   puts "Error when calling MessagingApi->create_upload_media_with_http_info: #{e}"
 end
@@ -162,11 +164,11 @@ end
 | Name | Type | Description | Notes |
 | ---- | ---- | ----------- | ----- |
 | **token** | **String** | JWT token or API key for authorization |  |
-| **request_body** | [**Hash&lt;String, Object&gt;**](Object.md) |  | [optional] |
+| **create_upload_media_request** | [**CreateUploadMediaRequest**](CreateUploadMediaRequest.md) |  |  |
 
 ### Return type
 
-nil (empty response body)
+[**CreateUploadMedia200Response**](CreateUploadMedia200Response.md)
 
 ### Authorization
 
@@ -175,7 +177,7 @@ nil (empty response body)
 ### HTTP request headers
 
 - **Content-Type**: application/json
-- **Accept**: Not defined
+- **Accept**: application/json
 
 
 ## delete_media
@@ -395,9 +397,11 @@ end
 
 ## list_messages
 
-> <ListMessages200Response> list_messages(token)
+> <ListMessages200Response> list_messages(token, opts)
 
 Get messages list
+
+List stored chat history for this channel (requires history storage). Filter with `chatId`, `limit`, `last`, message numbers, or time bounds. 
 
 ### Examples
 
@@ -414,10 +418,20 @@ end
 
 api_instance = OneMsgSdk::MessagingApi.new
 token = 'token_example' # String | JWT token or API key for authorization
+opts = {
+  chat_id: 'chat_id_example', # String | Filter messages for one chat (`phone@c.us`, group `@g.us`, or BSUID `@lid`)
+  limit: 56, # Integer | Max rows to return (default 100)
+  last: true, # Boolean | If true, return the latest messages (DESC). Default false.
+  last_message_number: 56, # Integer | 
+  first_message_number: 56, # Integer | 
+  min_time: 56, # Integer | Unix timestamp lower bound
+  max_time: 56, # Integer | Unix timestamp upper bound
+  msg_id: 'msg_id_example' # String | Filter by stored message id
+}
 
 begin
   # Get messages list
-  result = api_instance.list_messages(token)
+  result = api_instance.list_messages(token, opts)
   p result
 rescue OneMsgSdk::ApiError => e
   puts "Error when calling MessagingApi->list_messages: #{e}"
@@ -428,12 +442,12 @@ end
 
 This returns an Array which contains the response data, status code and headers.
 
-> <Array(<ListMessages200Response>, Integer, Hash)> list_messages_with_http_info(token)
+> <Array(<ListMessages200Response>, Integer, Hash)> list_messages_with_http_info(token, opts)
 
 ```ruby
 begin
   # Get messages list
-  data, status_code, headers = api_instance.list_messages_with_http_info(token)
+  data, status_code, headers = api_instance.list_messages_with_http_info(token, opts)
   p status_code # => 2xx
   p headers # => { ... }
   p data # => <ListMessages200Response>
@@ -447,6 +461,14 @@ end
 | Name | Type | Description | Notes |
 | ---- | ---- | ----------- | ----- |
 | **token** | **String** | JWT token or API key for authorization |  |
+| **chat_id** | **String** | Filter messages for one chat (&#x60;phone@c.us&#x60;, group &#x60;@g.us&#x60;, or BSUID &#x60;@lid&#x60;) | [optional] |
+| **limit** | **Integer** | Max rows to return (default 100) | [optional] |
+| **last** | **Boolean** | If true, return the latest messages (DESC). Default false. | [optional] |
+| **last_message_number** | **Integer** |  | [optional] |
+| **first_message_number** | **Integer** |  | [optional] |
+| **min_time** | **Integer** | Unix timestamp lower bound | [optional] |
+| **max_time** | **Integer** | Unix timestamp upper bound | [optional] |
+| **msg_id** | **String** | Filter by stored message id | [optional] |
 
 ### Return type
 
@@ -683,11 +705,11 @@ end
 
 ## send_carousel
 
-> <MessageSentResponse> send_carousel(token, params, opts)
+> <MessageSentResponse> send_carousel(token, opts)
 
 Send Carousel
 
-You can send product cards via Carousel in two ways:  Template messages: do not require a 24-hour customer service window between you and the recipient. Use sendTemplate.  Free-form messages: can be sent only when a customer service window is open between you and the recipient. Use sendCarousel.  The message structure in /sendCarousel is largely similar to sending a template. However, in this case you must  explicitly specify all elements that are created in advance when working with templates. This is because the message  is sent without using a template.  In /sendCarousel, for sending a Catalog Carousel there can be either 1 URL button or one or more quick reply buttons. 
+You can send product cards via Carousel in two ways:  Template messages: do not require a 24-hour customer service window between you and the recipient. Use sendTemplate.  Free-form messages: can be sent only when a customer service window is open between you and the recipient. Use sendCarousel.  The message structure in /sendCarousel is largely similar to sending a template. However, in this case you must  explicitly specify all elements that are created in advance when working with templates. This is because the message  is sent without using a template.  In /sendCarousel, for a Catalog Carousel there can be either 1 URL button or one or more quick reply buttons.  Prefer the simple `cards` array (2–10 cards). Each card needs a header media/product plus a CTA URL or quick-reply buttons. Example:  ```json {   \"phone\": \"79001234567\",   \"body\": \"Pick a product\",   \"cards\": [     {       \"header\": { \"type\": \"image\", \"image\": { \"link\": \"https://example.com/1.jpg\" } },       \"body\": { \"text\": \"Card one\" },       \"type\": \"cta_url\",       \"action\": { \"name\": \"cta_url\", \"parameters\": { \"url\": \"https://example.com/p1\", \"display_text\": \"Open\" } }     },     {       \"header\": { \"type\": \"image\", \"image\": { \"link\": \"https://example.com/2.jpg\" } },       \"body\": { \"text\": \"Card two\" },       \"type\": \"cta_url\",       \"action\": { \"name\": \"cta_url\", \"parameters\": { \"url\": \"https://example.com/p2\", \"display_text\": \"Open\" } }     }   ] } ```  `params` with a `CAROUSEL` component is the template-like alternative. 
 
 ### Examples
 
@@ -704,9 +726,10 @@ end
 
 api_instance = OneMsgSdk::MessagingApi.new
 token = 'token_example' # String | JWT token or API key for authorization
-params = [3.56] # Array<Object> | Required. Template-like structure (same as sendTemplate params). Must include a CAROUSEL component and its cards.  Structure: - params[] item with type CAROUSEL and cards (2..10) - cards[] item:   - components[] items:     - header: parameters[0] with type image/video/product       - image: {\\\"image\\\": {\\\"link\\\": \\\"https://...\\\"}}       - video: {\\\"video\\\": {\\\"link\\\": \\\"https://...\\\"}}       - product: {\\\"product\\\": {\\\"catalog_id\\\": \\\"...\\\", \\\"product_retailer_id\\\": \\\"...\\\"}}     - button: sub_type url or quick_reply       - url: parameters {\\\"text\\\": \\\"Button\\\", \\\"url\\\": \\\"https://...\\\"}       - quick_reply: parameters[] of {\\\"id\\\": \\\"...\\\", \\\"text\\\": \\\"...\\\"} 
 opts = {
   body: 'body_example', # String | Text shown above the carousel. Optional. If omitted and params include a body component, the body will be taken from params.
+  cards: [{ key: 3.56}], # Array<Hash<String, Object>> | Preferred. 2–10 carousel cards (header + body + CTA or quick replies).
+  params: [3.56], # Array<Object> | Required. Template-like structure (same as sendTemplate params). Must include a CAROUSEL component and its cards.  Structure: - params[] item with type CAROUSEL and cards (2..10) - cards[] item:   - components[] items:     - header: parameters[0] with type image/video/product       - image: {\\\"image\\\": {\\\"link\\\": \\\"https://...\\\"}}       - video: {\\\"video\\\": {\\\"link\\\": \\\"https://...\\\"}}       - product: {\\\"product\\\": {\\\"catalog_id\\\": \\\"...\\\", \\\"product_retailer_id\\\": \\\"...\\\"}}     - button: sub_type url or quick_reply       - url: parameters {\\\"text\\\": \\\"Button\\\", \\\"url\\\": \\\"https://...\\\"}       - quick_reply: parameters[] of {\\\"id\\\": \\\"...\\\", \\\"text\\\": \\\"...\\\"} 
   quoted_msg_id: 'quoted_msg_id_example', # String | Quoted message ID (Cloud API)
   chat_id: 'chat_id_example', # String | Required if phone is not set. Chat ID from the message list. Examples: 12020721369@c.us or 120363046942338209@g.us(group)
   phone: 56 # Integer | Required if chatId is not set. A phone number starting with the country code. USA example: 12020721369.
@@ -714,7 +737,7 @@ opts = {
 
 begin
   # Send Carousel
-  result = api_instance.send_carousel(token, params, opts)
+  result = api_instance.send_carousel(token, opts)
   p result
 rescue OneMsgSdk::ApiError => e
   puts "Error when calling MessagingApi->send_carousel: #{e}"
@@ -725,12 +748,12 @@ end
 
 This returns an Array which contains the response data, status code and headers.
 
-> <Array(<MessageSentResponse>, Integer, Hash)> send_carousel_with_http_info(token, params, opts)
+> <Array(<MessageSentResponse>, Integer, Hash)> send_carousel_with_http_info(token, opts)
 
 ```ruby
 begin
   # Send Carousel
-  data, status_code, headers = api_instance.send_carousel_with_http_info(token, params, opts)
+  data, status_code, headers = api_instance.send_carousel_with_http_info(token, opts)
   p status_code # => 2xx
   p headers # => { ... }
   p data # => <MessageSentResponse>
@@ -744,8 +767,9 @@ end
 | Name | Type | Description | Notes |
 | ---- | ---- | ----------- | ----- |
 | **token** | **String** | JWT token or API key for authorization |  |
-| **params** | [**Array&lt;Object&gt;**](Object.md) | Required. Template-like structure (same as sendTemplate params). Must include a CAROUSEL component and its cards.  Structure: - params[] item with type CAROUSEL and cards (2..10) - cards[] item:   - components[] items:     - header: parameters[0] with type image/video/product       - image: {\\\&quot;image\\\&quot;: {\\\&quot;link\\\&quot;: \\\&quot;https://...\\\&quot;}}       - video: {\\\&quot;video\\\&quot;: {\\\&quot;link\\\&quot;: \\\&quot;https://...\\\&quot;}}       - product: {\\\&quot;product\\\&quot;: {\\\&quot;catalog_id\\\&quot;: \\\&quot;...\\\&quot;, \\\&quot;product_retailer_id\\\&quot;: \\\&quot;...\\\&quot;}}     - button: sub_type url or quick_reply       - url: parameters {\\\&quot;text\\\&quot;: \\\&quot;Button\\\&quot;, \\\&quot;url\\\&quot;: \\\&quot;https://...\\\&quot;}       - quick_reply: parameters[] of {\\\&quot;id\\\&quot;: \\\&quot;...\\\&quot;, \\\&quot;text\\\&quot;: \\\&quot;...\\\&quot;}  |  |
 | **body** | **String** | Text shown above the carousel. Optional. If omitted and params include a body component, the body will be taken from params. | [optional] |
+| **cards** | [**Array&lt;Hash&lt;String, Object&gt;&gt;**](Hash&lt;String, Object&gt;.md) | Preferred. 2–10 carousel cards (header + body + CTA or quick replies). | [optional] |
+| **params** | [**Array&lt;Object&gt;**](Object.md) | Required. Template-like structure (same as sendTemplate params). Must include a CAROUSEL component and its cards.  Structure: - params[] item with type CAROUSEL and cards (2..10) - cards[] item:   - components[] items:     - header: parameters[0] with type image/video/product       - image: {\\\&quot;image\\\&quot;: {\\\&quot;link\\\&quot;: \\\&quot;https://...\\\&quot;}}       - video: {\\\&quot;video\\\&quot;: {\\\&quot;link\\\&quot;: \\\&quot;https://...\\\&quot;}}       - product: {\\\&quot;product\\\&quot;: {\\\&quot;catalog_id\\\&quot;: \\\&quot;...\\\&quot;, \\\&quot;product_retailer_id\\\&quot;: \\\&quot;...\\\&quot;}}     - button: sub_type url or quick_reply       - url: parameters {\\\&quot;text\\\&quot;: \\\&quot;Button\\\&quot;, \\\&quot;url\\\&quot;: \\\&quot;https://...\\\&quot;}       - quick_reply: parameters[] of {\\\&quot;id\\\&quot;: \\\&quot;...\\\&quot;, \\\&quot;text\\\&quot;: \\\&quot;...\\\&quot;}  | [optional] |
 | **quoted_msg_id** | **String** | Quoted message ID (Cloud API) | [optional] |
 | **chat_id** | **String** | Required if phone is not set. Chat ID from the message list. Examples: 12020721369@c.us or 120363046942338209@g.us(group) | [optional] |
 | **phone** | **Integer** | Required if chatId is not set. A phone number starting with the country code. USA example: 12020721369. | [optional] |
@@ -769,6 +793,8 @@ end
 > <MessageSentResponse> send_contact(token, opts)
 
 Send a Contact
+
+Send a WhatsApp contact card.  Preferred simple body (legacy-compatible):  ```json {   \"phone\": \"79001234567\",   \"contact\": { \"name\": \"Lida\", \"phone\": \"+79181976551\" } } ```  Cloud API shape also works: `contacts` is an array of objects with `name.formatted_name` and `phones[].phone` (E.164 string, **not** a timestamp). 
 
 ### Examples
 
@@ -822,6 +848,81 @@ end
 | ---- | ---- | ----------- | ----- |
 | **token** | **String** | JWT token or API key for authorization |  |
 | **send_contact_request** | [**SendContactRequest**](SendContactRequest.md) |  | [optional] |
+
+### Return type
+
+[**MessageSentResponse**](MessageSentResponse.md)
+
+### Authorization
+
+[tokenAuth](../README.md#tokenAuth)
+
+### HTTP request headers
+
+- **Content-Type**: application/json
+- **Accept**: application/json
+
+
+## send_contact_info
+
+> <MessageSentResponse> send_contact_info(token, opts)
+
+Request the user's phone number
+
+Send a service-window interactive message that asks the WhatsApp user to share their phone number (`request_contact_info`).  Use this when you only know the user by BSUID (WhatsApp username) and the 24-hour customer service window is open. Outside that window, create a UTILITY or MARKETING template with a `REQUEST_CONTACT_INFO` button (`POST /addTemplate`) and send it with `POST /sendTemplate`.  `body` is the text shown above the button (1–1024 characters). WhatsApp chooses the button label. This method has no button-text field — do not send one.  ```json {   \"bsuid\": \"US.13491208655302741918\",   \"body\": \"Please share your phone number so we can reach you.\" } ```  `phone`, `chatId` (`…@c.us`, `…@lid`, `…@username`), or `bsuid` identifies the recipient. One of them is enough.  After Meta accepts the send, the outgoing webhook and stored history message use this same text as `messages[].body` (`type: interactive`).  When the user taps the button, Meta sends an inbound `contacts` message. The sender stays the BSUID. The shared number is on the card with `origin: contact_request`. We write that phone onto the existing BSUID contact automatically — there is no separate “link phone” call.  ```json {   \"contacts\": [     {       \"profile\": { \"name\": \"Ada\", \"username\": \"ada\" },       \"user_id\": \"US.13491208655302741918\"     }   ],   \"messages\": [     {       \"from_user_id\": \"US.13491208655302741918\",       \"type\": \"contacts\",       \"contacts\": [         {           \"origin\": \"contact_request\",           \"phones\": [{ \"phone\": \"+1 202-555-0123\", \"wa_id\": \"12025550123\" }]         }       ]     }   ] } ```  The stored inbound message body is the digits (`12025550123`).  If Meta later includes a phone on an ordinary message or status for that same BSUID (`wa_id`, `from`, or `recipient_id`, together with `user_id` / `recipient_user_id`), that phone is merged onto the same contact. A contact card the user forwards (`origin` other than `contact_request`) is someone else's number and is not stored as this sender's phone. 
+
+### Examples
+
+```ruby
+require 'time'
+require 'one_msg_sdk'
+# setup authorization
+OneMsgSdk.configure do |config|
+  # Configure API key authorization: tokenAuth
+  config.api_key['token'] = 'YOUR API KEY'
+  # Uncomment the following line to set a prefix for the API key, e.g. 'Bearer' (defaults to nil)
+  # config.api_key_prefix['token'] = 'Bearer'
+end
+
+api_instance = OneMsgSdk::MessagingApi.new
+token = 'token_example' # String | JWT token or API key for authorization
+opts = {
+  send_contact_info_request: OneMsgSdk::SendContactInfoRequest.new({body: 'body_example'}) # SendContactInfoRequest | 
+}
+
+begin
+  # Request the user's phone number
+  result = api_instance.send_contact_info(token, opts)
+  p result
+rescue OneMsgSdk::ApiError => e
+  puts "Error when calling MessagingApi->send_contact_info: #{e}"
+end
+```
+
+#### Using the send_contact_info_with_http_info variant
+
+This returns an Array which contains the response data, status code and headers.
+
+> <Array(<MessageSentResponse>, Integer, Hash)> send_contact_info_with_http_info(token, opts)
+
+```ruby
+begin
+  # Request the user's phone number
+  data, status_code, headers = api_instance.send_contact_info_with_http_info(token, opts)
+  p status_code # => 2xx
+  p headers # => { ... }
+  p data # => <MessageSentResponse>
+rescue OneMsgSdk::ApiError => e
+  puts "Error when calling MessagingApi->send_contact_info_with_http_info: #{e}"
+end
+```
+
+### Parameters
+
+| Name | Type | Description | Notes |
+| ---- | ---- | ----------- | ----- |
+| **token** | **String** | JWT token or API key for authorization |  |
+| **send_contact_info_request** | [**SendContactInfoRequest**](SendContactInfoRequest.md) |  | [optional] |
 
 ### Return type
 
@@ -1343,7 +1444,7 @@ end
 
 Send a Message
 
-Send a message to an existing chat. (Only if the dialogue has an Open Session).  The message will be added to the queue for sending and delivered even if the phone  is disconnected from the Internet or authorization is not passed.  Only one of two parameters is needed to determine the destination - chatId or phone. 
+Send a message to an existing chat. (Only if the dialogue has an Open Session).  The message will be added to the queue for sending and delivered even if the phone  is disconnected from the Internet or authorization is not passed.  Only one of two parameters is needed to determine the destination - chatId or phone.  Direct Send is in beta. Meta has not enabled it on every business portfolio, so `category` and `directSend` are a beta option: watch delivery errors before relying on them.  Set `category` to `utility` or `authentication` to send outside the 24-hour window as a Meta Direct Send template instead of the 1MSG marketing auto-template. `authentication` is part of that beta and is not recommended. `directSend.serviceFirst: true` tries a free service message first and uses Direct Send only when Meta rejects it because the window is closed (131047). `directSend.templateName` is only valid with `utility` (`^[a-z0-9_]+$`, max 512). Direct Send text is limited to 1024 characters. Without `templateName`, the first unseen phrase may be delivered as Meta's onboarding template. A named template does not guarantee delivery — wait for webhook errors 131000 or 132021. An open 24-hour window is still billed as utility when `category` is set and `serviceFirst` is not true. 
 
 ### Examples
 
@@ -1363,8 +1464,10 @@ token = 'token_example' # String | JWT token or API key for authorization
 body = 'body_example' # String | Message text, UTF-8 or UTF-16 string with emoji
 opts = {
   quoted_msg_id: 'quoted_msg_id_example', # String | Message ID to quote/reply to (Cloud API wamid)
-  chat_id: 'chat_id_example', # String | Chat ID in format: phone@c.us (individual) or phone@g.us (group)
-  phone: 56 # Integer | Phone number starting with country code (alternative to chatId)
+  chat_id: 'chat_id_example', # String | Recipient chat ID: phone@c.us, group@g.us, or BSUID@lid
+  phone: 56, # Integer | Phone number starting with country code (alternative to chatId)
+  category: 'utility', # String | Optional Direct Send category. Direct Send is in beta: Meta has not enabled it on every business portfolio. `utility` or `authentication` enables it. `authentication` is part of that beta and is not recommended. Omit or `service` keeps a normal service message (and the marketing auto-template outside the 24-hour window). `marketing` is rejected. 
+  direct_send: OneMsgSdk::SendMessageRequestDirectSend.new # SendMessageRequestDirectSend | 
 }
 
 begin
@@ -1401,8 +1504,10 @@ end
 | **token** | **String** | JWT token or API key for authorization |  |
 | **body** | **String** | Message text, UTF-8 or UTF-16 string with emoji |  |
 | **quoted_msg_id** | **String** | Message ID to quote/reply to (Cloud API wamid) | [optional] |
-| **chat_id** | **String** | Chat ID in format: phone@c.us (individual) or phone@g.us (group) | [optional] |
+| **chat_id** | **String** | Recipient chat ID: phone@c.us, group@g.us, or BSUID@lid | [optional] |
 | **phone** | **Integer** | Phone number starting with country code (alternative to chatId) | [optional] |
+| **category** | **String** | Optional Direct Send category. Direct Send is in beta: Meta has not enabled it on every business portfolio. &#x60;utility&#x60; or &#x60;authentication&#x60; enables it. &#x60;authentication&#x60; is part of that beta and is not recommended. Omit or &#x60;service&#x60; keeps a normal service message (and the marketing auto-template outside the 24-hour window). &#x60;marketing&#x60; is rejected.  | [optional] |
+| **direct_send** | [**SendMessageRequestDirectSend**](SendMessageRequestDirectSend.md) |  | [optional] |
 
 ### Return type
 
@@ -1566,9 +1671,11 @@ end
 
 ## send_product
 
-> <MessageSentResponse> send_product(token, opts)
+> <MessageSentResponse> send_product(token, send_product_request)
 
 Send a Product
+
+Send a single catalog product or a product list. Destination is `chatId` or `phone`. `action` is required: - single product: `{ \"catalog_id\": \"...\", \"product_retailer_id\": \"...\" }` - product list: `{ \"catalog_id\": \"...\", \"sections\": [{ \"title\": \"...\", \"product_items\": [{ \"product_retailer_id\": \"...\" }] }] }` 
 
 ### Examples
 
@@ -1585,13 +1692,11 @@ end
 
 api_instance = OneMsgSdk::MessagingApi.new
 token = 'token_example' # String | JWT token or API key for authorization
-opts = {
-  request_body: { key: 3.56} # Hash<String, Object> | 
-}
+send_product_request = OneMsgSdk::SendProductRequest.new({action: { key: 3.56}}) # SendProductRequest | 
 
 begin
   # Send a Product
-  result = api_instance.send_product(token, opts)
+  result = api_instance.send_product(token, send_product_request)
   p result
 rescue OneMsgSdk::ApiError => e
   puts "Error when calling MessagingApi->send_product: #{e}"
@@ -1602,12 +1707,12 @@ end
 
 This returns an Array which contains the response data, status code and headers.
 
-> <Array(<MessageSentResponse>, Integer, Hash)> send_product_with_http_info(token, opts)
+> <Array(<MessageSentResponse>, Integer, Hash)> send_product_with_http_info(token, send_product_request)
 
 ```ruby
 begin
   # Send a Product
-  data, status_code, headers = api_instance.send_product_with_http_info(token, opts)
+  data, status_code, headers = api_instance.send_product_with_http_info(token, send_product_request)
   p status_code # => 2xx
   p headers # => { ... }
   p data # => <MessageSentResponse>
@@ -1621,7 +1726,7 @@ end
 | Name | Type | Description | Notes |
 | ---- | ---- | ----------- | ----- |
 | **token** | **String** | JWT token or API key for authorization |  |
-| **request_body** | [**Hash&lt;String, Object&gt;**](Object.md) |  | [optional] |
+| **send_product_request** | [**SendProductRequest**](SendProductRequest.md) |  |  |
 
 ### Return type
 

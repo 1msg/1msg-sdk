@@ -15,7 +15,7 @@ All URIs are relative to *https://api.1msg.io*
 
 ## create_groups
 
-> <CreateGroups200Response> create_groups(token)
+> <CreateGroups200Response> create_groups(token, create_groups_request)
 
 Create Group
 
@@ -34,10 +34,11 @@ end
 
 api_instance = OneMsgSdk::GroupsApi.new
 token = 'token_example' # String | JWT token or API key for authorization
+create_groups_request = OneMsgSdk::CreateGroupsRequest.new({group_name: 'group_name_example'}) # CreateGroupsRequest | 
 
 begin
   # Create Group
-  result = api_instance.create_groups(token)
+  result = api_instance.create_groups(token, create_groups_request)
   p result
 rescue OneMsgSdk::ApiError => e
   puts "Error when calling GroupsApi->create_groups: #{e}"
@@ -48,12 +49,12 @@ end
 
 This returns an Array which contains the response data, status code and headers.
 
-> <Array(<CreateGroups200Response>, Integer, Hash)> create_groups_with_http_info(token)
+> <Array(<CreateGroups200Response>, Integer, Hash)> create_groups_with_http_info(token, create_groups_request)
 
 ```ruby
 begin
   # Create Group
-  data, status_code, headers = api_instance.create_groups_with_http_info(token)
+  data, status_code, headers = api_instance.create_groups_with_http_info(token, create_groups_request)
   p status_code # => 2xx
   p headers # => { ... }
   p data # => <CreateGroups200Response>
@@ -67,6 +68,7 @@ end
 | Name | Type | Description | Notes |
 | ---- | ---- | ----------- | ----- |
 | **token** | **String** | JWT token or API key for authorization |  |
+| **create_groups_request** | [**CreateGroupsRequest**](CreateGroupsRequest.md) |  |  |
 
 ### Return type
 
@@ -78,15 +80,17 @@ end
 
 ### HTTP request headers
 
-- **Content-Type**: Not defined
+- **Content-Type**: application/json
 - **Accept**: application/json
 
 
 ## create_groups_group_id
 
-> Hash&lt;String, Object&gt; create_groups_group_id(group_id, token)
+> Hash&lt;String, Object&gt; create_groups_group_id(group_id, token, create_groups_group_id_request)
 
 Update Group Info
+
+Update group subject, description, and/or profile picture. Path `groupId` is the WABA group id (without `@g.us`). 
 
 ### Examples
 
@@ -104,10 +108,11 @@ end
 api_instance = OneMsgSdk::GroupsApi.new
 group_id = '{{createdGroupId}}' # String | 
 token = 'token_example' # String | JWT token or API key for authorization
+create_groups_group_id_request = OneMsgSdk::CreateGroupsGroupIdRequest.new # CreateGroupsGroupIdRequest | 
 
 begin
   # Update Group Info
-  result = api_instance.create_groups_group_id(group_id, token)
+  result = api_instance.create_groups_group_id(group_id, token, create_groups_group_id_request)
   p result
 rescue OneMsgSdk::ApiError => e
   puts "Error when calling GroupsApi->create_groups_group_id: #{e}"
@@ -118,12 +123,12 @@ end
 
 This returns an Array which contains the response data, status code and headers.
 
-> <Array(Hash&lt;String, Object&gt;, Integer, Hash)> create_groups_group_id_with_http_info(group_id, token)
+> <Array(Hash&lt;String, Object&gt;, Integer, Hash)> create_groups_group_id_with_http_info(group_id, token, create_groups_group_id_request)
 
 ```ruby
 begin
   # Update Group Info
-  data, status_code, headers = api_instance.create_groups_group_id_with_http_info(group_id, token)
+  data, status_code, headers = api_instance.create_groups_group_id_with_http_info(group_id, token, create_groups_group_id_request)
   p status_code # => 2xx
   p headers # => { ... }
   p data # => Hash&lt;String, Object&gt;
@@ -138,6 +143,7 @@ end
 | ---- | ---- | ----------- | ----- |
 | **group_id** | **String** |  |  |
 | **token** | **String** | JWT token or API key for authorization |  |
+| **create_groups_group_id_request** | [**CreateGroupsGroupIdRequest**](CreateGroupsGroupIdRequest.md) |  |  |
 
 ### Return type
 
@@ -149,7 +155,7 @@ end
 
 ### HTTP request headers
 
-- **Content-Type**: Not defined
+- **Content-Type**: application/json
 - **Accept**: application/json
 
 
@@ -297,7 +303,7 @@ end
 
 ## get_groups_group_id
 
-> Hash&lt;String, Object&gt; get_groups_group_id(group_id, token)
+> Hash&lt;String, Object&gt; get_groups_group_id(group_id, token, opts)
 
 Get Group Info
 
@@ -317,10 +323,13 @@ end
 api_instance = OneMsgSdk::GroupsApi.new
 group_id = '{{createdGroupId}}' # String | 
 token = 'token_example' # String | JWT token or API key for authorization
+opts = {
+  fields: 'fields_example' # String | Comma-separated group fields to return
+}
 
 begin
   # Get Group Info
-  result = api_instance.get_groups_group_id(group_id, token)
+  result = api_instance.get_groups_group_id(group_id, token, opts)
   p result
 rescue OneMsgSdk::ApiError => e
   puts "Error when calling GroupsApi->get_groups_group_id: #{e}"
@@ -331,12 +340,12 @@ end
 
 This returns an Array which contains the response data, status code and headers.
 
-> <Array(Hash&lt;String, Object&gt;, Integer, Hash)> get_groups_group_id_with_http_info(group_id, token)
+> <Array(Hash&lt;String, Object&gt;, Integer, Hash)> get_groups_group_id_with_http_info(group_id, token, opts)
 
 ```ruby
 begin
   # Get Group Info
-  data, status_code, headers = api_instance.get_groups_group_id_with_http_info(group_id, token)
+  data, status_code, headers = api_instance.get_groups_group_id_with_http_info(group_id, token, opts)
   p status_code # => 2xx
   p headers # => { ... }
   p data # => Hash&lt;String, Object&gt;
@@ -351,6 +360,7 @@ end
 | ---- | ---- | ----------- | ----- |
 | **group_id** | **String** |  |  |
 | **token** | **String** | JWT token or API key for authorization |  |
+| **fields** | **String** | Comma-separated group fields to return | [optional] |
 
 ### Return type
 
@@ -439,9 +449,11 @@ end
 
 ## list_groups
 
-> Hash&lt;String, Object&gt; list_groups(token)
+> Hash&lt;String, Object&gt; list_groups(token, opts)
 
 Get Groups List
+
+List WhatsApp groups for this channel. Paginate with `limit`, `before`, and `after`.
 
 ### Examples
 
@@ -458,10 +470,15 @@ end
 
 api_instance = OneMsgSdk::GroupsApi.new
 token = 'token_example' # String | JWT token or API key for authorization
+opts = {
+  limit: 56, # Integer | Max groups to return
+  before: 'before_example', # String | Cursor for the previous page
+  after: 'after_example' # String | Cursor for the next page
+}
 
 begin
   # Get Groups List
-  result = api_instance.list_groups(token)
+  result = api_instance.list_groups(token, opts)
   p result
 rescue OneMsgSdk::ApiError => e
   puts "Error when calling GroupsApi->list_groups: #{e}"
@@ -472,12 +489,12 @@ end
 
 This returns an Array which contains the response data, status code and headers.
 
-> <Array(Hash&lt;String, Object&gt;, Integer, Hash)> list_groups_with_http_info(token)
+> <Array(Hash&lt;String, Object&gt;, Integer, Hash)> list_groups_with_http_info(token, opts)
 
 ```ruby
 begin
   # Get Groups List
-  data, status_code, headers = api_instance.list_groups_with_http_info(token)
+  data, status_code, headers = api_instance.list_groups_with_http_info(token, opts)
   p status_code # => 2xx
   p headers # => { ... }
   p data # => Hash&lt;String, Object&gt;
@@ -491,6 +508,9 @@ end
 | Name | Type | Description | Notes |
 | ---- | ---- | ----------- | ----- |
 | **token** | **String** | JWT token or API key for authorization |  |
+| **limit** | **Integer** | Max groups to return | [optional] |
+| **before** | **String** | Cursor for the previous page | [optional] |
+| **after** | **String** | Cursor for the next page | [optional] |
 
 ### Return type
 

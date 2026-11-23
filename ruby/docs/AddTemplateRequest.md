@@ -4,10 +4,10 @@
 
 | Name | Type | Description | Notes |
 | ---- | ---- | ----------- | ----- |
-| **name** | **String** |  | [optional] |
-| **category** | **String** |  | [optional] |
-| **language** | **String** |  | [optional] |
-| **components** | **Array&lt;Hash&lt;String, Object&gt;&gt;** |  | [optional] |
+| **name** | **String** | Template name | [optional] |
+| **category** | **String** | MARKETING, UTILITY, or AUTHENTICATION | [optional] |
+| **language** | **String** | Template language code (e.g. en_US) | [optional] |
+| **components** | **Array&lt;Hash&lt;String, Object&gt;&gt;** | Template components (HEADER, BODY, FOOTER, BUTTONS, CAROUSEL) | [optional] |
 
 ## Example
 
@@ -15,9 +15,9 @@
 require 'one_msg_sdk'
 
 instance = OneMsgSdk::AddTemplateRequest.new(
-  name: null,
-  category: null,
-  language: null,
+  name: hello_world,
+  category: UTILITY,
+  language: en_US,
   components: null
 )
 ```
