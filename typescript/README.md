@@ -160,6 +160,27 @@ Wrapper around `client.messaging.sendMessage`. Prefer this for text messages.
 await client.sendMessage({ body: 'Hi', chatId: '12020721369@c.us' });
 ```
 
+## Platform API (Inbox and Campaigns)
+
+Inbox and Campaigns are in this same package. They use an API key from
+Settings → Developer → API key, not the channel token.
+
+```typescript
+import { createPlatformClient } from '@1msg/sdk';
+
+const platform = createPlatformClient({
+  baseUrl: 'https://api.1msg.io',
+  apiKey: process.env.ONE_MSG_PLATFORM_KEY!,
+});
+
+await platform.call('listInboxChannels', {});
+await platform.call('listCampaigns', { query: { limit: '20' } });
+```
+
+`PLATFORM_VERSION` is the platform contract. The npm version above stays the
+WhatsApp contract. CLI: `1msg inbox` and `1msg campaigns`. Sending a WhatsApp
+message still uses `createClient`.
+
 ## API reference
 
 **63 operations** documented below with HTTP mapping, schemas, SDK and cURL examples.

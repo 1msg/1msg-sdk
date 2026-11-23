@@ -15,7 +15,9 @@ export function normalizeApiOrigin(
 ): string {
   const trimmed = raw.trim();
   if (!trimmed) throw failure('empty');
-  const input = /^[a-zA-Z][a-zA-Z0-9+.-]*:\/\//.test(trimmed) ? trimmed : `https://${trimmed}`;
+  const input = /^[a-zA-Z][a-zA-Z0-9+.-]*:\/\//.test(trimmed)
+    ? trimmed
+    : `https://${trimmed}`;
   let parsed: URL;
   try {
     parsed = new URL(input);

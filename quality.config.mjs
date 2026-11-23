@@ -22,6 +22,10 @@ export default {
         'node quality/generator/generate.mjs --write (pinned OpenAPI Generator 7.22.0 + checksummed producer)',
     },
     {
+      pattern: 'typescript/src/platform/generated/**',
+      producer: 'node gen/generate-platform.js in 1msg/1msg-api',
+    },
+    {
       pattern: 'quality/generator/postprocess.cjs',
       producer: 'Vendored API generator; checksum checked by quality/generator/generate.mjs',
     },
@@ -49,6 +53,7 @@ export default {
   ],
   duplicateIgnore: [
     'typescript/src/generated/**',
+    'typescript/src/platform/generated/**',
     'quality/generator/postprocess.cjs',
     'quality/generator/explicit-public-exports.cjs',
     '**/__tests__/**',
@@ -65,6 +70,7 @@ export default {
   ],
   duplicateFullIgnore: [
     'typescript/src/generated/**',
+    'typescript/src/platform/generated/**',
     'quality/generator/postprocess.cjs',
     'quality/generator/explicit-public-exports.cjs',
   ],

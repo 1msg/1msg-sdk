@@ -32,6 +32,11 @@ Need WhatsApp messaging from Node/TS?
             ├─ groups → client.groups.*
             ├─ flows → client.flows.*
             └─ templates list → client.templates.listTemplates(token)
+Need Inbox or Campaigns?
+  └─ yes → createPlatformClient({ baseUrl, apiKey }) from the same package
+       ├─ conversations → platform.call('listInboxConversations', { query })
+       ├─ assign → platform.call('updateInboxConversationAssignee', { path, body })
+       └─ campaigns → platform.call('listCampaigns', { query })
 ```
 
 ## Auth invariants
