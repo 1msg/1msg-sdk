@@ -21,9 +21,7 @@ export interface PlatformCaller {
 
 /** Find one operation or fail before any request is made. */
 function operationById(operationId: string): PlatformOperation {
-  const operation = PLATFORM_OPERATIONS.find(
-    (item) => item.operationId === operationId,
-  );
+  const operation = PLATFORM_OPERATIONS.find((item) => item.operationId === operationId);
   if (!operation) throw new Error(`Unknown platform operation ${operationId}`);
   return operation;
 }
@@ -49,8 +47,7 @@ function inputFromArgs(
     }
     path[name] = value;
   }
-  for (const field of operation.query)
-    assignQuery(query, field, args[field.name]);
+  for (const field of operation.query) assignQuery(query, field, args[field.name]);
   for (const field of operation.body) {
     const value = args[field.name];
     if (value !== undefined) body[field.name] = bodyValue(field, value);
@@ -63,23 +60,13 @@ function inputFromArgs(
 }
 
 /** Copy one query argument when the tool supplied it. */
-function assignQuery(
-  query: PlatformQuery,
-  field: PlatformField,
-  value: unknown,
-): void {
-  if (
-    typeof value === 'string' ||
-    typeof value === 'number' ||
-    typeof value === 'boolean'
-  ) {
+function assignQuery(query: PlatformQuery, field: PlatformField, value: unknown): void {
+  if (typeof value === 'string' || typeof value === 'number' || typeof value === 'boolean') {
     query[field.name] = value;
     return;
   }
   if (Array.isArray(value)) {
-    const items = value.filter(
-      (item): item is string => typeof item === 'string',
-    );
+    const items = value.filter((item): item is string => typeof item === 'string');
     if (items.length) query[field.name] = items;
   }
 }
@@ -107,9 +94,7 @@ export class PlatformClient implements PlatformCaller {
 }
 
 /** Create the platform client used by the CLI and MCP server. */
-export function createPlatformClient(
-  options: PlatformClientOptions,
-): PlatformClient {
+export function createPlatformClient(options: PlatformClientOptions): PlatformClient {
   return new PlatformClient(options);
 }
 
@@ -126,8 +111,5 @@ export async function invokePlatformTool(
   }
   const tool = PLATFORM_TOOLS.find((item) => item.name === name);
   if (!tool) throw new Error(`Unknown platform tool ${name}`);
-  return client.call(
-    tool.operationId,
-    inputFromArgs(operationById(tool.operationId), args),
-  );
+  return client.call(tool.operationId, inputFromArgs(operationById(tool.operationId), args));
 }

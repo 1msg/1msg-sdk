@@ -312,8 +312,7 @@ export const PLATFORM_OPERATIONS: PlatformOperation[] = [
     method: 'POST',
     path: '/api/v1/inbox/conversations/{conversationId}/unblock',
     summary: 'Unblock the contact',
-    description:
-      'No body. Unblocking a contact who is not blocked returns 409.',
+    description: 'No body. Unblocking a contact who is not blocked returns 409.',
     cli: ['inbox', 'conversations', 'unblock'],
     cliBody: 'flags',
     bodyRequired: false,
@@ -326,8 +325,7 @@ export const PLATFORM_OPERATIONS: PlatformOperation[] = [
     method: 'PATCH',
     path: '/api/v1/inbox/conversations/{conversationId}/title',
     summary: 'Rename a conversation',
-    description:
-      'Replaces the dialog title. A system message records the change.',
+    description: 'Replaces the dialog title. A system message records the change.',
     cli: ['inbox', 'conversations', 'title'],
     cliBody: 'flags',
     bodyRequired: true,
@@ -348,8 +346,7 @@ export const PLATFORM_OPERATIONS: PlatformOperation[] = [
     method: 'GET',
     path: '/api/v1/inbox/contacts',
     summary: 'List inbox contacts',
-    description:
-      'Read-only. Returns name, phone, bsuid, and username. Does not send messages.',
+    description: 'Read-only. Returns name, phone, bsuid, and username. Does not send messages.',
     cli: ['inbox', 'contacts'],
     cliBody: 'flags',
     bodyRequired: false,
@@ -453,8 +450,7 @@ export const PLATFORM_OPERATIONS: PlatformOperation[] = [
     method: 'DELETE',
     path: '/api/v1/inbox/webhook',
     summary: 'Remove the account inbox webhook',
-    description:
-      'Later inbox changes are not delivered until a URL is saved again.',
+    description: 'Later inbox changes are not delivered until a URL is saved again.',
     cli: ['inbox', 'webhook', 'delete'],
     cliBody: 'flags',
     bodyRequired: false,
@@ -652,13 +648,11 @@ export const PLATFORM_OPERATIONS: PlatformOperation[] = [
               },
               phone: {
                 type: 'string',
-                description:
-                  'E.164 phone. Required on create when bsuid is omitted.',
+                description: 'E.164 phone. Required on create when bsuid is omitted.',
               },
               bsuid: {
                 type: 'string',
-                description:
-                  'Provider BSUID. A trailing @lid is stored without it.',
+                description: 'Provider BSUID. A trailing @lid is stored without it.',
               },
             },
           },
@@ -694,13 +688,11 @@ export const PLATFORM_OPERATIONS: PlatformOperation[] = [
               },
               phone: {
                 type: 'string',
-                description:
-                  'E.164 phone. Required on create when bsuid is omitted.',
+                description: 'E.164 phone. Required on create when bsuid is omitted.',
               },
               bsuid: {
                 type: 'string',
-                description:
-                  'Provider BSUID. A trailing @lid is stored without it.',
+                description: 'Provider BSUID. A trailing @lid is stored without it.',
               },
             },
           },
@@ -737,8 +729,7 @@ export const PLATFORM_OPERATIONS: PlatformOperation[] = [
     method: 'PATCH',
     path: '/api/v1/campaigns/segments/{segmentId}/members/{memberId}',
     summary: 'Update one segment member',
-    description:
-      'Send only the fields that change. The member still needs a phone or a BSUID.',
+    description: 'Send only the fields that change. The member still needs a phone or a BSUID.',
     cli: ['campaigns', 'segments', 'members', 'update'],
     cliBody: 'flags',
     bodyRequired: true,
@@ -901,8 +892,7 @@ export const PLATFORM_OPERATIONS: PlatformOperation[] = [
     method: 'GET',
     path: '/api/v1/campaigns/{campaignId}',
     summary: 'Get a campaign',
-    description:
-      'dailyLimit is the channel tier. scheduledAt is the future send time, or null.',
+    description: 'dailyLimit is the channel tier. scheduledAt is the future send time, or null.',
     cli: ['campaigns', 'get'],
     cliBody: 'flags',
     bodyRequired: false,
@@ -991,8 +981,7 @@ export const PLATFORM_OPERATIONS: PlatformOperation[] = [
     method: 'GET',
     path: '/api/v1/campaigns/{campaignId}/preview',
     summary: 'Preview a campaign',
-    description:
-      'Counts recipients and how many are outside the 24-hour window. Nothing is sent.',
+    description: 'Counts recipients and how many are outside the 24-hour window. Nothing is sent.',
     cli: ['campaigns', 'preview'],
     cliBody: 'flags',
     bodyRequired: false,
@@ -1041,8 +1030,7 @@ export const PLATFORM_OPERATIONS: PlatformOperation[] = [
         required: true,
         schema: {
           type: 'string',
-          description:
-            'New future ISO-8601 instant with Z or a numeric offset.',
+          description: 'New future ISO-8601 instant with Z or a numeric offset.',
         },
       },
     ],
@@ -1135,8 +1123,7 @@ export const PLATFORM_OPERATIONS: PlatformOperation[] = [
     method: 'GET',
     path: '/api/v1/campaigns/{campaignId}/analytics',
     summary: 'Analytics summary',
-    description:
-      'Counts for the snapshot taken at send. Rates are fractions from 0 to 1.',
+    description: 'Counts for the snapshot taken at send. Rates are fractions from 0 to 1.',
     cli: ['campaigns', 'analytics'],
     cliBody: 'flags',
     bodyRequired: false,
@@ -1436,8 +1423,7 @@ export const PLATFORM_TOOLS: PlatformTool[] = [
   {
     name: 'platform_get_inbox_conversation',
     operationId: 'getInboxConversation',
-    description:
-      'One conversation\nIncludes the contact, assignee, and customer phone.',
+    description: 'One conversation\nIncludes the contact, assignee, and customer phone.',
     inputSchema: {
       type: 'object',
       properties: {
@@ -1525,8 +1511,7 @@ export const PLATFORM_TOOLS: PlatformTool[] = [
   {
     name: 'platform_block_inbox_contact',
     operationId: 'blockInboxContact',
-    description:
-      'Block the contact\nNo body. Blocking an already blocked contact returns 409.',
+    description: 'Block the contact\nNo body. Blocking an already blocked contact returns 409.',
     inputSchema: {
       type: 'object',
       properties: {
@@ -1671,8 +1656,7 @@ export const PLATFORM_TOOLS: PlatformTool[] = [
   {
     name: 'platform_list_campaign_segments',
     operationId: 'listCampaignSegments',
-    description:
-      'List segments\nNewest first. limit defaults to 50, maximum 100.',
+    description: 'List segments\nNewest first. limit defaults to 50, maximum 100.',
     inputSchema: {
       type: 'object',
       properties: {
@@ -1817,13 +1801,11 @@ export const PLATFORM_TOOLS: PlatformTool[] = [
               },
               phone: {
                 type: 'string',
-                description:
-                  'E.164 phone. Required on create when bsuid is omitted.',
+                description: 'E.164 phone. Required on create when bsuid is omitted.',
               },
               bsuid: {
                 type: 'string',
-                description:
-                  'Provider BSUID. A trailing @lid is stored without it.',
+                description: 'Provider BSUID. A trailing @lid is stored without it.',
               },
             },
           },
@@ -1857,13 +1839,11 @@ export const PLATFORM_TOOLS: PlatformTool[] = [
               },
               phone: {
                 type: 'string',
-                description:
-                  'E.164 phone. Required on create when bsuid is omitted.',
+                description: 'E.164 phone. Required on create when bsuid is omitted.',
               },
               bsuid: {
                 type: 'string',
-                description:
-                  'Provider BSUID. A trailing @lid is stored without it.',
+                description: 'Provider BSUID. A trailing @lid is stored without it.',
               },
             },
           },
@@ -1876,8 +1856,7 @@ export const PLATFORM_TOOLS: PlatformTool[] = [
   {
     name: 'platform_remove_campaign_segment_members',
     operationId: 'removeCampaignSegmentMembers',
-    description:
-      'Remove segment members\nmemberIds is a non-empty list. Other members stay.',
+    description: 'Remove segment members\nmemberIds is a non-empty list. Other members stay.',
     inputSchema: {
       type: 'object',
       properties: {
@@ -2159,8 +2138,7 @@ export const PLATFORM_TOOLS: PlatformTool[] = [
         },
         scheduledAt: {
           type: 'string',
-          description:
-            'New future ISO-8601 instant with Z or a numeric offset.',
+          description: 'New future ISO-8601 instant with Z or a numeric offset.',
           'x-location': 'body',
         },
       },
@@ -2170,8 +2148,7 @@ export const PLATFORM_TOOLS: PlatformTool[] = [
   {
     name: 'platform_unschedule_campaign',
     operationId: 'unscheduleCampaign',
-    description:
-      'Return a scheduled campaign to draft\nClears scheduledAt. No body.',
+    description: 'Return a scheduled campaign to draft\nClears scheduledAt. No body.',
     inputSchema: {
       type: 'object',
       properties: {
@@ -2186,8 +2163,7 @@ export const PLATFORM_TOOLS: PlatformTool[] = [
   {
     name: 'platform_pause_campaign',
     operationId: 'pauseCampaign',
-    description:
-      'Pause a sending campaign\nStops taking new recipients. No body.',
+    description: 'Pause a sending campaign\nStops taking new recipients. No body.',
     inputSchema: {
       type: 'object',
       properties: {
@@ -2202,8 +2178,7 @@ export const PLATFORM_TOOLS: PlatformTool[] = [
   {
     name: 'platform_resume_campaign',
     operationId: 'resumeCampaign',
-    description:
-      'Resume a paused campaign\nContinues the same snapshot. No body.',
+    description: 'Resume a paused campaign\nContinues the same snapshot. No body.',
     inputSchema: {
       type: 'object',
       properties: {
@@ -2218,8 +2193,7 @@ export const PLATFORM_TOOLS: PlatformTool[] = [
   {
     name: 'platform_complete_campaign',
     operationId: 'completeCampaign',
-    description:
-      'Complete a campaign\nMarks a sending or paused campaign completed. No body.',
+    description: 'Complete a campaign\nMarks a sending or paused campaign completed. No body.',
     inputSchema: {
       type: 'object',
       properties: {

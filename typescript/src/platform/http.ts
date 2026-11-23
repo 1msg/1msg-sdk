@@ -24,10 +24,7 @@ function normalizeBase(baseUrl: string): string {
 }
 
 /** Substitute `{param}` segments. A missing value is a caller error. */
-function fillPath(
-  path: string,
-  values: Readonly<Record<string, string>>,
-): string {
+function fillPath(path: string, values: Readonly<Record<string, string>>): string {
   return path.replace(/\{([^}]+)\}/g, (_match, name: string) => {
     const value = values[name];
     if (!value) throw new Error(`Missing path parameter ${name}`);
