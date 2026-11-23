@@ -10,7 +10,7 @@ package: "io.1msg:sdk-kotlin"
 registry: https://central.sonatype.com/artifact/io.1msg/sdk-kotlin
 repository: https://github.com/1msg/1msg-sdk/tree/main/kotlin
 language: Kotlin
-version: 2.0.2
+version: 2.0.3
 public_only: true
 never_mention: chat-api
 ```
