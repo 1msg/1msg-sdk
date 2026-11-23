@@ -1,4 +1,4 @@
-export type PlatformQueryValue = string | number | boolean | string[];
+type PlatformQueryValue = string | number | boolean | string[];
 
 export type PlatformQuery = Record<string, PlatformQueryValue | undefined>;
 

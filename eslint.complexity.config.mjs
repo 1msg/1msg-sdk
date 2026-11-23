@@ -9,6 +9,8 @@ export default [
       '**/tools/quality/**',
       '**/quality/reports/**',
       'typescript/src/generated/**',
+      'typescript/src/index.ts',
+      'typescript/src/platform/generated/**',
       'quality/generator/postprocess.cjs',
       'quality/generator/explicit-public-exports.cjs',
       'java/**',

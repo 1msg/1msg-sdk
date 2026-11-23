@@ -3,6 +3,8 @@ node_modules
 tools/quality
 typescript/dist
 typescript/src/generated
+typescript/src/index.ts
+typescript/src/platform/generated
 quality/reports
 quality/generator/openapi.yaml
 quality/generator/postprocess.cjs

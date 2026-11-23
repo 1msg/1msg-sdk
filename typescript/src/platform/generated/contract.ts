@@ -2,7 +2,7 @@
 
 export const PLATFORM_SPEC_FINGERPRINT = '45012374d9a5e725';
 
-export interface PlatformSchema {
+interface PlatformSchema {
   type?: string;
   description?: string;
   enum?: string[];
