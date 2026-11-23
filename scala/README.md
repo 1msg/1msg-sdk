@@ -5,16 +5,19 @@ Official Scala SDK for the **1MSG WhatsApp Business API**.
 This document is generated from the public OpenAPI contract. It covers install,
 auth, quick start, and every public operation available in the client.
 
-| | |
-|---|---|
-| **Maven Central** | [`io.1msg:sdk-scala`](https://central.sonatype.com/artifact/io.1msg/sdk-scala_2.13) |
-| **Source** | [github.com/1msg/1msg-sdk/scala](https://github.com/1msg/1msg-sdk/tree/main/scala) |
-| **API docs** | [docs.1msg.io](https://docs.1msg.io/) |
-| **Platform** | [platform.1msg.io](https://platform.1msg.io/) |
-| **Support** | support@1msg.io |
-| **OpenAPI version** | 2.0.0 |
-| **Operations** | 63 |
-| **AI agent guide** | [AGENTS.md](./AGENTS.md) |
+|                           |                                                                                                         |
+| ------------------------- | ------------------------------------------------------------------------------------------------------- |
+| **Maven Central** | [`io.1msg:sdk-scala`](https://central.sonatype.com/artifact/io.1msg/sdk-scala_2.13)                                                              |
+| **Source**                | [github.com/1msg/1msg-sdk/scala](https://github.com/1msg/1msg-sdk/tree/main/scala)                                                                      |
+| **API docs**              | [docs.1msg.io](https://docs.1msg.io/)                                                                   |
+| **Platform API**          | [Inbox](https://1msg.io/docs/reference/inbox) and [Campaigns](https://1msg.io/docs/reference/campaigns) |
+| **Platform**              | [platform.1msg.io](https://platform.1msg.io/)                                                           |
+| **Support**               | support@1msg.io                                                                                         |
+| **OpenAPI version**       | 2.0.0                                                                                     |
+| **Operations**            | 63                                                                                          |
+| **AI agent guide**        | [AGENTS.md](./AGENTS.md)                                                                                |
+
+Inbox and Campaigns ship in this package as `PlatformClient` (Bearer API key, not the channel token). Reference: [Inbox](https://1msg.io/docs/reference/inbox) and [Campaigns](https://1msg.io/docs/reference/campaigns). CLI: `1msg inbox` and `1msg campaigns`.
 
 ---
 
@@ -36,11 +39,11 @@ Artifacts: `sdk-scala_2.12` and `sdk-scala_2.13`.
 
 ## Requirements
 
-| Variable | Where to get it | Example |
-|----------|-----------------|---------|
-| `baseUrl` | Platform → channel → API host | `https://api.1msg.io` |
-| `instanceId` | Platform → channel id | `ODI371267300` |
-| `token` | Platform → channel → API token | JWT or API key |
+| Variable     | Where to get it                | Example               |
+| ------------ | ------------------------------ | --------------------- |
+| `baseUrl`    | Platform → channel → API host  | `https://api.1msg.io` |
+| `instanceId` | Platform → channel id          | `ODI371267300`        |
+| `token`      | Platform → channel → API token | JWT or API key        |
 
 Use environment variables (`MSG_API_TOKEN`, `MSG_INSTANCE_ID`). Never commit tokens.
 
