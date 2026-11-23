@@ -15,6 +15,7 @@ Method | HTTP request | Description
 [**send_button**](MessagingApi.md#send_button) | **POST** /sendButton | Send Reply Buttons Message
 [**send_carousel**](MessagingApi.md#send_carousel) | **POST** /sendCarousel | Send Carousel
 [**send_contact**](MessagingApi.md#send_contact) | **POST** /sendContact | Send a Contact
+[**send_contact_info**](MessagingApi.md#send_contact_info) | **POST** /sendContactInfo | Request the user's phone number
 [**send_cta_url**](MessagingApi.md#send_cta_url) | **POST** /sendCtaUrl | Send CTA URL interactive message
 [**send_file**](MessagingApi.md#send_file) | **POST** /sendFile | Send a File
 [**send_flow**](MessagingApi.md#send_flow) | **POST** /sendFlow | Send WhatsApp Flow Message
@@ -63,8 +64,10 @@ Name | Type | Description  | Required | Notes
 
 ## create_upload_media
 
-> create_upload_media(token, request_body)
+> models::CreateUploadMedia200Response create_upload_media(token, create_upload_media_request)
 Upload media
+
+Upload a file to WhatsApp media storage and get a numeric `mediaId` for later use with `send_file` / `send_sticker` (`mediaId` field, not `body`).  Pass the file as `body` **or** `url` — an HTTP(S) URL or a base64 data URI. The `mediaId` in the response is a numeric string (keep it as a string). 
 
 ### Parameters
 
@@ -72,11 +75,11 @@ Upload media
 Name | Type | Description  | Required | Notes
 ------------- | ------------- | ------------- | ------------- | -------------
 **token** | **String** | JWT token or API key for authorization | [required] |
-**request_body** | Option<[**std::collections::HashMap<String, serde_json::Value>**](SerdeJson__Value.md)> |  |  |
+**create_upload_media_request** | [**CreateUploadMediaRequest**](CreateUploadMediaRequest.md) |  | [required] |
 
 ### Return type
 
- (empty response body)
+[**models::CreateUploadMedia200Response**](createUploadMedia_200_response.md)
 
 ### Authorization
 
@@ -85,7 +88,7 @@ Name | Type | Description  | Required | Notes
 ### HTTP request headers
 
 - **Content-Type**: application/json
-- **Accept**: Not defined
+- **Accept**: application/json
 
 [[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
 
@@ -182,8 +185,10 @@ Name | Type | Description  | Required | Notes
 
 ## list_messages
 
-> models::ListMessages200Response list_messages(token)
+> models::ListMessages200Response list_messages(token, chat_id, limit, last, last_message_number, first_message_number, min_time, max_time, msg_id)
 Get messages list
+
+List stored chat history for this channel (requires history storage). Filter with `chatId`, `limit`, `last`, message numbers, or time bounds. 
 
 ### Parameters
 
@@ -191,6 +196,14 @@ Get messages list
 Name | Type | Description  | Required | Notes
 ------------- | ------------- | ------------- | ------------- | -------------
 **token** | **String** | JWT token or API key for authorization | [required] |
+**chat_id** | Option<**String**> | Filter messages for one chat (`phone@c.us`, group `@g.us`, or BSUID `@lid`) |  |
+**limit** | Option<**i32**> | Max rows to return (default 100) |  |
+**last** | Option<**bool**> | If true, return the latest messages (DESC). Default false. |  |
+**last_message_number** | Option<**i32**> |  |  |
+**first_message_number** | Option<**i32**> |  |  |
+**min_time** | Option<**i32**> | Unix timestamp lower bound |  |
+**max_time** | Option<**i32**> | Unix timestamp upper bound |  |
+**msg_id** | Option<**String**> | Filter by stored message id |  |
 
 ### Return type
 
@@ -301,10 +314,10 @@ Name | Type | Description  | Required | Notes
 
 ## send_carousel
 
-> models::MessageSentResponse send_carousel(token, params, body, quoted_msg_id, chat_id, phone)
+> models::MessageSentResponse send_carousel(token, body, cards, params, quoted_msg_id, chat_id, phone)
 Send Carousel
 
-You can send product cards via Carousel in two ways:  Template messages: do not require a 24-hour customer service window between you and the recipient. Use sendTemplate.  Free-form messages: can be sent only when a customer service window is open between you and the recipient. Use sendCarousel.  The message structure in /sendCarousel is largely similar to sending a template. However, in this case you must  explicitly specify all elements that are created in advance when working with templates. This is because the message  is sent without using a template.  In /sendCarousel, for sending a Catalog Carousel there can be either 1 URL button or one or more quick reply buttons. 
+You can send product cards via Carousel in two ways:  Template messages: do not require a 24-hour customer service window between you and the recipient. Use sendTemplate.  Free-form messages: can be sent only when a customer service window is open between you and the recipient. Use sendCarousel.  The message structure in /sendCarousel is largely similar to sending a template. However, in this case you must  explicitly specify all elements that are created in advance when working with templates. This is because the message  is sent without using a template.  In /sendCarousel, for a Catalog Carousel there can be either 1 URL button or one or more quick reply buttons.  Prefer the simple `cards` array (2–10 cards). Each card needs a header media/product plus a CTA URL or quick-reply buttons. Example:  ```json {   \"phone\": \"79001234567\",   \"body\": \"Pick a product\",   \"cards\": [     {       \"header\": { \"type\": \"image\", \"image\": { \"link\": \"https://example.com/1.jpg\" } },       \"body\": { \"text\": \"Card one\" },       \"type\": \"cta_url\",       \"action\": { \"name\": \"cta_url\", \"parameters\": { \"url\": \"https://example.com/p1\", \"display_text\": \"Open\" } }     },     {       \"header\": { \"type\": \"image\", \"image\": { \"link\": \"https://example.com/2.jpg\" } },       \"body\": { \"text\": \"Card two\" },       \"type\": \"cta_url\",       \"action\": { \"name\": \"cta_url\", \"parameters\": { \"url\": \"https://example.com/p2\", \"display_text\": \"Open\" } }     }   ] } ```  `params` with a `CAROUSEL` component is the template-like alternative. 
 
 ### Parameters
 
@@ -312,8 +325,9 @@ You can send product cards via Carousel in two ways:  Template messages: do not 
 Name | Type | Description  | Required | Notes
 ------------- | ------------- | ------------- | ------------- | -------------
 **token** | **String** | JWT token or API key for authorization | [required] |
-**params** | [**Vec<serde_json::Value>**](SerdeJson__Value.md) | Required. Template-like structure (same as sendTemplate params). Must include a CAROUSEL component and its cards.  Structure: - params[] item with type CAROUSEL and cards (2..10) - cards[] item:   - components[] items:     - header: parameters[0] with type image/video/product       - image: {\\\"image\\\": {\\\"link\\\": \\\"https://...\\\"}}       - video: {\\\"video\\\": {\\\"link\\\": \\\"https://...\\\"}}       - product: {\\\"product\\\": {\\\"catalog_id\\\": \\\"...\\\", \\\"product_retailer_id\\\": \\\"...\\\"}}     - button: sub_type url or quick_reply       - url: parameters {\\\"text\\\": \\\"Button\\\", \\\"url\\\": \\\"https://...\\\"}       - quick_reply: parameters[] of {\\\"id\\\": \\\"...\\\", \\\"text\\\": \\\"...\\\"}  | [required] |
 **body** | Option<**String**> | Text shown above the carousel. Optional. If omitted and params include a body component, the body will be taken from params. |  |
+**cards** | Option<[**Vec<std::collections::HashMap<String, serde_json::Value>>**](Std__collections__HashMapStringSerdeJson__Value.md)> | Preferred. 2–10 carousel cards (header + body + CTA or quick replies). |  |
+**params** | Option<[**Vec<serde_json::Value>**](SerdeJson__Value.md)> | Required. Template-like structure (same as sendTemplate params). Must include a CAROUSEL component and its cards.  Structure: - params[] item with type CAROUSEL and cards (2..10) - cards[] item:   - components[] items:     - header: parameters[0] with type image/video/product       - image: {\\\"image\\\": {\\\"link\\\": \\\"https://...\\\"}}       - video: {\\\"video\\\": {\\\"link\\\": \\\"https://...\\\"}}       - product: {\\\"product\\\": {\\\"catalog_id\\\": \\\"...\\\", \\\"product_retailer_id\\\": \\\"...\\\"}}     - button: sub_type url or quick_reply       - url: parameters {\\\"text\\\": \\\"Button\\\", \\\"url\\\": \\\"https://...\\\"}       - quick_reply: parameters[] of {\\\"id\\\": \\\"...\\\", \\\"text\\\": \\\"...\\\"}  |  |
 **quoted_msg_id** | Option<**String**> | Quoted message ID (Cloud API) |  |
 **chat_id** | Option<**String**> | Required if phone is not set. Chat ID from the message list. Examples: 12020721369@c.us or 120363046942338209@g.us(group) |  |
 **phone** | Option<**i32**> | Required if chatId is not set. A phone number starting with the country code. USA example: 12020721369. |  |
@@ -339,6 +353,8 @@ Name | Type | Description  | Required | Notes
 > models::MessageSentResponse send_contact(token, send_contact_request)
 Send a Contact
 
+Send a WhatsApp contact card.  Preferred simple body (legacy-compatible):  ```json {   \"phone\": \"79001234567\",   \"contact\": { \"name\": \"Lida\", \"phone\": \"+79181976551\" } } ```  Cloud API shape also works: `contacts` is an array of objects with `name.formatted_name` and `phones[].phone` (E.164 string, **not** a timestamp). 
+
 ### Parameters
 
 
@@ -346,6 +362,37 @@ Name | Type | Description  | Required | Notes
 ------------- | ------------- | ------------- | ------------- | -------------
 **token** | **String** | JWT token or API key for authorization | [required] |
 **send_contact_request** | Option<[**SendContactRequest**](SendContactRequest.md)> |  |  |
+
+### Return type
+
+[**models::MessageSentResponse**](MessageSentResponse.md)
+
+### Authorization
+
+[tokenAuth](../README.md#tokenAuth)
+
+### HTTP request headers
+
+- **Content-Type**: application/json
+- **Accept**: application/json
+
+[[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
+
+
+## send_contact_info
+
+> models::MessageSentResponse send_contact_info(token, send_contact_info_request)
+Request the user's phone number
+
+Send a service-window interactive message that asks the WhatsApp user to share their phone number (`request_contact_info`).  Use this when you only know the user by BSUID (WhatsApp username) and the 24-hour customer service window is open. Outside that window, create a UTILITY or MARKETING template with a `REQUEST_CONTACT_INFO` button (`POST /addTemplate`) and send it with `POST /sendTemplate`.  `body` is the text shown above the button (1–1024 characters). WhatsApp chooses the button label. This method has no button-text field — do not send one.  ```json {   \"bsuid\": \"US.13491208655302741918\",   \"body\": \"Please share your phone number so we can reach you.\" } ```  `phone`, `chatId` (`…@c.us`, `…@lid`, `…@username`), or `bsuid` identifies the recipient. One of them is enough.  After Meta accepts the send, the outgoing webhook and stored history message use this same text as `messages[].body` (`type: interactive`).  When the user taps the button, Meta sends an inbound `contacts` message. The sender stays the BSUID. The shared number is on the card with `origin: contact_request`. We write that phone onto the existing BSUID contact automatically — there is no separate “link phone” call.  ```json {   \"contacts\": [     {       \"profile\": { \"name\": \"Ada\", \"username\": \"ada\" },       \"user_id\": \"US.13491208655302741918\"     }   ],   \"messages\": [     {       \"from_user_id\": \"US.13491208655302741918\",       \"type\": \"contacts\",       \"contacts\": [         {           \"origin\": \"contact_request\",           \"phones\": [{ \"phone\": \"+1 202-555-0123\", \"wa_id\": \"12025550123\" }]         }       ]     }   ] } ```  The stored inbound message body is the digits (`12025550123`).  If Meta later includes a phone on an ordinary message or status for that same BSUID (`wa_id`, `from`, or `recipient_id`, together with `user_id` / `recipient_user_id`), that phone is merged onto the same contact. A contact card the user forwards (`origin` other than `contact_request`) is someone else's number and is not stored as this sender's phone. 
+
+### Parameters
+
+
+Name | Type | Description  | Required | Notes
+------------- | ------------- | ------------- | ------------- | -------------
+**token** | **String** | JWT token or API key for authorization | [required] |
+**send_contact_info_request** | Option<[**SendContactInfoRequest**](SendContactInfoRequest.md)> |  |  |
 
 ### Return type
 
@@ -575,10 +622,10 @@ Name | Type | Description  | Required | Notes
 
 ## send_message
 
-> models::MessageSentResponse send_message(token, body, quoted_msg_id, chat_id, phone)
+> models::MessageSentResponse send_message(token, body, quoted_msg_id, chat_id, phone, category, direct_send)
 Send a Message
 
-Send a message to an existing chat. (Only if the dialogue has an Open Session).  The message will be added to the queue for sending and delivered even if the phone  is disconnected from the Internet or authorization is not passed.  Only one of two parameters is needed to determine the destination - chatId or phone. 
+Send a message to an existing chat. (Only if the dialogue has an Open Session).  The message will be added to the queue for sending and delivered even if the phone  is disconnected from the Internet or authorization is not passed.  Only one of two parameters is needed to determine the destination - chatId or phone.  Direct Send is in beta. Meta has not enabled it on every business portfolio, so `category` and `directSend` are a beta option: watch delivery errors before relying on them.  Set `category` to `utility` or `authentication` to send outside the 24-hour window as a Meta Direct Send template instead of the 1MSG marketing auto-template. `authentication` is part of that beta and is not recommended. `directSend.serviceFirst: true` tries a free service message first and uses Direct Send only when Meta rejects it because the window is closed (131047). `directSend.templateName` is only valid with `utility` (`^[a-z0-9_]+$`, max 512). Direct Send text is limited to 1024 characters. Without `templateName`, the first unseen phrase may be delivered as Meta's onboarding template. A named template does not guarantee delivery — wait for webhook errors 131000 or 132021. An open 24-hour window is still billed as utility when `category` is set and `serviceFirst` is not true. 
 
 ### Parameters
 
@@ -588,8 +635,10 @@ Name | Type | Description  | Required | Notes
 **token** | **String** | JWT token or API key for authorization | [required] |
 **body** | **String** | Message text, UTF-8 or UTF-16 string with emoji | [required] |
 **quoted_msg_id** | Option<**String**> | Message ID to quote/reply to (Cloud API wamid) |  |
-**chat_id** | Option<**String**> | Chat ID in format: phone@c.us (individual) or phone@g.us (group) |  |
+**chat_id** | Option<**String**> | Recipient chat ID: phone@c.us, group@g.us, or BSUID@lid |  |
 **phone** | Option<**i32**> | Phone number starting with country code (alternative to chatId) |  |
+**category** | Option<**String**> | Optional Direct Send category. Direct Send is in beta: Meta has not enabled it on every business portfolio. `utility` or `authentication` enables it. `authentication` is part of that beta and is not recommended. Omit or `service` keeps a normal service message (and the marketing auto-template outside the 24-hour window). `marketing` is rejected.  |  |
+**direct_send** | Option<[**models::SendMessageRequestDirectSend**](SendMessageRequestDirectSend.md)> |  |  |
 
 ### Return type
 
@@ -671,8 +720,10 @@ Name | Type | Description  | Required | Notes
 
 ## send_product
 
-> models::MessageSentResponse send_product(token, request_body)
+> models::MessageSentResponse send_product(token, send_product_request)
 Send a Product
+
+Send a single catalog product or a product list. Destination is `chatId` or `phone`. `action` is required: - single product: `{ \"catalog_id\": \"...\", \"product_retailer_id\": \"...\" }` - product list: `{ \"catalog_id\": \"...\", \"sections\": [{ \"title\": \"...\", \"product_items\": [{ \"product_retailer_id\": \"...\" }] }] }` 
 
 ### Parameters
 
@@ -680,7 +731,7 @@ Send a Product
 Name | Type | Description  | Required | Notes
 ------------- | ------------- | ------------- | ------------- | -------------
 **token** | **String** | JWT token or API key for authorization | [required] |
-**request_body** | Option<[**std::collections::HashMap<String, serde_json::Value>**](SerdeJson__Value.md)> |  |  |
+**send_product_request** | [**SendProductRequest**](SendProductRequest.md) |  | [required] |
 
 ### Return type
 

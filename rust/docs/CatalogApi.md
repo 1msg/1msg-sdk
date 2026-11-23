@@ -45,7 +45,7 @@ Name | Type | Description  | Required | Notes
 > Vec<models::GetCommerce200ResponseInner> get_commerce(token)
 Get Commerce Settings
 
-Returns catalog/cart commerce settings for the channel.  - `is_catalog_visible` — show catalog storefront icon (`true`) or hide it (`false`). - `is_cart_enabled` — enable cart (`true`) or disable it (`false`). 
+Returns catalog/cart commerce settings for the channel.  Fails with a provider error when the WABA has no catalog linked — that is an API/account limitation, not an MCP schema bug.  - `is_catalog_visible` — show catalog storefront icon (`true`) or hide it (`false`). - `is_cart_enabled` — enable cart (`true`) or disable it (`false`). 
 
 ### Parameters
 

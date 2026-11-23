@@ -14,7 +14,7 @@ Method | HTTP request | Description
 > models::ProfileInfo get_me(token)
 Get Profile Info
 
-Get WhatsApp Business Account profile information
+Return the WhatsApp Business profile for this channel: About, address, description, email, phone, websites, industry (`vertical`), and profile photo URL. 
 
 ### Parameters
 
@@ -41,7 +41,7 @@ Name | Type | Description  | Required | Notes
 
 ## update_me
 
-> std::collections::HashMap<String, serde_json::Value> update_me(token, update_me_request)
+> models::UpdateMe200Response update_me(token, update_me_request)
 Update profile info
 
 Update WhatsApp Business Account profile fields. At least one of about, description, email, photo, address, vertical, websites is required. Blocked when the channel subscription limit is exceeded. 
@@ -52,11 +52,11 @@ Update WhatsApp Business Account profile fields. At least one of about, descript
 Name | Type | Description  | Required | Notes
 ------------- | ------------- | ------------- | ------------- | -------------
 **token** | **String** | JWT token or API key for authorization | [required] |
-**update_me_request** | Option<[**UpdateMeRequest**](UpdateMeRequest.md)> |  |  |
+**update_me_request** | [**UpdateMeRequest**](UpdateMeRequest.md) |  | [required] |
 
 ### Return type
 
-[**std::collections::HashMap<String, serde_json::Value>**](serde_json::Value.md)
+[**models::UpdateMe200Response**](updateMe_200_response.md)
 
 ### Authorization
 

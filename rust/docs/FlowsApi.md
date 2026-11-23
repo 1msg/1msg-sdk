@@ -20,8 +20,10 @@ Method | HTTP request | Description
 
 ## create_flows
 
-> models::CreateGroups200Response create_flows(token, waba_account_id)
+> models::CreateGroups200Response create_flows(token, create_flows_request, waba_account_id)
 Create Flow
+
+Create a WhatsApp Flow (`name` + `categories` required). Currently returns HTTP 501 until the Meta Graph Flows rewrite is available. 
 
 ### Parameters
 
@@ -29,6 +31,7 @@ Create Flow
 Name | Type | Description  | Required | Notes
 ------------- | ------------- | ------------- | ------------- | -------------
 **token** | **String** | JWT token or API key for authorization | [required] |
+**create_flows_request** | [**CreateFlowsRequest**](CreateFlowsRequest.md) |  | [required] |
 **waba_account_id** | Option<**String**> |  |  |
 
 ### Return type
@@ -41,7 +44,7 @@ Name | Type | Description  | Required | Notes
 
 ### HTTP request headers
 
-- **Content-Type**: Not defined
+- **Content-Type**: application/json
 - **Accept**: application/json
 
 [[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
@@ -229,8 +232,10 @@ Name | Type | Description  | Required | Notes
 
 ## list_flows
 
-> models::ListFlows200Response list_flows(token, waba_account_id)
+> models::ListFlows200Response list_flows(token, waba_account_id, fields)
 List Flows
+
+List WhatsApp Flows for the WABA. Currently returns HTTP 501 until the Meta Graph Flows rewrite is available. 
 
 ### Parameters
 
@@ -239,6 +244,7 @@ Name | Type | Description  | Required | Notes
 ------------- | ------------- | ------------- | ------------- | -------------
 **token** | **String** | JWT token or API key for authorization | [required] |
 **waba_account_id** | Option<**String**> |  |  |
+**fields** | Option<**String**> | Comma-separated Flow fields to return |  |
 
 ### Return type
 
@@ -258,8 +264,10 @@ Name | Type | Description  | Required | Notes
 
 ## patch_flows_flow_id_assets
 
-> models::PatchFlowsFlowIdAssets200Response patch_flows_flow_id_assets(flow_id, token, waba_account_id)
+> models::PatchFlowsFlowIdAssets200Response patch_flows_flow_id_assets(flow_id, token, patch_flows_flow_id_assets_request, waba_account_id)
 Update Flow Structure
+
+Replace the Flow JSON document (`flowJson`). Currently returns HTTP 501 until the Meta Graph Flows rewrite is available. 
 
 ### Parameters
 
@@ -268,6 +276,7 @@ Name | Type | Description  | Required | Notes
 ------------- | ------------- | ------------- | ------------- | -------------
 **flow_id** | **String** | Flow ID | [required] |
 **token** | **String** | JWT token or API key for authorization | [required] |
+**patch_flows_flow_id_assets_request** | [**PatchFlowsFlowIdAssetsRequest**](PatchFlowsFlowIdAssetsRequest.md) |  | [required] |
 **waba_account_id** | Option<**String**> |  |  |
 
 ### Return type
@@ -280,7 +289,7 @@ Name | Type | Description  | Required | Notes
 
 ### HTTP request headers
 
-- **Content-Type**: Not defined
+- **Content-Type**: application/json
 - **Accept**: application/json
 
 [[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
@@ -288,8 +297,10 @@ Name | Type | Description  | Required | Notes
 
 ## patch_flows_flow_id_metadata
 
-> std::collections::HashMap<String, serde_json::Value> patch_flows_flow_id_metadata(flow_id, token, waba_account_id)
+> std::collections::HashMap<String, serde_json::Value> patch_flows_flow_id_metadata(flow_id, token, patch_flows_flow_id_metadata_request, waba_account_id)
 Update Flow Metadata
+
+Update Flow `name`, `categories`, and/or `endpointUri`. Currently returns HTTP 501 until the Meta Graph Flows rewrite is available. 
 
 ### Parameters
 
@@ -298,6 +309,7 @@ Name | Type | Description  | Required | Notes
 ------------- | ------------- | ------------- | ------------- | -------------
 **flow_id** | **String** | Flow ID | [required] |
 **token** | **String** | JWT token or API key for authorization | [required] |
+**patch_flows_flow_id_metadata_request** | [**PatchFlowsFlowIdMetadataRequest**](PatchFlowsFlowIdMetadataRequest.md) |  | [required] |
 **waba_account_id** | Option<**String**> |  |  |
 
 ### Return type
@@ -310,7 +322,7 @@ Name | Type | Description  | Required | Notes
 
 ### HTTP request headers
 
-- **Content-Type**: Not defined
+- **Content-Type**: application/json
 - **Accept**: application/json
 
 [[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)

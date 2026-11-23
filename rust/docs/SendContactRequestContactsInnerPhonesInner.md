@@ -4,7 +4,7 @@
 
 Name | Type | Description | Notes
 ------------ | ------------- | ------------- | -------------
-**phone** | Option<**String**> |  | [optional]
+**phone** | Option<**String**> | E.164 phone (`+79181976551`). Not a timestamp. | [optional]
 **r#type** | Option<**String**> |  | [optional]
 **wa_id** | Option<**String**> |  | [optional]
 

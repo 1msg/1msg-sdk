@@ -9,3 +9,5 @@ extern crate reqwest;
 
 pub mod apis;
 pub mod models;
+
+pub mod platform_client;

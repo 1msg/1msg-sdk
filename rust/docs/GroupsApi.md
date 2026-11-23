@@ -16,7 +16,7 @@ Method | HTTP request | Description
 
 ## create_groups
 
-> models::CreateGroups200Response create_groups(token)
+> models::CreateGroups200Response create_groups(token, create_groups_request)
 Create Group
 
 ### Parameters
@@ -25,6 +25,7 @@ Create Group
 Name | Type | Description  | Required | Notes
 ------------- | ------------- | ------------- | ------------- | -------------
 **token** | **String** | JWT token or API key for authorization | [required] |
+**create_groups_request** | [**CreateGroupsRequest**](CreateGroupsRequest.md) |  | [required] |
 
 ### Return type
 
@@ -36,7 +37,7 @@ Name | Type | Description  | Required | Notes
 
 ### HTTP request headers
 
-- **Content-Type**: Not defined
+- **Content-Type**: application/json
 - **Accept**: application/json
 
 [[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
@@ -44,8 +45,10 @@ Name | Type | Description  | Required | Notes
 
 ## create_groups_group_id
 
-> std::collections::HashMap<String, serde_json::Value> create_groups_group_id(group_id, token)
+> std::collections::HashMap<String, serde_json::Value> create_groups_group_id(group_id, token, create_groups_group_id_request)
 Update Group Info
+
+Update group subject, description, and/or profile picture. Path `groupId` is the WABA group id (without `@g.us`). 
 
 ### Parameters
 
@@ -54,6 +57,7 @@ Name | Type | Description  | Required | Notes
 ------------- | ------------- | ------------- | ------------- | -------------
 **group_id** | **String** |  | [required] |
 **token** | **String** | JWT token or API key for authorization | [required] |
+**create_groups_group_id_request** | [**CreateGroupsGroupIdRequest**](CreateGroupsGroupIdRequest.md) |  | [required] |
 
 ### Return type
 
@@ -65,7 +69,7 @@ Name | Type | Description  | Required | Notes
 
 ### HTTP request headers
 
-- **Content-Type**: Not defined
+- **Content-Type**: application/json
 - **Accept**: application/json
 
 [[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
@@ -131,7 +135,7 @@ Name | Type | Description  | Required | Notes
 
 ## get_groups_group_id
 
-> std::collections::HashMap<String, serde_json::Value> get_groups_group_id(group_id, token)
+> std::collections::HashMap<String, serde_json::Value> get_groups_group_id(group_id, token, fields)
 Get Group Info
 
 ### Parameters
@@ -141,6 +145,7 @@ Name | Type | Description  | Required | Notes
 ------------- | ------------- | ------------- | ------------- | -------------
 **group_id** | **String** |  | [required] |
 **token** | **String** | JWT token or API key for authorization | [required] |
+**fields** | Option<**String**> | Comma-separated group fields to return |  |
 
 ### Return type
 
@@ -189,8 +194,10 @@ Name | Type | Description  | Required | Notes
 
 ## list_groups
 
-> std::collections::HashMap<String, serde_json::Value> list_groups(token)
+> std::collections::HashMap<String, serde_json::Value> list_groups(token, limit, before, after)
 Get Groups List
+
+List WhatsApp groups for this channel. Paginate with `limit`, `before`, and `after`.
 
 ### Parameters
 
@@ -198,6 +205,9 @@ Get Groups List
 Name | Type | Description  | Required | Notes
 ------------- | ------------- | ------------- | ------------- | -------------
 **token** | **String** | JWT token or API key for authorization | [required] |
+**limit** | Option<**i32**> | Max groups to return |  |
+**before** | Option<**String**> | Cursor for the previous page |  |
+**after** | Option<**String**> | Cursor for the next page |  |
 
 ### Return type
 
